@@ -46,6 +46,7 @@ def graph(input,output):
 
 
     generator.one_shot()
+#    generator.test_call(RunSetup(duration_second=5, start_delay=0))
 #    generator.run_executor([[1,1,'xxxx']], RunSetup(duration_second=5, start_delay=0))
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
     #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],

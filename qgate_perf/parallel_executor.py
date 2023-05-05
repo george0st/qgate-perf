@@ -256,4 +256,12 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=setup)
 
+    def test_call(self, run_setup: RunSetup=None):
+        """ Test call without parallel execution"""
+
+        key="no-parallel"
+        dictionary={key: ""}
+        run_setup.set_start_time()
+        self._func(key, dictionary, run_setup)
+
     #TODO: create dir, if not exist
