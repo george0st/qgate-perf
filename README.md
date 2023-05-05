@@ -11,33 +11,30 @@ from qgate_perf.parallel_return import ParallelReturn
 from qgate_perf.run_setup import RunSetup
 import time
 
-# Function for performance testing
 def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
+    """ Function for performance testing"""
     try:
-        # init (contain executor synchonization, if needed)
-        performance=ParallelReturn(run_setup)
+        # INIT - contain executor synchonization, if needed
+        performance = ParallelReturn(run_setup)
 
-        while(True):
-        
-            # START - performance measure for specific part of code
+        while (True):
+
+            # START - performance test, only for this specific code part
             performance.start()
-
+            
             for r in range(run_setup.bulk_row * run_setup.bulk_col):
                 time.sleep(0)
-
-            # STOP - performance measure specific part of code
+            
+            # STOP - performance test
             if performance.stop():
                 break
 
-        # return outputs
-        if return_dict is not None:
-            return_dict[return_key] = performance
-
+        # RETURN - data from performance
+        return_dict[return_key] = performance
+        
     except Exception as ex:
-        # return outputs in case of error
-        if return_dict is not None:
-            return_dict[return_key] = ParallelReturn(None, ex)
-
+        # RETURN - error
+        return_dict[return_key] = ParallelReturn(None, ex)
 
 generator = ParallelExecutor(prf_GIL_impact,
                              label="GIL_impact",

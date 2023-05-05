@@ -34,7 +34,14 @@ def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
         if return_dict is not None:
             return_dict[return_key] = ParallelReturn(None, ex)
 
-class MyTestCase(unittest.TestCase):
+class TestCaseRun(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
     def test_one_shot(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
@@ -71,6 +78,15 @@ class MyTestCase(unittest.TestCase):
         generator.run_bulk_executor(bulk_list=[[1,1], [1,10], [1,100]],
                                     executor_list=[[1,1], [1,2], [2,2]],
                                     run_setup=setup)
+
+    def test_run_stress_test(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=None)
+
+        setup=RunSetup(duration_second=30, start_delay=0)
+        generator.run(4, 8, setup)
 
 
 if __name__ == '__main__':

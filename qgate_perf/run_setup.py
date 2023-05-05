@@ -20,14 +20,6 @@ class RunSetup:
     def set_start_time(self):
         self.when_start = datetime.datetime.now() + datetime.timedelta(seconds=self.start_delay)
 
-    def set_output_handler(self, return_key, return_dict):
-        self.return_key=return_key
-        self.return_dict=return_dict
-
-    def set_output(self, ret = None):
-        if self.return_dict is not None:
-            self.return_dict[self.return_key] = ret
-
     def set_bulk(self, bulk_row, bulk_column):
         self.bulk_row = bulk_row if bulk_row > 0 else 1
         self.bulk_col = bulk_column if bulk_column > 0 else 1

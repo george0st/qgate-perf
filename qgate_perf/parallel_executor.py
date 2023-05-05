@@ -85,7 +85,6 @@ class ParallelExecutor:
 
         if threads == 1:
             for process_key in range(processes):
-                run_setup.set_output_handler(process_key, return_dict)
                 p = Process(target=self._func,
                             args=(process_key, return_dict, run_setup))
 #                            args=(run_setup))
@@ -93,7 +92,6 @@ class ParallelExecutor:
                 proc.append(p)
         else:
             for process_key in range(processes):
-                run_setup.set_output_handler(process_key, return_dict)
                 p = Process(target=self._coreThreadClassPool,
                             args=(threads,process_key, return_dict, run_setup))
                 # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
@@ -259,4 +257,3 @@ class ParallelExecutor:
                  run_setup=setup)
 
     #TODO: create dir, if not exist
-    #TODO: app default sets of executors as helper
