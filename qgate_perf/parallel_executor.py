@@ -246,7 +246,7 @@ class ParallelExecutor:
             if file is not None:
                 file.close()
 
-    def run_one_shot(self):
+    def one_shot(self):
         """ Run test, only one shot (execution) of test function """
 
         # setup minimalistic values

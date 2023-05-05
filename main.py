@@ -6,8 +6,9 @@ import click
 import logging
 import time
 
-# Function for performance testing
+
 def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
+    """ Function for performance testing"""
     try:
         # init (contain executor synchonization, if needed)
         performance = ParallelReturn(run_setup)
@@ -48,7 +49,7 @@ def graph(input,output):
                                  output_file="output/prf_gil_impact_test.txt")
 
 
-    generator.run_one_shot()
+    generator.one_shot()
 #    generator.run_executor([[1,1,'xxxx']], RunSetup(duration_second=5, start_delay=0))
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
     #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],
