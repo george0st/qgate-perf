@@ -1,2 +1,2 @@
 click~=8.1
-matplotlib>=3.5
+numpy<=1.24.3

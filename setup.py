@@ -5,12 +5,12 @@ except ImportError:
 
 import json
 import logging
-from qgate_graph.version import __version__
+from qgate_perf.version import __version__
 import dependencies
 #import packages
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("qgate-graph-setup")
+logger = logging.getLogger("qgate-perf-setup")
 
 with open('README.md') as readme_file:
     README = readme_file.read()
@@ -20,7 +20,7 @@ with open('README.md') as readme_file:
 setup_args = dict(
     name='qgate_perf',
     version=__version__,
-    description='Performance test generator part of Quality Gate',
+    description='Performance test generator, part of Quality Gate',
     long_description_content_type="text/markdown",
     long_description=README, # + '\n\n' + HISTORY,
     license='MIT',
