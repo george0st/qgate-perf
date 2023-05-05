@@ -78,13 +78,11 @@ class ParallelExecutor:
                 future.result()
 
     def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
-        # manager = multiprocessing.Manager()
-        # return_dict = manager.dict()
         proc = []
 
         # define synch time for run of all executors
         run_setup.set_start_time()
-#        print(f"before INIT {datetime.datetime.now()} > When Start {run_setup.when_start}")
+
         if threads == 1:
             for process_key in range(processes):
                 run_setup.set_output_handler(process_key, return_dict)
@@ -111,8 +109,6 @@ class ParallelExecutor:
         for p in proc:
             p.join()
             p.close()
-
-        # return return_dict
 
     def _print(self, file, out: str):
         if file is not None:
@@ -250,7 +246,7 @@ class ParallelExecutor:
             if file is not None:
                 file.close()
 
-    def run_test(self):
+    def run_one_shot(self):
         """ Run test, only one shot (execution) of test function """
 
         # setup minimalistic values
@@ -262,6 +258,5 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=setup)
 
-    #TODO: add dry ran
     #TODO: create dir, if not exist
     #TODO: app default sets of executors as helper

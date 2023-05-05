@@ -1,6 +1,7 @@
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_return import ParallelReturn
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.executor_helper import ExecutorHelper
 import click
 import logging
 import time
@@ -46,7 +47,8 @@ def graph(input,output):
                                  detail_output=True,
                                  output_file="output/prf_gil_impact_test.txt")
 
-    generator.run_test()
+
+    generator.run_one_shot()
 #    generator.run_executor([[1,1,'xxxx']], RunSetup(duration_second=5, start_delay=0))
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
     #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],

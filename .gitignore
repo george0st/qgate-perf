@@ -2,7 +2,6 @@
 /dist/
 /build/
 /qgate_perf.egg-info/
-/__pycache__/
-/qgate_perf/__pycache__/
-*.pyc
-qgate_perf/__pycache__/
+**/__pycache__/
+/venv/
+
