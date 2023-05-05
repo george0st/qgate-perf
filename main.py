@@ -44,13 +44,15 @@ def graph(input,output):
     generator = ParallelExecutor(prf_GIL_impact,
                                  label="GIL_impact",
                                  detail_output=True,
-                                 output_file="output/prf_gil_impact_02.txt")
+                                 output_file="output/prf_gil_impact_test.txt")
 
-    generator.run_bulk_executor(bulk_list=[[1, 1]],
-                                executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],
-                                               [4, 2, '2x threads'], [8, 2, '2x threads'],
-                                               [4, 4, '4x threads']],
-                                run_setup=RunSetup(duration_second=5, start_delay=0))
+    generator.run_test()
+#    generator.run_executor([[1,1,'xxxx']], RunSetup(duration_second=5, start_delay=0))
+    # generator.run_bulk_executor(bulk_list=[[1, 1]],
+    #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],
+    #                                            [4, 2, '2x threads'], [8, 2, '2x threads'],
+    #                                            [4, 4, '4x threads']],
+    #                             run_setup=RunSetup(duration_second=5, start_delay=0))
 
 
 if __name__ == '__main__':

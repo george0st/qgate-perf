@@ -72,7 +72,7 @@ class ParallelReturn:
             self.max_duration=duration_one_shot
 
         # Is it possible to end performance testing?
-        if ((self.stop_time_one_shot - self.init_time) > self.duration_second):
+        if ((self.stop_time_one_shot - self.init_time) >= self.duration_second):
             # write time
             self.track_time[FileFormat.PRF_DETAIL_TIME_END]=datetime.datetime.utcnow()
             # calc standard deviation

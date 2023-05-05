@@ -162,7 +162,7 @@ class ParallelExecutor:
                 FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
                 FileFormat.PRF_CORE_AVRG_TIME: sum_time / count,
                 FileFormat.PRF_CORE_STD_DEVIATION: sum_deviation / count,
-                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: (1 / (sum_time / count)) * count * run_setup.bulk_row,
+                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count)==0 else (1 / (sum_time / count)) * count * run_setup.bulk_row,
                 FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
             }
             self._print(file, f"  {json.dumps(out)}")
@@ -190,7 +190,7 @@ class ParallelExecutor:
     def run_executor(self, executor_list=[[1, 1], [2, 2], [4, 1], [4, 2], [4, 4], [8, 1], [8, 2], [8, 4]],
                          run_setup: RunSetup=None):
         """ Run executor sequencies
-            :param executor_list:       list of executors for execution in format [[processes, threads], ...]
+            :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
             :param run_setup:           setup of execution
         """
         file = None
@@ -207,7 +207,12 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    self._print_detail(file, run_setup, return_dict, executors[0], executors[1], executors[2])
+                    self._print_detail(file,
+                                       run_setup,
+                                       return_dict,
+                                       executors[0],
+                                       executors[1],
+                                       '' if len(executors) <= 2 else executors[2])
 
             self._print_footer(file)
 
@@ -244,3 +249,19 @@ class ParallelExecutor:
         finally:
             if file is not None:
                 file.close()
+
+    def run_test(self):
+        """ Run test, only one shot (execution) of test function """
+
+        # setup minimalistic values
+        setup = RunSetup(duration_second=0, start_delay=0, parameters=None)
+        setup.set_bulk(1,1)
+
+        # run
+        self.run(processes=1,
+                 threads=1,
+                 run_setup=setup)
+
+    #TODO: add dry ran
+    #TODO: create dir, if not exist
+    #TODO: app default sets of executors as helper
