@@ -30,24 +30,13 @@ class ParallelExecutor:
         self._output_file = output_file
 
 
-    def _coreThreadClassPool2(self, threads, return_key, return_dict, run_setup: RunSetup):
+    def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         with ThreadPoolExecutor(max_workers=threads) as executor:
             features = []
             for threadKey in range(threads):
                 run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
                 features.append(
                     executor.submit(self._func, run_return, run_setup))
-
-            for future in concurrent.futures.as_completed(features):
-                future.result()
-
-
-    def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
-        with ThreadPoolExecutor(max_workers=threads) as executor:
-            features = []
-            for threadKey in range(threads):
-                features.append(
-                    executor.submit(self._func, f"{return_key}x{threadKey}", return_dict, run_setup))
 
             for future in concurrent.futures.as_completed(features):
                 future.result()
@@ -113,10 +102,9 @@ class ParallelExecutor:
                 proc.append(p)
         else:
             for process_key in range(processes):
-                p = Process(target=self._coreThreadClassPool2,
+                p = Process(target=self._coreThreadClassPool,
                             args=(threads, process_key, return_dict, run_setup))
-# oldversion    p = Process(target=self._coreThreadClassPool2,
-
+# oldversion    p = Process(target=self._coreThreadClassPool,
                 #                p = Process(target=self._coreThreadClassPool,
                 # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
                 # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
