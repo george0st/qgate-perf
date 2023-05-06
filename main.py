@@ -19,7 +19,7 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
             probe.start()
 
             for r in range(run_setup.bulk_row * run_setup.bulk_col):
-                time.sleep(0)
+                time.sleep(0.001)
 
             # STOP - probe
             if probe.stop():
@@ -45,12 +45,14 @@ def graph(input,output):
     generator = ParallelExecutor(prf_GIL_impact,
                                  label="GIL_impact",
                                  detail_output=True,
-                                 output_file="output/prf_gil_impact_test.txt")
+                                 output_file="output/prf_calc3.txt")
 
 
 #    generator.one_shot()
 #    generator.test_call(RunSetup(duration_second=5, start_delay=0))
-    generator.run_executor([[10,2,'xxxx'],[5,1,'sss']], RunSetup(duration_second=5, start_delay=5))
+#    generator.run_executor([[10,2,'xxxx'],[5,1,'sss']], RunSetup(duration_second=5, start_delay=5))
+    generator.run_executor([[16,1,'calc'],[16,2,'calc'],[64,1,'calc'],[64,2,'calc'],[64,4,'calc'],[128,4,'calc']], RunSetup(duration_second=5, start_delay=20))
+
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
     #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],
     #                                            [4, 2, '2x threads'], [8, 2, '2x threads'],

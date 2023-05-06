@@ -3,6 +3,9 @@ import math
 class ExecutorHelper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ..] """
 
+    PROCESS_8_32_THREAD_2_4 = [[8, 2, '2x thread'], [16, 2, '2x thread'], [32, 2, '2x thread'],
+                               [8, 4, '4x thread'], [16, 4, '4x thread'], [32, 4, '4x thread']]
+
     PROCESS_2_8_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
                               [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
                               [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']]
@@ -10,6 +13,10 @@ class ExecutorHelper:
     PROCESS_2_8_THREAD_1_4_SHORT = [[2, 1, '1x thread'], [2, 2, '2x thread'],
                                                          [4, 2, '2x thread'], [4, 4, '4x thread'],
                                                                               [8, 4, '4x thread']]
+
+    PROCESS_2_16_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'], [16, 1, '1x thread'],
+                               [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'], [16, 2, '2x thread'],
+                               [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'], [16, 4, '4x thread']]
 
     PROCESS_1_8_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread']]
     PROCESS_1_8_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread']]

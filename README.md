@@ -1,7 +1,13 @@
 [![PyPI version fury.io](https://badge.fury.io/py/qgate-perf.svg)](https://pypi.python.org/pypi/qgate-perf/)
 # QGate-Perf
 
-Performance test generator part of Quality Gate.
+Performance test generator part of Quality Gate solution. Key benefits:
+ - **easy performance testing*** your python code (key parts - init, start, stop, return)
+ - **measure only specific part** of your code 
+ - scalability **without limits** (e.g. from 1 to 10k executor)
+ - scalability **in level of processes and threads** (easy avoid of python GIL)
+ - **sequences for execution and data bunlk**
+ - relation to graph generator
 
 ## Usage
 
@@ -37,6 +43,7 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
         # RETURN - error
         run_return.probe=ParallelProbe(None, ex)
 
+# Execution setting
 generator = ParallelExecutor(prf_GIL_impact,
                              label="GIL_impact",
                              detail_output=True,
@@ -47,7 +54,7 @@ generator.run_bulk_executor(bulk_list=[[1, 1]],
                             run_setup=RunSetup(duration_second=20,start_delay=0))
 ```
 
-# Outputs in text file 
+## Outputs in text file 
 ```
 ############### 2023-05-05 06:30:36.194849 ###############
 {"type": "headr", "label": "GIL_impact", "bulk": [1, 1], "available_cpu": 12, "now": "2023-05-05 06:30:36.194849"}
@@ -60,7 +67,7 @@ generator.run_bulk_executor(bulk_list=[[1, 1]],
 ############### Duration: 49.9 seconds ###############
 ```
 
-# Outputs in text file with detail
+## Outputs in text file with detail
 ```
 ############### 2023-05-05 07:01:18.571700 ###############
 {"type": "headr", "label": "GIL_impact", "bulk": [1, 1], "available_cpu": 12, "now": "2023-05-05 07:01:18.571700"}
@@ -72,8 +79,12 @@ generator.run_bulk_executor(bulk_list=[[1, 1]],
   ...
 ```
 
-# Graphs generated from qgate-graph based on text files from qgate-perf
+## Graphs generated from qgate-graph based on outputs from qgate-perf
+#### 512 executors (128 processes x 4 threads)
+![graph](https://fivekg.onrender.com/images/qgate/PRF-Calc-2023-05-06_18-22-19-bulk-1x10.png)
+![graph](https://fivekg.onrender.com/images/qgate/EXE-Calc-2023-05-06_18-22-19-bulk-1x10-plan-128x4.png)
 
+#### 32 executors (8 processes x 4 threads)
 ![graph](https://fivekg.onrender.com/images/qgate/PRF-NoSQL_igz_nonprod-2023-04-23_14-41-18-bulk-100x50.png)
 ![graph](https://fivekg.onrender.com/images/qgate/EXE-NoSQL-2023-05-04_19-33-30-bulk-1x50-plan-8x2.png)
 
