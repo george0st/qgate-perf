@@ -3,5 +3,5 @@
 
 rmdir /S /Q dist
 
-python setup.py sdist bdist_wheel
+python setup.py bdist_wheel
 twine upload dist/* --verbose -ugeorge0st

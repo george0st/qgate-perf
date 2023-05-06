@@ -1,38 +1,38 @@
 import unittest
 import logging
 from qgate_perf.parallel_executor import ParallelExecutor
-from qgate_perf.parallel_return import ParallelReturn
+from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import ExecutorHelper
+from qgate_perf.run_return import RunReturn
 import time
 
 
-def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
+#def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
+def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     """ Function for performance testing"""
     try:
         # init (contain executor synchonization, if needed)
-        performance = ParallelReturn(run_setup)
+        probe = ParallelProbe(run_setup)
 
         while (True):
 
             # START - performance measure for specific part of code
-            performance.start()
+            probe.start()
 
             for r in range(run_setup.bulk_row * run_setup.bulk_col):
                 time.sleep(0)
 
             # STOP - performance measure specific part of code
-            if performance.stop():
+            if probe.stop():
                 break
 
         # return outputs
-        if return_dict is not None:
-            return_dict[return_key] = performance
+        run_return.probe=probe
 
     except Exception as ex:
         # return outputs in case of error
-        if return_dict is not None:
-            return_dict[return_key] = ParallelReturn(None, ex)
+        run_return.probe=ParallelProbe(None, ex)
 
 class TestCaseRun(unittest.TestCase):
 

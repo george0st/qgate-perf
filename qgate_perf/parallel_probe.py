@@ -1,12 +1,12 @@
 import datetime
 import time
-import os, sys, numpy as np
+import os, sys, math
 import json
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 
-class ParallelReturn:
-    """ Provider of return from executor """
+class ParallelProbe:
+    """ Provider probe for parallel test tuning """
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
@@ -33,11 +33,11 @@ class ParallelReturn:
 
             # wait for other executors
             self._wait_for_others(run_setup.when_start)
+            self.duration_second = run_setup.duration_second
 
             # key part of init timer (import for stop parallel run)
             self.init_time = time.time()
             self.track_time[FileFormat.PRF_DETAIL_TIME_START] = datetime.datetime.utcnow()
-            self.duration_second = run_setup.duration_second
 
     def add_timetrack_only_label(self, label):
         self.track_time.append(label)
@@ -50,7 +50,7 @@ class ParallelReturn:
         self.start_time_one_shot = time.time()
 
     def stop(self):
-        """ Test, if it is possible to stop execution
+        """ Test, if it is possible to stop whole execution
 
         :return:   True - stop execution, False - continue in execution
         """
@@ -140,4 +140,4 @@ class ParallelReturn:
         @property
         def std(self):
             """ Standard deviation """
-            return np.sqrt(self.variance)
+            return math.sqrt(self.variance)

@@ -9,6 +9,10 @@ import concurrent.futures
 import json
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.bundle_helper import BundleHelper
+from qgate_perf.executor_helper import ExecutorHelper
+from qgate_perf.parallel_probe import ParallelProbe
+from qgate_perf.run_return import RunReturn
 
 class ParallelExecutor:
     """ Helper for parallel execution of defined function (via start new process with aim to avoid GIL) """
@@ -24,6 +28,19 @@ class ParallelExecutor:
         self._detail_output = detail_output
         self._label =label
         self._output_file = output_file
+
+
+    def _coreThreadClassPool2(self, threads, return_key, return_dict, run_setup: RunSetup):
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            features = []
+            for threadKey in range(threads):
+                run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
+                features.append(
+                    executor.submit(self._func, run_return, run_setup))
+
+            for future in concurrent.futures.as_completed(features):
+                future.result()
+
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         with ThreadPoolExecutor(max_workers=threads) as executor:
@@ -78,6 +95,9 @@ class ParallelExecutor:
                 future.result()
 
     def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
+
+        from qgate_perf.run_return import RunReturn
+
         proc = []
 
         # define synch time for run of all executors
@@ -85,15 +105,19 @@ class ParallelExecutor:
 
         if threads == 1:
             for process_key in range(processes):
+                run_return=RunReturn(process_key, return_dict)
                 p = Process(target=self._func,
-                            args=(process_key, return_dict, run_setup))
-#                            args=(run_setup))
+                            args=(run_return, run_setup))
+# oldversion                args=(process_key, return_dict, run_setup))
 
                 proc.append(p)
         else:
             for process_key in range(processes):
-                p = Process(target=self._coreThreadClassPool,
-                            args=(threads,process_key, return_dict, run_setup))
+                p = Process(target=self._coreThreadClassPool2,
+                            args=(threads, process_key, return_dict, run_setup))
+# oldversion    p = Process(target=self._coreThreadClassPool2,
+
+                #                p = Process(target=self._coreThreadClassPool,
                 # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
                 # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
                 # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
@@ -119,7 +143,7 @@ class ParallelExecutor:
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_HDR_TYPE,
             FileFormat.PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
-            FileFormat.PRF_HDR_BULK: [run_setup.bulk_row, run_setup.bulk_col],
+            FileFormat.PRF_HDR_BULK: [run_setup._bulk_row, run_setup._bulk_col],
             FileFormat.PRF_HDR_AVIALABLE_CPU: multiprocessing.cpu_count(),
             FileFormat.PRF_HDR_NOW: self._start_tasks.isoformat(' ')
         }
@@ -143,7 +167,6 @@ class ParallelExecutor:
                 sum_call += parallel_ret.counter
                 count += 1
             if (self._detail_output == True):
-                #                self._print(file, f"  Order:{return_key} {parallel_ret.ToString()}")
                 self._print(file, f"     {parallel_ret.ToString()}")
 
         if (count > 0):
@@ -156,15 +179,14 @@ class ParallelExecutor:
                 FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
                 FileFormat.PRF_CORE_AVRG_TIME: sum_time / count,
                 FileFormat.PRF_CORE_STD_DEVIATION: sum_deviation / count,
-                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count)==0 else (1 / (sum_time / count)) * count * run_setup.bulk_row,
+                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count)==0 else (1 / (sum_time / count)) * count * run_setup._bulk_row,
                 FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
             }
             self._print(file, f"  {json.dumps(out)}")
 
-
     def run_bulk_executor(self,
-                              bulk_list=[[1, 1], [1, 2]],
-                              executor_list=[[1, 1], [2, 2], [4, 1], [4, 2], [4, 4], [8, 1], [8, 2], [8, 4]],
+                              bulk_list= BundleHelper.ROW_1_COL_10_100,
+                              executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                               run_setup: RunSetup=None,
                               sleep_between_bulks=0):
         """ Run cykle of bulks in cycle of sequences for function execution
@@ -181,7 +203,7 @@ class ParallelExecutor:
             time.sleep(sleep_between_bulks)
             gc.collect()
 
-    def run_executor(self, executor_list=[[1, 1], [2, 2], [4, 1], [4, 2], [4, 4], [8, 1], [8, 2], [8, 4]],
+    def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None):
         """ Run executor sequencies
             :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
@@ -249,7 +271,6 @@ class ParallelExecutor:
 
         # setup minimalistic values
         setup = RunSetup(duration_second=0, start_delay=0, parameters=None)
-        setup.set_bulk(1,1)
 
         # run
         self.run(processes=1,
@@ -259,9 +280,17 @@ class ParallelExecutor:
     def test_call(self, run_setup: RunSetup=None):
         """ Test call without parallel execution"""
 
-        key="no-parallel"
+        # init
+        key="test-no-parallel"
         dictionary={key: ""}
         run_setup.set_start_time()
+
+        # test call
         self._func(key, dictionary, run_setup)
+
+        # show output
+        ret=dictionary[key]
+        if ret:
+            print(ret.ToString())
 
     #TODO: create dir, if not exist
