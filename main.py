@@ -1,7 +1,6 @@
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.run_return import RunReturn
 
 import click
@@ -9,10 +8,10 @@ import logging
 import time
 
 def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
-    """ Function for probe testing"""
+    """ Function for performance testing"""
     try:
         # INIT - contain executor synchonization, if needed
-        probe = ParallelProbe(run_setup)
+        probe=ParallelProbe(run_setup)
 
         while (True):
 

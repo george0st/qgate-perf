@@ -7,34 +7,35 @@ Performance test generator part of Quality Gate.
 
 ```lang-python
 from qgate_perf.parallel_executor import ParallelExecutor
-from qgate_perf.parallel_return import ParallelReturn
+from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.run_return import RunReturn
 import time
 
-def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
+def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     """ Function for performance testing"""
     try:
         # INIT - contain executor synchonization, if needed
-        performance = ParallelReturn(run_setup)
+        probe=ParallelProbe(run_setup)
 
         while (True):
 
-            # START - performance test, only for this specific code part
-            performance.start()
-            
+            # START - probe, only for this specific code part
+            probe.start()
+
             for r in range(run_setup.bulk_row * run_setup.bulk_col):
                 time.sleep(0)
-            
-            # STOP - performance test
-            if performance.stop():
+
+            # STOP - probe
+            if probe.stop():
                 break
 
-        # RETURN - data from performance
-        return_dict[return_key] = performance
-        
+        # RETURN - data from probe
+        run_return.probe=probe
+
     except Exception as ex:
         # RETURN - error
-        return_dict[return_key] = ParallelReturn(None, ex)
+        run_return.probe=ParallelProbe(None, ex)
 
 generator = ParallelExecutor(prf_GIL_impact,
                              label="GIL_impact",
@@ -46,7 +47,7 @@ generator.run_bulk_executor(bulk_list=[[1, 1]],
                             run_setup=RunSetup(duration_second=20,start_delay=0))
 ```
 
-# Outputs in text file
+# Outputs in text file 
 ```
 ############### 2023-05-05 06:30:36.194849 ###############
 {"type": "headr", "label": "GIL_impact", "bulk": [1, 1], "available_cpu": 12, "now": "2023-05-05 06:30:36.194849"}
@@ -71,7 +72,7 @@ generator.run_bulk_executor(bulk_list=[[1, 1]],
   ...
 ```
 
-# Next outputs generated from addition package qgate-graph
+# Graphs generated from qgate-graph based on text files from qgate-perf
 
 ![graph](https://fivekg.onrender.com/images/qgate/PRF-NoSQL_igz_nonprod-2023-04-23_14-41-18-bulk-100x50.png)
 ![graph](https://fivekg.onrender.com/images/qgate/EXE-NoSQL-2023-05-04_19-33-30-bulk-1x50-plan-8x2.png)
