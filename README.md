@@ -1,12 +1,12 @@
 [![PyPI version fury.io](https://badge.fury.io/py/qgate-perf.svg)](https://pypi.python.org/pypi/qgate-perf/)
 # QGate-Perf
 
-Performance test generator part of Quality Gate solution. Key benefits:
- - **easy performance testing*** your python code (key parts - init, start, stop, return)
+Performance test generator, part of Quality Gate solution. Key benefits:
+ - **easy performance testing** your python code (key parts - init, start, stop, return)
  - **measure only specific part** of your code 
- - scalability **without limits** (e.g. from 1 to 10k executor)
- - scalability **in level of processes and threads** (easy avoid of python GIL)
- - **sequences for execution and data bunlk**
+ - scalability **without limits** (e.g. from 1 to 1k executors)
+ - scalability **in level of processes and threads** (easy way, how to avoid GIL in python)
+ - **sequences for execution and data bulk**
  - relation to graph generator
 
 ## Usage
@@ -49,9 +49,11 @@ generator = ParallelExecutor(prf_GIL_impact,
                              detail_output=True,
                              output_file="prf_gil_impact_01.txt")
 
+setup=RunSetup(duration_second=20,start_delay=0)
+
 generator.run_bulk_executor(bulk_list=[[1, 1]],
                             executor_list=[[16, 1, '1x thread'], [8, 2, '2x threads'],[4, 4,'4x threads']],
-                            run_setup=RunSetup(duration_second=20,start_delay=0))
+                            run_setup=setup)
 ```
 
 ## Outputs in text file 
