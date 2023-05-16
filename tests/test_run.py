@@ -42,13 +42,44 @@ class TestCaseRun(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_one_shot(self):
+    def test_one_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt")
 
-        generator.one_shot()
+        generator.one_run()
+
+    def test_one_run_param(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setting={"aa":10,
+               "name": "Adam"}
+
+        generator.one_run(parameters=setting)
+
+    def test_testrun(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        generator.test_run()
+
+    def test_testrun_setup(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setting = {"aa": 10,
+                   "name": "Adam"}
+
+        setup=RunSetup(duration_second=0, start_delay=0,parameters=setting)
+        generator.test_run(run_setup=setup)
 
     def test_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
