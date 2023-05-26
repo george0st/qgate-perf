@@ -1,4 +1,5 @@
 import gc
+import os.path
 from multiprocessing import Process
 import multiprocessing
 import threading
@@ -191,6 +192,13 @@ class ParallelExecutor:
             time.sleep(sleep_between_bulks)
             gc.collect()
 
+    def _open_output(self):
+        dirname = os.path.dirname(self._output_file)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return open(self._output_file, 'a')
+
+
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None):
         """ Run executor sequencies
@@ -202,7 +210,7 @@ class ParallelExecutor:
 
         try:
             if self._output_file is not None:
-                file = open(self._output_file, 'a')
+                file=self._open_output()
 
             self._print_header(file, run_setup)
 
@@ -238,7 +246,7 @@ class ParallelExecutor:
 
         try:
             if self._output_file is not None:
-                file = open(self._output_file, 'a')
+                file=self._open_output()
 
             self._print_header(file, run_setup)
             # Execution
