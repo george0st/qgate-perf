@@ -20,10 +20,11 @@ class ParallelExecutor:
 
     def __init__(self, func, label=None, detail_output=True, output_file=None):
         """ Setting of execution
-            :param func:            function for parallel run
-            :param label:           text label for parallel run
-            :param detail_output:   provide details output from executors
-            :param output_file:     output to the file, defualt is without file
+
+        :param func:            function for parallel run
+        :param label:           text label for parallel run
+        :param detail_output:   provide details output from executors
+        :param output_file:     output to the file, defualt is without file
         """
         self._func = func
         self._detail_output = detail_output
@@ -179,6 +180,7 @@ class ParallelExecutor:
                               run_setup: RunSetup=None,
                               sleep_between_bulks=0):
         """ Run cykle of bulks in cycle of sequences for function execution
+
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
         :param executor_list:       list of executors for execution in format [[processes, threads], ...]
         :param run_setup:           setup of execution
@@ -202,8 +204,9 @@ class ParallelExecutor:
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None):
         """ Run executor sequencies
-            :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
-            :param run_setup:           setup of execution
+
+        :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
+        :param run_setup:           setup of execution
         """
         file = None
         print('Execution...')
@@ -237,9 +240,9 @@ class ParallelExecutor:
     def run(self, processes=2, threads=2, run_setup: RunSetup=None):
         """ Run execution of parallel call
 
-            :param processes:       how much processes will be used
-            :param threads:         how much threads will be used
-            :param run_setup:       setup of execution
+        :param processes:       how much processes will be used
+        :param threads:         how much threads will be used
+        :param run_setup:       setup of execution
         """
         file = None
         print('Execution...')
@@ -263,7 +266,11 @@ class ParallelExecutor:
                 file.close()
 
     def one_run(self, run_setup: RunSetup=None, parameters=None):
-        """ Run test, only one call, execution in new process, with standart write outputs """
+        """ Run test, only one call, execution in new process, with standart write outputs
+
+        :param run_setup:       setting for run
+        :param parameters:      parameters for execution, application in case the run_setup is None
+        """
 
         # setup minimalistic values
         if not run_setup:
@@ -274,9 +281,14 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=run_setup)
 
-    def test_run(self, run_setup: RunSetup=None, parameters=None):
+    def test_run(self, run_setup: RunSetup=None, parameters=None, print_output=False):
         """ Test call in current process/thread (without ability to define parallel execution and without
-         write standard outputs to file)"""
+         write standard outputs to file)
+
+        :param run_setup:       setting for run
+        :param parameters:      parameters for execution, application in case the run_setup is None
+        :return:                return output from execution
+        """
 
         # init
         key="test-no-parallel"
@@ -290,9 +302,8 @@ class ParallelExecutor:
         # test call
         self._func(run_return, run_setup)
 
-        # show output
+        # return output
         ret=dictionary[key]
         if ret:
             print(ret.ToString())
-
-    #TODO: create dir, if not exist
+        return ret

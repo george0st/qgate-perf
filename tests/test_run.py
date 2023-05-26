@@ -67,7 +67,7 @@ class TestCaseRun(unittest.TestCase):
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt")
 
-        generator.test_run()
+        generator.test_run(print_output=True)
 
     def test_testrun_setup(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -79,7 +79,7 @@ class TestCaseRun(unittest.TestCase):
                    "name": "Adam"}
 
         setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
-        generator.test_run(run_setup=setup)
+        generator.test_run(run_setup=setup, print_output=True)
 
     def test_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
