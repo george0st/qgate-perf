@@ -304,6 +304,6 @@ class ParallelExecutor:
 
         # return output
         ret=dictionary[key]
-        if ret:
+        if ret and print_output:
             print(ret.ToString())
         return ret
