@@ -262,19 +262,21 @@ class ParallelExecutor:
             if file is not None:
                 file.close()
 
-    def one_run(self, parameters=None):
-        """ Run test, only one shot (execution, in new process) of test function """
+    def one_run(self, run_setup: RunSetup=None, parameters=None):
+        """ Run test, only one call, execution in new process, with standart write outputs """
 
         # setup minimalistic values
-        setup = RunSetup(duration_second=0, start_delay=0, parameters=parameters)
+        if not run_setup:
+            run_setup = RunSetup(duration_second=0, start_delay=0, parameters=parameters)
 
         # run
         self.run(processes=1,
                  threads=1,
-                 run_setup=setup)
+                 run_setup=run_setup)
 
-    def test_run(self, run_setup: RunSetup=None):
-        """ Test call in current process/thread (without ability to define parallel execution)."""
+    def test_run(self, run_setup: RunSetup=None, parameters=None):
+        """ Test call in current process/thread (without ability to define parallel execution and without
+         write standard outputs to file)"""
 
         # init
         key="test-no-parallel"
@@ -282,7 +284,7 @@ class ParallelExecutor:
         run_return = RunReturn(key, dictionary)
 
         if not run_setup:
-            run_setup = RunSetup(duration_second=0, start_delay=0)
+            run_setup = RunSetup(duration_second=0, start_delay=0, parameters=parameters)
         run_setup.set_start_time()
 
         # test call

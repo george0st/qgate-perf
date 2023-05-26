@@ -78,7 +78,7 @@ class TestCaseRun(unittest.TestCase):
         setting = {"aa": 10,
                    "name": "Adam"}
 
-        setup=RunSetup(duration_second=0, start_delay=0,parameters=setting)
+        setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
         generator.test_run(run_setup=setup)
 
     def test_run(self):
