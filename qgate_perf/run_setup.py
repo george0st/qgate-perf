@@ -21,6 +21,7 @@ class RunSetup:
     @property
     def bulk_row(self):
         return self._bulk_row
+
     @property
     def bulk_col(self):
         return self._bulk_col

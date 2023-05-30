@@ -281,7 +281,7 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=run_setup)
 
-    def init_run(self, parameters=None, print_output=False):
+    def init_run(self, run_setup: RunSetup=None, parameters=None, print_output=False):
         """ Init call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file). One new parametr was added '__INIT__': True
 
@@ -289,10 +289,16 @@ class ParallelExecutor:
         :return:                return output from execution
         """
 
-        test_parameters = parameters.copy() if parameters else {}
-        test_parameters["__INIT__"] = True
-
-        return self.test_run(None, test_parameters, print_output)
+        if run_setup:
+            test_parameters = run_setup._parameters.copy() if run_setup._parameters else {}
+            test_parameters["__INIT__"] = True
+            test_run_setup=RunSetup(duration_second=0, start_delay=0,parameters=test_parameters)
+            test_run_setup.set_bulk(run_setup.bulk_row, run_setup.bulk_col)
+            return self.test_run(test_run_setup, None, print_output)
+        else:
+            test_parameters = parameters.copy() if parameters else {}
+            test_parameters["__INIT__"] = True
+            return self.test_run(None, test_parameters, print_output)
 
     def test_run(self, run_setup: RunSetup=None, parameters=None, print_output=False):
         """ Test call in current process/thread (without ability to define parallel execution and without
