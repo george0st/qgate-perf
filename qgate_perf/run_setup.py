@@ -29,11 +29,15 @@ class RunSetup:
     def when_start(self):
         return self._when_start
 
-    def param(self, key: str):
+    @property
+    def is_init(self):
+        return self.param("__INIT__", False)
+
+    def param(self, key: str, default=None):
         """Return key parameter"""
         if self._parameters:
-            return self._parameters[key]
-        return None
+            return self._parameters.get(key, default)
+        return default
 
     @property
     def duration_second(self):

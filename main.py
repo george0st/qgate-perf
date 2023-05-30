@@ -47,7 +47,7 @@ def graph(input,output):
                                  detail_output=True,
                                  output_file="output/prf_calc3.txt")
 
-
+    generator.init_run()
 #    generator.one_shot()
 #    generator.test_call(RunSetup(duration_second=5, start_delay=0))
 #    generator.run_executor([[10,2,'xxxx'],[5,1,'sss']], RunSetup(duration_second=5, start_delay=5))
