@@ -167,9 +167,9 @@ class ParallelExecutor:
                 FileFormat.PRF_CORE_REAL_EXECUTOR: count,
                 FileFormat.PRF_CORE_GROUP: group,
                 FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
+                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row,
                 FileFormat.PRF_CORE_AVRG_TIME: sum_time / count,
                 FileFormat.PRF_CORE_STD_DEVIATION: sum_deviation / count,
-                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count)==0 else (1 / (sum_time / count)) * count * run_setup._bulk_row,
                 FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
             }
             self._print(file, f"  {json.dumps(out)}")

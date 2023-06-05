@@ -101,11 +101,11 @@ class ParallelProbe:
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
                 FileFormat.PRF_DETAIL_PROCESSID: self.pid,
                 FileFormat.PRF_DETAIL_CALLS: self.counter,
-                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,
                 FileFormat.PRF_DETAIL_AVRG: self.total_duration / self.counter,
                 FileFormat.PRF_DETAIL_MIN: self.min_duration,
                 FileFormat.PRF_DETAIL_MAX: self.max_duration,
                 FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,
+                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,
                 FileFormat.PRF_DETAIL_TIME_INIT: self.track_time[FileFormat.PRF_DETAIL_TIME_INIT].isoformat(' '),
                 FileFormat.PRF_DETAIL_TIME_START: self.track_time[FileFormat.PRF_DETAIL_TIME_START].isoformat(' '),
                 FileFormat.PRF_DETAIL_TIME_END: self.track_time[FileFormat.PRF_DETAIL_TIME_END].isoformat(' ')
