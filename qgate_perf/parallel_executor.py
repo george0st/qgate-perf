@@ -15,22 +15,38 @@ from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 
+
+class InitCallSetting:
+    Off = 0
+    EachBundle = 1
+
+    @staticmethod
+    def all():
+        return InitCallSetting.EachBundleSequence + InitCallSetting.EachExecutorSequence
+
+
 class ParallelExecutor:
     """ Helper for parallel execution of defined function (via start new process with aim to avoid GIL) """
 
-    def __init__(self, func, label=None, detail_output=True, output_file=None):
+    def __init__(self,
+                 func,
+                 label = None,
+                 detail_output = True,
+                 output_file = None,
+                 init_call: InitCallSetting = InitCallSetting.Off):
         """ Setting of execution
 
         :param func:            function for parallel run
         :param label:           text label for parallel run
         :param detail_output:   provide details output from executors
         :param output_file:     output to the file, defualt is without file
+        :param init_call:       init call before exection
         """
         self._func = func
         self._detail_output = detail_output
-        self._label =label
+        self._label = label
         self._output_file = output_file
-
+        self._init_call = init_call
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         with ThreadPoolExecutor(max_workers=threads) as executor:
@@ -85,43 +101,6 @@ class ParallelExecutor:
             for future in concurrent.futures.as_completed(features):
                 future.result()
 
-    def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
-
-        from qgate_perf.run_return import RunReturn
-
-        proc = []
-
-        # define synch time for run of all executors
-        run_setup.set_start_time()
-
-        if threads == 1:
-            for process_key in range(processes):
-                run_return=RunReturn(process_key, return_dict)
-                p = Process(target=self._func,
-                            args=(run_return, run_setup))
-# oldversion                args=(process_key, return_dict, run_setup))
-
-                proc.append(p)
-        else:
-            for process_key in range(processes):
-                p = Process(target=self._coreThreadClassPool,
-                            args=(threads, process_key, return_dict, run_setup))
-# oldversion    p = Process(target=self._coreThreadClassPool,
-                #                p = Process(target=self._coreThreadClassPool,
-                # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
-                # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
-                # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
-                proc.append(p)
-
-        # start
-        for p in proc:
-            p.start()
-
-        # wait for finish
-        for p in proc:
-            p.join()
-            p.close()
-
     def _print(self, file, out: str):
         if file is not None:
             file.write(out + "\n")
@@ -174,6 +153,49 @@ class ParallelExecutor:
             }
             self._print(file, f"  {json.dumps(out)}")
 
+    def _open_output(self):
+        dirname = os.path.dirname(self._output_file)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return open(self._output_file, 'a')
+
+    def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
+
+        from qgate_perf.run_return import RunReturn
+
+        proc = []
+
+        # define synch time for run of all executors
+        run_setup.set_start_time()
+
+        if threads == 1:
+            for process_key in range(processes):
+                run_return = RunReturn(process_key, return_dict)
+                p = Process(target=self._func,
+                            args=(run_return, run_setup))
+                # oldversion                args=(process_key, return_dict, run_setup))
+
+                proc.append(p)
+        else:
+            for process_key in range(processes):
+                p = Process(target=self._coreThreadClassPool,
+                            args=(threads, process_key, return_dict, run_setup))
+                # oldversion    p = Process(target=self._coreThreadClassPool,
+                #                p = Process(target=self._coreThreadClassPool,
+                # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
+                # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
+                # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
+                proc.append(p)
+
+        # start
+        for p in proc:
+            p.start()
+
+        # wait for finish
+        for p in proc:
+            p.join()
+            p.close()
+
     def run_bulk_executor(self,
                               bulk_list= BundleHelper.ROW_1_COL_10_100,
                               executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
@@ -194,13 +216,6 @@ class ParallelExecutor:
             time.sleep(sleep_between_bulks)
             gc.collect()
 
-    def _open_output(self):
-        dirname = os.path.dirname(self._output_file)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        return open(self._output_file, 'a')
-
-
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None):
         """ Run executor sequencies
@@ -216,6 +231,10 @@ class ParallelExecutor:
                 file=self._open_output()
 
             self._print_header(file, run_setup)
+
+            # TODO: experiment with init call
+            if self._init_call & InitCallSetting.EachBundle:
+                self.init_run(run_setup)
 
             for executors in executor_list:
                 # execution
@@ -252,6 +271,11 @@ class ParallelExecutor:
                 file=self._open_output()
 
             self._print_header(file, run_setup)
+
+            # TODO: experiment with init call
+            if self._init_call & InitCallSetting.EachBundle:
+                self.init_run(run_setup)
+
             # Execution
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()

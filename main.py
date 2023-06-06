@@ -1,4 +1,4 @@
-from qgate_perf.parallel_executor import ParallelExecutor
+from qgate_perf.parallel_executor import ParallelExecutor, InitCallSetting
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.run_return import RunReturn
@@ -12,6 +12,9 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     try:
         # INIT - contain executor synchonization, if needed
         probe=ParallelProbe(run_setup)
+
+        if run_setup.is_init:
+            print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
 
         while (True):
 
@@ -45,14 +48,19 @@ def graph(input,output):
     generator = ParallelExecutor(prf_GIL_impact,
                                  label="GIL_impact",
                                  detail_output=True,
-                                 output_file="output/prf_calc3.txt")
+                                 output_file="output/prf_calc3.txt",init_call=InitCallSetting.EachBundle)
 
 
 
 #    generator.one_shot()
 #    generator.test_call(RunSetup(duration_second=5, start_delay=0))
 #    generator.run_executor([[10,2,'xxxx'],[5,1,'sss']], RunSetup(duration_second=5, start_delay=5))
-    generator.run_executor([[16,1,'calc'],[16,2,'calc'],[64,1,'calc'],[64,2,'calc'],[64,4,'calc'],[128,4,'calc']], RunSetup(duration_second=5, start_delay=20))
+
+#     generator.run_executor([[16,1,'calc'],[16,2,'calc'],[64,1,'calc'],[64,2,'calc'],[64,4,'calc'],[128,4,'calc']],
+#                            RunSetup(duration_second=5, start_delay=20))
+
+    generator.run_bulk_executor([[1,1],[1,20]],[[16,1,'calc'],[16,2,'calc'],[64,1,'calc'],[64,2,'calc'],[64,4,'calc'],[128,4,'calc']],
+                           RunSetup(duration_second=5, start_delay=20))
 
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
     #                             executor_list=[[4, 1,'1x thread'],[8, 1,'1x thread'],[16, 1, '1x thread'],
