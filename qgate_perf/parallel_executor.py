@@ -227,14 +227,14 @@ class ParallelExecutor:
         print('Execution...')
 
         try:
+            # TODO: experiment with init call
+            if self._init_call & InitCallSetting.EachBundle:
+                self.init_run(run_setup)
+
             if self._output_file is not None:
                 file=self._open_output()
 
             self._print_header(file, run_setup)
-
-            # TODO: experiment with init call
-            if self._init_call & InitCallSetting.EachBundle:
-                self.init_run(run_setup)
 
             for executors in executor_list:
                 # execution
@@ -267,14 +267,14 @@ class ParallelExecutor:
         print('Execution...')
 
         try:
+            # TODO: experiment with init call
+            if self._init_call & InitCallSetting.EachBundle:
+                self.init_run(run_setup)
+
             if self._output_file is not None:
                 file=self._open_output()
 
             self._print_header(file, run_setup)
-
-            # TODO: experiment with init call
-            if self._init_call & InitCallSetting.EachBundle:
-                self.init_run(run_setup)
 
             # Execution
             with multiprocessing.Manager() as manager:
