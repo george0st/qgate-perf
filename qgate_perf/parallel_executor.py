@@ -7,6 +7,7 @@ import datetime
 import time
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+import socket
 import json
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
@@ -114,13 +115,23 @@ class ParallelExecutor:
             FileFormat.PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
             FileFormat.PRF_HDR_BULK: [run_setup._bulk_row, run_setup._bulk_col],
             FileFormat.PRF_HDR_AVIALABLE_CPU: multiprocessing.cpu_count(),
+            FileFormat.PRF_HDR_HOST: self._host(),
             FileFormat.PRF_HDR_NOW: self._start_tasks.isoformat(' ')
         }
         self._print(file, json.dumps(out))
 
-    def _print_footer(self, file):
-        self._print(file,
-                    f"############### Duration: {round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)} seconds ###############")
+    def _host(self):
+        """ Return information about the host in format (host_name/ip addr)"""
+        try:
+            host=socket.gethostname()
+            ip=socket.gethostbyname(host)
+        except Exception:
+            pass
+        return f"{host}/{ip}"
+
+        def _print_footer(self, file):
+            self._print(file,
+                        f"############### Duration: {round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)} seconds ###############")
 
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
         sum_time = 0
