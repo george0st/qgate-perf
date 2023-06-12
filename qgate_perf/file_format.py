@@ -7,8 +7,10 @@ class FileFormat:
     PRF_HDR_TYPE="headr"
     PRF_HDR_LABEL="label"
     PRF_HDR_BULK="bulk"
-    PRF_HDR_AVIALABLE_CPU="available_cpu"
+    PRF_HDR_AVIALABLE_CPU="cpu"
     PRF_HDR_HOST="host"
+    PRF_HDR_MEMORY="mem"
+    PRF_HDR_MEMORY_FREE="mem_free"
     PRF_HDR_NOW="now"
 
     # detail

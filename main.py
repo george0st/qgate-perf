@@ -13,8 +13,8 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
         # INIT - contain executor synchonization, if needed
         probe=ParallelProbe(run_setup)
 
-        if run_setup.is_init:
-            print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
+        # if run_setup.is_init:
+        #     print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
 
         while (True):
 
@@ -49,8 +49,6 @@ def graph(input,output):
                                  label="GIL_impact",
                                  detail_output=True,
                                  output_file="output/prf_calc3.txt",init_call=InitCallSetting.EachBundle)
-
-
 
 #    generator.one_shot()
 #    generator.test_call(RunSetup(duration_second=5, start_delay=0))
