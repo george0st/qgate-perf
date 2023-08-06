@@ -179,8 +179,9 @@ class ParallelExecutor:
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        if dirname:
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
         return open(self._output_file, 'a')
 
     def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
