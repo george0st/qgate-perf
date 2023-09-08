@@ -15,6 +15,8 @@ from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 
+from platform import python_version
+from packaging import version
 
 class InitCallSetting:
     Off = 0
@@ -47,6 +49,11 @@ class ParallelExecutor:
         self._label = label
         self._output_file = output_file
         self._init_call = init_call
+
+        # technical point, how to close Process
+        #   in python >= 3.7 Close() as soft closing
+        #   in python < 3.7 Terminate() as hard closing
+        self._process_close=True if version.parse(python_version()) >= version.parse("3.7") else False
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         with ThreadPoolExecutor(max_workers=threads) as executor:
@@ -219,7 +226,10 @@ class ParallelExecutor:
         # wait for finish
         for p in proc:
             p.join()
-            p.close()
+            if self._process_close:
+                p.close()       # soft close
+            else:
+                p.terminate()   # hard close
 
     def run_bulk_executor(self,
                               bulk_list= BundleHelper.ROW_1_COL_10_100,
