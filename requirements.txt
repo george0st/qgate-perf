@@ -1,4 +1,4 @@
 numpy<=1.24.3
 psutil~=5.9
-packaging~=23.1
+packaging>=21.3
 
