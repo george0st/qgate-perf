@@ -32,9 +32,25 @@ setup_args = dict(
     download_url='https://pypi.org/project/qgate_perf/'
 )
 
-install_requires = dependencies.base_requirements(),
-tests_require = dependencies.dev_requirements(),
-extras_require = dependencies.extra_requirements(),
+install_requires = dependencies.base_requirements()
+tests_require = dependencies.dev_requirements()
+extras_require = dependencies.extra_requirements()
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+]
 
 if __name__ == '__main__':
-    setup(**setup_args, install_requires=install_requires)
+    setup(**setup_args, install_requires=install_requires, classifiers=classifiers)
