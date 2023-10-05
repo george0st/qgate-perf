@@ -11,7 +11,7 @@ Performance test generator, part of Quality Gate solution. Key benefits:
 
 ## Usage
 
-```lang-python
+```python
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
