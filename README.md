@@ -1,4 +1,5 @@
 [![PyPI version fury.io](https://badge.fury.io/py/qgate-perf.svg)](https://pypi.python.org/pypi/qgate-perf/)
+[![coverage](https://github.com/george0st/qgate-perf/blob/main/coverage.svg)]
 # QGate-Perf
 
 Performance test generator, part of Quality Gate solution. Key benefits:

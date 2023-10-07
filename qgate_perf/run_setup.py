@@ -2,7 +2,7 @@ import datetime
 
 class RunSetup:
 
-    def __init__(self, duration_second, start_delay: int, parameters: dict={}):
+    def __init__(self, duration_second = 0, start_delay: int=0, parameters: dict={}):
         """ Setup of execution
 
         :param duration_second:     parametrs for duration of atomic execution (it is up to function, if it will reflect the value)
@@ -11,7 +11,7 @@ class RunSetup:
         """
         self._duration_second=duration_second
         self._bulk_row = 1
-        self._bulk_col = 10
+        self._bulk_col = 1
         self._start_delay=start_delay
         self._when_start=None
 

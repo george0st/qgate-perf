@@ -5,18 +5,20 @@ from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.run_return import RunReturn
+from qgate_perf.bundle_helper import BundleHelper
+from qgate_perf.executor_helper import ExecutorHelper
 import time
 
-
-#def prf_GIL_impact(return_key, return_dict, run_setup: RunSetup):
 def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     """ Function for performance testing"""
+
     try:
+
         # init (contain executor synchonization, if needed)
         probe = ParallelProbe(run_setup)
 
         if run_setup.is_init:
-            print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
+            print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col} [{run_return.probe}]")
 
         while (True):
 
@@ -29,6 +31,9 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
             # STOP - performance measure specific part of code
             if probe.stop():
                 break
+
+        if run_setup.param("generate_error"):
+            raise Exception('Simulated error')
 
         # return outputs
         run_return.probe=probe
@@ -62,7 +67,17 @@ class TestCaseRun(unittest.TestCase):
         setting={"aa":10,
                "name": "Adam"}
 
-        generator.one_run(parameters=setting)
+        generator.one_run(RunSetup(parameters=setting))
+
+    def test_testrun_exception(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setting={"generate_error": "yes"}
+
+        generator.test_run(RunSetup(parameters=setting),print_output=True)
 
     def test_testrun(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -90,7 +105,7 @@ class TestCaseRun(unittest.TestCase):
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt")
 
-        setup=RunSetup(duration_second=5, start_delay=0)
+        setup=RunSetup(duration_second=4, start_delay=2)
         generator.run(2, 2, setup)
 
     def test_run_executor(self):
@@ -99,8 +114,8 @@ class TestCaseRun(unittest.TestCase):
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt")
 
-        setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_executor([[1,1], [1,2], [2,2]], setup)
+        setup=RunSetup(duration_second=4, start_delay=2)
+        generator.run_executor([[1,1], [2,2]], setup)
 
     def test_run_bulk_executor(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -109,8 +124,34 @@ class TestCaseRun(unittest.TestCase):
                                      output_file="../output/test_gil_impact_test.txt")
 
         setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_bulk_executor(bulk_list=[[1,1], [1,10], [1,100]],
-                                    executor_list=[[1,1], [1,2], [2,2]],
+        generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
+                                    executor_list=[[1,1], [2,2]],
+                                    run_setup=setup)
+
+    def test_run_bulk_executor_helpers(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setup=RunSetup(duration_second=0, start_delay=0)
+        generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
+                                    executor_list=ExecutorHelper.PROCESS_1_8_THREAD_1,
+                                    run_setup=setup)
+
+    def test_run_bulk_executor_grow(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setup=RunSetup(duration_second=1, start_delay=0)
+        generator.run_bulk_executor(bulk_list=[[1,2]],
+                                    executor_list=ExecutorHelper.grow_thread(process=1, thread_pow_start=1, thread_pow_stop=3),
+                                    run_setup=setup)
+
+        generator.run_bulk_executor(bulk_list=[[1,1]],
+                                    executor_list=ExecutorHelper.grow_process(thread=1, process_pow_start=1, process_pow_stop=3),
                                     run_setup=setup)
 
     def test_run_bulk_executor_initcall(self):
@@ -118,10 +159,10 @@ class TestCaseRun(unittest.TestCase):
                                      label="GIL_impact",
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt",
-                                     init_call=InitCallSetting.EachBundle)
+                                     init_call=InitCallSetting.all())
 
         setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_bulk_executor(bulk_list=[[1,1], [1,10], [1,100]],
+        generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
                                     executor_list=[[1,1], [1,2], [2,2]],
                                     run_setup=setup)
 
@@ -131,9 +172,19 @@ class TestCaseRun(unittest.TestCase):
                                      detail_output=True,
                                      output_file=None)
 
-        setup=RunSetup(duration_second=30, start_delay=0)
+        setup=RunSetup(duration_second=15, start_delay=0)
         generator.run(4, 8, setup)
 
+    def test_run_init_call(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=None,
+                                     init_call=InitCallSetting.all())
 
-if __name__ == '__main__':
-    unittest.main()
+        setup=RunSetup(duration_second=0, start_delay=0)
+        generator.run(1, 2, setup)
+
+
+# if __name__ == '__main__':
+#     unittest.main()

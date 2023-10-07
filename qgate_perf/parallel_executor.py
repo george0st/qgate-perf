@@ -21,10 +21,11 @@ from packaging import version
 class InitCallSetting:
     Off = 0
     EachBundle = 1
+    EachExecutor = 2
 
     @staticmethod
     def all():
-        return InitCallSetting.EachBundleSequence + InitCallSetting.EachExecutorSequence
+        return InitCallSetting.EachBundle + InitCallSetting.EachExecutor
 
 
 class ParallelExecutor:
@@ -66,47 +67,47 @@ class ParallelExecutor:
             for future in concurrent.futures.as_completed(features):
                 future.result()
 
-    def _coreThreadClass(self, threads, return_key, return_dict, run_setup):
-        thrd = []
-        for threadKey in range(threads):
-            t = threading.Thread(target=self._func,
-                                 args=(str(return_key) + "x" + str(threadKey), return_dict, run_setup))
-            thrd.append(t)
-
-        # start
-        for t in thrd:
-            t.start()
-
-        # wait for finish
-        for t in thrd:
-            t.join()
-            t = None
-
-    def _coreThread(func, threads, return_key, return_dict, run_setup):
-        thrd = []
-        for thread_key in range(threads):
-            t = threading.Thread(target=func,
-                                 args=(str(return_key) + "x" + str(thread_key), return_dict, run_setup))
-            thrd.append(t)
-
-        # start
-        for t in thrd:
-            t.start()
-
-        # wait for finish
-        for t in thrd:
-            t.join()
-            t = None
-
-    def _coreThreadPool(func, threads, return_key, return_dict, run_setup):
-        with ThreadPoolExecutor(max_workers=threads) as executor:
-            features = []
-            for thread_key in range(threads):
-                features.append(
-                    executor.submit(func, f"{return_key}x{thread_key}", return_dict, run_setup))
-
-            for future in concurrent.futures.as_completed(features):
-                future.result()
+    # def _coreThreadClass(self, threads, return_key, return_dict, run_setup):
+    #     thrd = []
+    #     for threadKey in range(threads):
+    #         t = threading.Thread(target=self._func,
+    #                              args=(str(return_key) + "x" + str(threadKey), return_dict, run_setup))
+    #         thrd.append(t)
+    #
+    #     # start
+    #     for t in thrd:
+    #         t.start()
+    #
+    #     # wait for finish
+    #     for t in thrd:
+    #         t.join()
+    #         t = None
+    #
+    # def _coreThread(func, threads, return_key, return_dict, run_setup):
+    #     thrd = []
+    #     for thread_key in range(threads):
+    #         t = threading.Thread(target=func,
+    #                              args=(str(return_key) + "x" + str(thread_key), return_dict, run_setup))
+    #         thrd.append(t)
+    #
+    #     # start
+    #     for t in thrd:
+    #         t.start()
+    #
+    #     # wait for finish
+    #     for t in thrd:
+    #         t.join()
+    #         t = None
+    #
+    # def _coreThreadPool(func, threads, return_key, return_dict, run_setup):
+    #     with ThreadPoolExecutor(max_workers=threads) as executor:
+    #         features = []
+    #         for thread_key in range(threads):
+    #             features.append(
+    #                 executor.submit(func, f"{return_key}x{thread_key}", return_dict, run_setup))
+    #
+    #         for future in concurrent.futures.as_completed(features):
+    #             future.result()
 
     def _print(self, file, out: str):
         if file is not None:
@@ -324,7 +325,7 @@ class ParallelExecutor:
             if file is not None:
                 file.close()
 
-    def one_run(self, run_setup: RunSetup=None, parameters=None):
+    def one_run(self, run_setup: RunSetup=None):
         """ Run test, only one call, execution in new process, with standart write outputs
 
         :param run_setup:       setting for run
@@ -333,14 +334,15 @@ class ParallelExecutor:
 
         # setup minimalistic values
         if not run_setup:
-            run_setup = RunSetup(duration_second=0, start_delay=0, parameters=parameters)
+            run_setup = RunSetup(duration_second=0, start_delay=0)
+            run_setup.set_bulk(1,1)
 
         # run
         self.run(processes=1,
                  threads=1,
                  run_setup=run_setup)
 
-    def init_run(self, run_setup: RunSetup=None, parameters=None, print_output=False):
+    def init_run(self, run_setup: RunSetup=None, print_output=False):
         """ Init call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file). One new parametr was added '__INIT__': True
 
@@ -350,16 +352,17 @@ class ParallelExecutor:
 
         if run_setup:
             test_parameters = run_setup._parameters.copy() if run_setup._parameters else {}
-            test_parameters["__INIT__"] = True
-            test_run_setup=RunSetup(duration_second=0, start_delay=0,parameters=test_parameters)
-            test_run_setup.set_bulk(run_setup.bulk_row, run_setup.bulk_col)
-            return self.test_run(test_run_setup, None, print_output)
         else:
-            test_parameters = parameters.copy() if parameters else {}
-            test_parameters["__INIT__"] = True
-            return self.test_run(None, test_parameters, print_output)
+            test_parameters={}
+        test_parameters["__INIT__"] = True
+        test_run_setup=RunSetup(duration_second=0, start_delay=0,parameters=test_parameters)
+        if run_setup:
+            test_run_setup.set_bulk(run_setup.bulk_row, run_setup.bulk_col)
+        else:
+            test_run_setup.set_bulk(1, 1)
+        return self.test_run(test_run_setup, print_output)
 
-    def test_run(self, run_setup: RunSetup=None, parameters=None, print_output=False):
+    def test_run(self, run_setup: RunSetup=None, print_output=False):
         """ Test call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file)
 
@@ -374,7 +377,7 @@ class ParallelExecutor:
         run_return = RunReturn(key, dictionary)
 
         if not run_setup:
-            run_setup = RunSetup(duration_second=0, start_delay=0, parameters=parameters)
+            run_setup = RunSetup(duration_second=0, start_delay=0)
         run_setup.set_start_time()
 
         # test call

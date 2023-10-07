@@ -25,7 +25,7 @@ class ParallelProbe:
         self.exception = exception
 
         self.track_time={}
-        self.track_time[FileFormat.PRF_DETAIL_TIME_INIT] = datetime.datetime.utcnow()
+        self.track_time[FileFormat.PRF_DETAIL_TIME_INIT]=datetime.datetime.utcnow()
 
         if run_setup:
             # init incremental calculation of standard deviation
@@ -37,13 +37,7 @@ class ParallelProbe:
 
             # key part of init timer (import for stop parallel run)
             self.init_time = time.time()
-            self.track_time[FileFormat.PRF_DETAIL_TIME_START] = datetime.datetime.utcnow()
-
-    def add_timetrack_only_label(self, label):
-        self.track_time.append(label)
-
-    def add_time_track(self, label):
-        self.track_time.append(f"{label}: {datetime.datetime.now()}")
+            self.track_time[FileFormat.PRF_DETAIL_TIME_START]=datetime.datetime.utcnow()
 
     def start(self):
         """ Start measurement each test"""
