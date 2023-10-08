@@ -56,7 +56,7 @@ class TestCaseRun(unittest.TestCase):
                                      detail_output=True,
                                      output_file="../output/test_gil_impact_test.txt")
 
-        generator.one_run()
+        self.assertTrue(generator.one_run(), "Error")
 
     def test_one_run_param(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -67,7 +67,7 @@ class TestCaseRun(unittest.TestCase):
         setting={"aa":10,
                "name": "Adam"}
 
-        generator.one_run(RunSetup(parameters=setting))
+        self.assertTrue(generator.one_run(RunSetup(parameters=setting)))
 
     def test_testrun_exception(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -77,6 +77,7 @@ class TestCaseRun(unittest.TestCase):
 
         setting={"generate_error": "yes"}
 
+        # TODO: add assert
         generator.test_run(RunSetup(parameters=setting),print_output=True)
 
     def test_testrun(self):
@@ -107,6 +108,18 @@ class TestCaseRun(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2)
         generator.run(2, 2, setup)
+
+    def test_run_exeption(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="../output/test_gil_impact_test.txt")
+
+        setting = {"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        generator.run(2, 2, setup)
+
 
     def test_run_executor(self):
         generator = ParallelExecutor(prf_GIL_impact,
