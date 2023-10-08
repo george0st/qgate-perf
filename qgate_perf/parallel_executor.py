@@ -18,6 +18,9 @@ from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
 
+from contextlib import suppress
+
+
 class InitCallSetting:
     Off = 0
     EachBundle = 1
@@ -131,30 +134,58 @@ class ParallelExecutor:
         self._print(file, json.dumps(out))
 
     def _memory(self):
-        try:
+
+        mem_total, mem_free = "", ""
+        with suppress(Exception):
             import psutil
 
             values=psutil.virtual_memory()
-            return f"{round(values.total/(1073741824),1)} GB", f"{round(values.free/(1073741824),1)} GB"
-        except Exception:
-            return "", ""
+            mem_total=f"{round(values.total/(1073741824),1)} GB"
+            mem_free=f"{round(values.free/(1073741824),1)} GB"
+        return mem_total, mem_free
 
     def _host(self):
         """ Return information about the host in format (host_name/ip addr)"""
-        try:
+
+        host = ""
+        with suppress(Exception):
             import socket
 
-            host=socket.gethostname()
-            ip=socket.gethostbyname(host)
-        except Exception:
-            pass
-        return f"{host}/{ip}"
+            host_name=socket.gethostname()
+            ip=socket.gethostbyname(host_name)
+            host=f"{host_name}/{ip}"
+        return host
 
-    def _print_footer(self, file):
+    def _print_footer(self, file, final_state):
         self._print(file,
-                    f"############### Duration: {round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)} seconds ###############")
+                    f"############### State: {'OK' if final_state else 'Error'}, "
+                    f" Duration: {round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)}"
+                    f" seconds ###############")
+
+    def _final_state(self, return_dict):
+        """
+        Check, if the processing was fine based on check exception in each executor
+
+        :param return_dict:     Outputs from executors
+        :return:                True - all is fine, Fals - some exception
+        """
+        for return_key in return_dict:
+            parallel_ret = return_dict[return_key]
+            if parallel_ret.exception is not None:
+                return False
+        return True
 
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
+        """
+        Print detail from executors
+
+        :param file:            Output stream for print
+        :param run_setup:       Setting for executors
+        :param return_dict:     Return values from executors
+        :param processes:       Number of processes
+        :param threads:         Number of threads
+        :param group:           Name of group
+        """
         sum_time = 0
         sum_deviation = 0
         sum_call = 0
@@ -258,8 +289,11 @@ class ParallelExecutor:
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
+        :return:                    return state, True - all executions was without exceptions,
+                                    False - some exceptions
         """
         file = None
+        final_state=True
         print('Execution...')
 
         try:
@@ -283,14 +317,18 @@ class ParallelExecutor:
                                        executors[0],
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
+                    if not self._final_state(return_dict):
+                        final_state=False
 
-            self._print_footer(file)
+            self._print_footer(file, final_state)
 
         except Exception as e:
             self._print(file, str(e) if e is not None else '!! Noname exception !!')
+            final_state = False
         finally:
             if file is not None:
                 file.close()
+        return final_state
 
     def run(self, processes=2, threads=2, run_setup: RunSetup=None):
         """ Run execution of parallel call
@@ -298,8 +336,11 @@ class ParallelExecutor:
         :param processes:       how much processes will be used
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
+        :return:                return state, True - all executions was without exceptions,
+                                False - some exceptions
         """
         file = None
+        final_state=True
         print('Execution...')
 
         try:
@@ -317,19 +358,26 @@ class ParallelExecutor:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
                 self._print_detail(file, run_setup, return_dict, processes, threads)
-            self._print_footer(file)
+                if not self._final_state(return_dict):
+                    final_state = False
+
+            self._print_footer(file, final_state)
 
         except Exception as e:
             self._print(file, str(e) if e is not None else '!! Noname exception !!')
+            final_state = False
         finally:
             if file is not None:
                 file.close()
+        return final_state
 
     def one_run(self, run_setup: RunSetup=None):
         """ Run test, only one call, execution in new process, with standart write outputs
 
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
+        :return:                return state, True - all executions was without exceptions,
+                                False - some exceptions
         """
 
         # setup minimalistic values
@@ -338,7 +386,7 @@ class ParallelExecutor:
             run_setup.set_bulk(1,1)
 
         # run
-        self.run(processes=1,
+        return self.run(processes=1,
                  threads=1,
                  run_setup=run_setup)
 
