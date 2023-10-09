@@ -8,6 +8,8 @@ from qgate_perf.run_return import RunReturn
 from qgate_perf.bundle_helper import BundleHelper
 from qgate_perf.executor_helper import ExecutorHelper
 import time
+from os import path
+import shutil
 
 def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     """ Function for performance testing"""
@@ -44,8 +46,10 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
 
 class TestCaseRun(unittest.TestCase):
 
+    OUTPUT_ADR="../output/test_run/"
+
     def setUp(self):
-        pass
+        shutil.rmtree(self.OUTPUT_ADR,True)
 
     def tearDown(self):
         pass
@@ -54,7 +58,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         self.assertTrue(generator.one_run(), "Error")
 
@@ -62,122 +66,158 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setting={"aa":10,
                "name": "Adam"}
 
         self.assertTrue(generator.one_run(RunSetup(parameters=setting)))
 
+    def test_init_run(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+
+        setting={"aa":10,
+               "name": "Adam"}
+
+        self.assertTrue(generator.init_run(RunSetup(parameters=setting)))
+        self.assertTrue(generator.init_run())
+
     def test_testrun_exception(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setting={"generate_error": "yes"}
 
-        # TODO: add assert
-        generator.test_run(RunSetup(parameters=setting),print_output=True)
+        # expected False (exception) because "generate_error"
+        self.assertFalse(generator.test_run(RunSetup(parameters=setting),print_output=True))
 
     def test_testrun(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
-        generator.test_run(print_output=True)
+        self.assertTrue(generator.test_run(print_output=True))
 
     def test_testrun_setup(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setting = {"aa": 10,
                    "name": "Adam"}
 
         setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
-        generator.test_run(run_setup=setup, print_output=True)
+        self.assertTrue(generator.test_run(run_setup=setup, print_output=True))
 
     def test_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=2)
-        generator.run(2, 2, setup)
+        self.assertTrue(generator.run(2, 2, setup))
 
     def test_run_exeption(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setting = {"generate_error": "yes"}
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
-        generator.run(2, 2, setup)
+        self.assertFalse(generator.run(2, 2, setup))
 
 
     def test_run_executor(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=2)
-        generator.run_executor([[1,1], [2,2]], setup)
+        self.assertTrue(generator.run_executor([[1,1], [2,2]], setup))
+
+    def test_run_executor_exception(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+
+        setting = {"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
+        self.assertFalse(generator.run_executor([[1,1]], setup))
 
     def test_run_bulk_executor(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
+        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
                                     executor_list=[[1,1], [2,2]],
-                                    run_setup=setup)
+                                    run_setup=setup))
+
+    def test_run_bulk_executor_exception(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+
+        setting={"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
+        self.assertFalse(generator.run_bulk_executor(bulk_list=[[1,2]],
+                                    executor_list=[[1,1]],
+                                    run_setup=setup))
 
     def test_run_bulk_executor_helpers(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
+        self.assertTrue(generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
                                     executor_list=ExecutorHelper.PROCESS_1_8_THREAD_1,
-                                    run_setup=setup)
+                                    run_setup=setup))
 
     def test_run_bulk_executor_grow(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt")
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_bulk_executor(bulk_list=[[1,2]],
+        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2]],
                                     executor_list=ExecutorHelper.grow_thread(process=1, thread_pow_start=1, thread_pow_stop=3),
-                                    run_setup=setup)
+                                    run_setup=setup))
 
-        generator.run_bulk_executor(bulk_list=[[1,1]],
+        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
                                     executor_list=ExecutorHelper.grow_process(thread=1, process_pow_start=1, process_pow_stop=3),
-                                    run_setup=setup)
+                                    run_setup=setup))
 
     def test_run_bulk_executor_initcall(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/test_gil_impact_test.txt",
+                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"),
                                      init_call=InitCallSetting.all())
 
         setup=RunSetup(duration_second=1, start_delay=0)
-        generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
+        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
                                     executor_list=[[1,1], [1,2], [2,2]],
-                                    run_setup=setup)
+                                    run_setup=setup))
 
     def test_run_stress_test(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -186,7 +226,7 @@ class TestCaseRun(unittest.TestCase):
                                      output_file=None)
 
         setup=RunSetup(duration_second=15, start_delay=0)
-        generator.run(4, 8, setup)
+        self.assertTrue(generator.run(4, 8, setup))
 
     def test_run_init_call(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -196,7 +236,7 @@ class TestCaseRun(unittest.TestCase):
                                      init_call=InitCallSetting.all())
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        generator.run(1, 2, setup)
+        self.assertTrue(generator.run(1, 2, setup))
 
 
 # if __name__ == '__main__':

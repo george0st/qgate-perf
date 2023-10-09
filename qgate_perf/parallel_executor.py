@@ -274,14 +274,19 @@ class ParallelExecutor:
         :param executor_list:       list of executors for execution in format [[processes, threads], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
+        :return:                    return state, True - all executions was without exceptions,
+                                    False - some exceptions
         """
+        final_state = True
         for bulk in bulk_list:
             run_setup.set_bulk(bulk[0], bulk[1])
 
             # execute
-            self.run_executor(executor_list, run_setup)
+            if not self.run_executor(executor_list, run_setup):
+                final_state=False
             time.sleep(sleep_between_bulks)
             gc.collect()
+        return final_state
 
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None):
@@ -395,7 +400,8 @@ class ParallelExecutor:
          write standard outputs to file). One new parametr was added '__INIT__': True
 
         :param parameters:      parameters for execution, application in case the run_setup is None
-        :return:                return output from execution
+        :return:                return state, True - execution was without exception,
+                                False - an exception
         """
 
         if run_setup:
@@ -416,7 +422,8 @@ class ParallelExecutor:
 
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
-        :return:                return output from execution
+        :return:                return state, True - execution was without exception,
+                                False - an exception
         """
 
         # init
@@ -433,6 +440,9 @@ class ParallelExecutor:
 
         # return output
         ret=dictionary[key]
-        if ret and print_output:
-            print(ret.ToString())
-        return ret
+        if ret:
+            if print_output:
+                print(ret.ToString())
+            if ret.exception is not None:
+                return False
+        return True
