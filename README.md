@@ -1,5 +1,9 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI version fury.io](https://badge.fury.io/py/qgate-perf.svg)](https://pypi.python.org/pypi/qgate-perf/)
 ![coverage](https://github.com/george0st/qgate-perf/blob/main/coverage.svg)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/george0st/qgate-perf)
+![GitHub release](https://img.shields.io/github/v/release/george0st/qgate-perf)
+
 # QGate-Perf
 
 Performance test generator, part of Quality Gate solution. Key benefits:
