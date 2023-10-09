@@ -1,3 +1,4 @@
+import os
 import unittest
 import logging
 from qgate_perf.parallel_executor import ParallelExecutor
@@ -6,11 +7,15 @@ from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.run_return import RunReturn
 import time
+from os import path
+import shutil
 
 class TestCaseDir(unittest.TestCase):
 
+    OUTPUT_ADR="../output/test_dir/"
+
     def setUp(self):
-        pass
+        shutil.rmtree(self.OUTPUT_ADR,True)
 
     def tearDown(self):
         pass
@@ -19,6 +24,7 @@ class TestCaseDir(unittest.TestCase):
         generator = ParallelExecutor(None,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file="../output/aaa/test_gil_impact_test.txt")
+                                     output_file= path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
 
-        generator.one_run()
+        self.assertTrue(generator.one_run())
+
