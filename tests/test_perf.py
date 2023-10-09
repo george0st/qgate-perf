@@ -1,3 +1,4 @@
+import os
 import unittest
 import logging
 from qgate_perf.parallel_executor import ParallelExecutor, InitCallSetting
@@ -44,29 +45,30 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
         # return outputs in case of error
         run_return.probe=ParallelProbe(None, ex)
 
-class TestCaseRun(unittest.TestCase):
+class TestCasePerf(unittest.TestCase):
 
-    OUTPUT_ADR="../output/test_run/"
+    OUTPUT_PERF_ADR = "../output/test_perf/"
+    @classmethod
+    def setUpClass(cls):
+        shutil.rmtree(TestCasePerf.OUTPUT_PERF_ADR,True)
 
-    def setUp(self):
-        shutil.rmtree(self.OUTPUT_ADR,True)
-
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pass
 
     def test_one_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
-        self.assertTrue(generator.one_run(), "Error")
+        self.assertTrue(generator.one_run())
 
     def test_one_run_param(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting={"aa":10,
                "name": "Adam"}
@@ -77,7 +79,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting={"aa":10,
                "name": "Adam"}
@@ -89,7 +91,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting={"generate_error": "yes"}
 
@@ -100,7 +102,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         self.assertTrue(generator.test_run(print_output=True))
 
@@ -108,7 +110,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting = {"aa": 10,
                    "name": "Adam"}
@@ -120,7 +122,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=2)
         self.assertTrue(generator.run(2, 2, setup))
@@ -129,7 +131,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting = {"generate_error": "yes"}
 
@@ -141,7 +143,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=2)
         self.assertTrue(generator.run_executor([[1,1], [2,2]], setup))
@@ -150,7 +152,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting = {"generate_error": "yes"}
 
@@ -161,7 +163,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
@@ -172,7 +174,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setting={"generate_error": "yes"}
 
@@ -185,7 +187,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
@@ -196,7 +198,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2]],
@@ -211,7 +213,7 @@ class TestCaseRun(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR,"test_gil_impact_test.txt"),
+                                     output_file=path.join(self.OUTPUT_PERF_ADR,"perf_gil_impact_test.txt"),
                                      init_call=InitCallSetting.all())
 
         setup=RunSetup(duration_second=1, start_delay=0)

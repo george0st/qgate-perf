@@ -11,13 +11,13 @@ from os import path
 import shutil
 
 class TestCaseDir(unittest.TestCase):
+    OUTPUT_ADR = "../output/test_dir/"
 
-    OUTPUT_ADR="../output/test_dir/"
-
-    def setUp(self):
-        shutil.rmtree(self.OUTPUT_ADR,True)
-
-    def tearDown(self):
+    @classmethod
+    def setUpClass(cls):
+        shutil.rmtree(TestCaseDir.OUTPUT_ADR,True)
+    @classmethod
+    def tearDownClass(cls):
         pass
 
     def test_dir(self):
