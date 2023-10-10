@@ -57,7 +57,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2)
         self.assertTrue(generator.run_bulk_executor([[10,10], [100,10]],
-                                                    [[1,2,'Austria perf'], [2,2,'Austria perf'], [4,2,'Austria perf']],
-#                                                     [1,4,'Germany perf'],[2,4,'Germany perf'],[4,4,'Germany perf']],
+                                                    [[1,2,'Austria perf'], [2,2,'Austria perf'], [4,2,'Austria perf'],
+                                                    [1,4,'Germany perf'],[2,4,'Germany perf'],[4,4,'Germany perf']],
                                                     setup))
         generator.create_graph(self.OUTPUT_ADR)
