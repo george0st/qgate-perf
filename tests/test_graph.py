@@ -55,9 +55,35 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
 
-        setup=RunSetup(duration_second=4, start_delay=2)
+        setting = {"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=4, start_delay=2, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[10,10], [100,10]],
                                                     [[1,2,'Austria perf'], [2,2,'Austria perf'], [4,2,'Austria perf'],
                                                     [1,4,'Germany perf'],[2,4,'Germany perf'],[4,4,'Germany perf']],
                                                     setup))
+        generator.create_graph(self.OUTPUT_ADR)
+
+    def test_graph2(self):
+        generator = ParallelExecutor(prf_test,
+                                     label="test",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
+
+        setting = {"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        self.assertFalse(generator.run(1,1, setup))
+        generator.create_graph(self.OUTPUT_ADR)
+
+    def test_graph3(self):
+        generator = ParallelExecutor(prf_test,
+                                     label="test",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
+
+        setting = {"generate_error": "yes"}
+
+        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        self.assertFalse(generator.run_executor([[2,2]], setup))
         generator.create_graph(self.OUTPUT_ADR)
