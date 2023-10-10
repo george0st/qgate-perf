@@ -54,11 +54,24 @@ generator = ParallelExecutor(prf_GIL_impact,
                              detail_output=True,
                              output_file="prf_gil_impact_01.txt")
 
+# Run setup, with test execution 20 seconds and zero delay before start 
+# (without waiting to other executors)
 setup=RunSetup(duration_second=20,start_delay=0)
 
-generator.run_bulk_executor(bulk_list=[[1, 1]],
-                            executor_list=[[16, 1, '1x thread'], [8, 2, '2x threads'],[4, 4,'4x threads']],
+# Run performance test with: 
+#  data bulk_list with two data sets 
+#    - first has 10 rows and 5 columns as [10, 5]
+#    - second has 1000 rows and 50 columns as [1000, 50]
+#  executor_list with six executor sets
+#    - first line has three executors with 2, 4 and 8 processes each with 2 threads 
+#    - second line has three executors with 2, 4 and 8 processes each with 4 threads
+generator.run_bulk_executor(bulk_list=[[10, 5], [1000, 50]],
+                            executor_list=[[2, 2, '2x thread'], [4, 2, '2x thread'],[8, 2,'2x thread'],
+                                           [2, 4, '4x thread'], [4, 4, '4x thread'],[8, 4,'4x thread']],
                             run_setup=setup)
+
+# We made 12 performance tests (two bulk_list x six executor_list) and write 
+# outputs to the file 'prf_gil_impact_01.txt'
 ```
 
 ## Outputs in text file 
