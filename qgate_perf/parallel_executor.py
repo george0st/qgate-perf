@@ -33,6 +33,20 @@ class InitCallSetting:
     def all():
         return InitCallSetting.EachBundle + InitCallSetting.EachExecutor
 
+def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
+    """
+    Lightweight internal wrapper for exception handling in executor
+
+    :param func:        original call function
+    :param run_return:  return object
+    :param run_setup:   setup for run
+    """
+    try:
+        func(run_return,run_setup)
+    except Exception as ex:
+        # return outputs in case of error
+        run_return.probe=ParallelProbe(None, ex)
+
 
 class ParallelExecutor:
     """ Helper for parallel execution of defined function (via start new process with aim to avoid GIL) """
@@ -52,6 +66,7 @@ class ParallelExecutor:
         :param init_call:       init call before exection
         """
         self._func = func
+        self._func_wrapper = _executor_wrapper
         self._detail_output = detail_output
         self._label = label
         self._output_file = output_file
@@ -68,7 +83,7 @@ class ParallelExecutor:
             for threadKey in range(threads):
                 run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
                 features.append(
-                    executor.submit(self._func, run_return, run_setup))
+                    executor.submit(self._func_wrapper, self._func, run_return, run_setup))
 
             for future in concurrent.futures.as_completed(features):
                 future.result()
@@ -193,6 +208,7 @@ class ParallelExecutor:
         sum_deviation = 0
         sum_call = 0
         count = 0
+        total_call_per_sec=0
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
@@ -204,20 +220,22 @@ class ParallelExecutor:
             if (self._detail_output == True):
                 self._print(file, f"     {parallel_ret.ToString()}")
 
+        #TDDO: return detail also in case that count=0
         if (count > 0):
-            out = {
-                FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
-                FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
-                FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
-                FileFormat.PRF_CORE_REAL_EXECUTOR: count,
-                FileFormat.PRF_CORE_GROUP: group,
-                FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
-                FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: 0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row,
-                FileFormat.PRF_CORE_AVRG_TIME: sum_time / count,
-                FileFormat.PRF_CORE_STD_DEVIATION: sum_deviation / count,
-                FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
-            }
-            self._print(file, f"  {json.dumps(out)}")
+            total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
+        out = {
+            FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
+            FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
+            FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
+            FileFormat.PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.PRF_CORE_GROUP: group,
+            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
+            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,
+            FileFormat.PRF_CORE_AVRG_TIME: 0 if count==0 else sum_time / count,
+            FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else sum_deviation / count,
+            FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
+        }
+        self._print(file, f"  {json.dumps(out)}")
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
@@ -238,8 +256,8 @@ class ParallelExecutor:
         if threads == 1:
             for process_key in range(processes):
                 run_return = RunReturn(process_key, return_dict)
-                p = Process(target=self._func,
-                            args=(run_return, run_setup))
+                p = Process(target=self._func_wrapper,
+                            args=(self._func, run_return, run_setup))
                 # oldversion                args=(process_key, return_dict, run_setup))
 
                 proc.append(p)
@@ -437,7 +455,7 @@ class ParallelExecutor:
         run_setup.set_start_time()
 
         # test call
-        self._func(run_return, run_setup)
+        self._func_wrapper(self._func, run_return, run_setup)
 
         # return output
         ret=dictionary[key]
@@ -450,14 +468,12 @@ class ParallelExecutor:
 
     def create_graph(self, output_graph_dir="output", picture_dpi=100):
         """
-        Generate graph based on output from performance tests
+        Generate graph(s) based on output from performance tests
 
         :param output_graph_dir:    directory for graph outputs
         :param picture_dpi:         quality of picture (default is 100 DPI)
         """
 
-        # TODO: add datetime to the path
-        #datetime.datetime.now().isoformat("")
         graph = GraphPerformance(picture_dpi)
         graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"))
 

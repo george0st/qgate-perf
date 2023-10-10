@@ -15,35 +15,29 @@ import shutil
 def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
     """ Function for performance testing"""
 
-    try:
+    # init (contain executor synchonization, if needed)
+    probe = ParallelProbe(run_setup)
 
-        # init (contain executor synchonization, if needed)
-        probe = ParallelProbe(run_setup)
+    if run_setup.is_init:
+        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col} [{run_return.probe}]")
 
-        if run_setup.is_init:
-            print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col} [{run_return.probe}]")
+    while (True):
 
-        while (True):
+        # START - performance measure for specific part of code
+        probe.start()
 
-            # START - performance measure for specific part of code
-            probe.start()
+        for r in range(run_setup.bulk_row * run_setup.bulk_col):
+            time.sleep(0)
 
-            for r in range(run_setup.bulk_row * run_setup.bulk_col):
-                time.sleep(0)
+        # STOP - performance measure specific part of code
+        if probe.stop():
+            break
 
-            # STOP - performance measure specific part of code
-            if probe.stop():
-                break
+    if run_setup.param("generate_error"):
+        raise Exception('Simulated error')
 
-        if run_setup.param("generate_error"):
-            raise Exception('Simulated error')
-
-        # return outputs
-        run_return.probe=probe
-
-    except Exception as ex:
-        # return outputs in case of error
-        run_return.probe=ParallelProbe(None, ex)
+    # return outputs
+    run_return.probe=probe
 
 class TestCasePerf(unittest.TestCase):
 
@@ -127,7 +121,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=4, start_delay=2)
         self.assertTrue(generator.run(2, 2, setup))
 
-    def test_run_exeption(self):
+    def test_run_exception(self):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
