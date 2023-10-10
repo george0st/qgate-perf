@@ -18,6 +18,9 @@ from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
 
+from qgate_graph.graph_performance import GraphPerformance
+from qgate_graph.graph_executor import GraphExecutor
+
 from contextlib import suppress
 
 
@@ -54,9 +57,9 @@ class ParallelExecutor:
         self._output_file = output_file
         self._init_call = init_call
 
-        # technical point, how to close Process
+        # Technical point, how to close Process
         #   in python >= 3.7 Close() as soft closing
-        #   in python < 3.7 Terminate() as hard closing
+        #   in python < 3.7 Terminate() as hard closing (the Close method does not exist in python lower versions)
         self._process_close=True if version.parse(python_version()) >= version.parse("3.7") else False
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
@@ -244,8 +247,6 @@ class ParallelExecutor:
             for process_key in range(processes):
                 p = Process(target=self._coreThreadClassPool,
                             args=(threads, process_key, return_dict, run_setup))
-                # oldversion    p = Process(target=self._coreThreadClassPool,
-                #                p = Process(target=self._coreThreadClassPool,
                 # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
                 # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
                 # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
@@ -271,7 +272,7 @@ class ParallelExecutor:
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
-        :param executor_list:       list of executors for execution in format [[processes, threads], ...]
+        :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
         :return:                    return state, True - all executions was without exceptions,
@@ -446,3 +447,19 @@ class ParallelExecutor:
             if ret.exception is not None:
                 return False
         return True
+
+    def create_graph(self, output_graph_dir="output", picture_dpi=100):
+        """
+        Generate graph based on output from performance tests
+
+        :param output_graph_dir:    directory for graph outputs
+        :param picture_dpi:         quality of picture (default is 100 DPI)
+        """
+
+        # TODO: add datetime to the path
+        #datetime.datetime.now().isoformat("")
+        graph = GraphPerformance(picture_dpi)
+        graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"))
+
+        graph = GraphExecutor(picture_dpi)
+        graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"))
