@@ -20,11 +20,11 @@ Performance test generator, part of Quality Gate solution. Key benefits:
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.run_return import RunReturn
 import time
 
 def prf_GIL_impact(run_setup: RunSetup):
-    """ Function for performance testing"""
+    """ Your own function for performance testing, you have to add
+    only part INIT, START, STOP and RETURN"""
     
     # INIT - contain executor synchonization, if needed
     probe=ParallelProbe(run_setup)
