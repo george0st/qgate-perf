@@ -40,6 +40,18 @@ class RunSetup:
             return self._parameters.get(key, default)
         return default
 
+    def __getitem__(self, key):
+        """Return key parameter, with default value None"""
+        return self.param(key, None)
+
+    def __str__(self):
+        """Return all keys and values from parameter"""
+        out="DUMP>> "
+        if self._parameters:
+            for key in self._parameters.keys():
+                out+=f"{key}: {self._parameters[key]}, "
+        return out[:-2]
+
     @property
     def duration_second(self):
         return self._duration_second
