@@ -23,7 +23,7 @@ from qgate_perf.run_setup import RunSetup
 from qgate_perf.run_return import RunReturn
 import time
 
-def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
+def prf_GIL_impact(run_setup: RunSetup):
     """ Function for performance testing"""
     
     # INIT - contain executor synchonization, if needed
@@ -41,7 +41,7 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
             break
 
     # RETURN - data from probe
-    run_return.probe=probe
+    return probe
 
 # Execution setting
 generator = ParallelExecutor(prf_GIL_impact,

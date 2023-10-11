@@ -7,35 +7,27 @@ import click
 import logging
 import time
 
-def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
+def prf_GIL_impact(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
-    try:
-        # INIT - contain executor synchonization, if needed
-        probe=ParallelProbe(run_setup)
 
-        # if run_setup.is_init:
-        #     print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
+    # INIT - contain executor synchonization, if needed
+    probe=ParallelProbe(run_setup)
 
-        while (True):
+    # if run_setup.is_init:
+    #     print(f"!!!!!!!!!!!!!!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
 
-            # START - probe, only for this specific code part
-            probe.start()
+    while (True):
+        # START - probe, only for this specific code part
+        probe.start()
 
-            for r in range(run_setup.bulk_row * run_setup.bulk_col):
-                time.sleep(0.001)
+        for r in range(run_setup.bulk_row * run_setup.bulk_col):
+            time.sleep(0.001)
 
-            # STOP - probe
-            if probe.stop():
-                break
+        # STOP - probe
+        if probe.stop():
+            break
 
-        # RETURN - data from probe
-        run_return.probe=probe
-
-    except Exception as ex:
-        # RETURN - error
-        run_return.probe=ParallelProbe(None, ex)
-
-
+    return probe
 
 @click.command()
 @click.option("--input", help="input directory (default is directory 'input')", default="input")

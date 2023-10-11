@@ -42,7 +42,11 @@ def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
     :param run_setup:   setup for run
     """
     try:
-        func(run_return,run_setup)
+#        run_return.probe=func(run_return,run_setup)
+        if not func:
+            raise ValueError("Missing function for performance tests, update this code 'ParallelExecutor(null)'.")
+        run_return.probe=func(run_setup)
+
     except Exception as ex:
         # return outputs in case of error
         run_return.probe=ParallelProbe(None, ex)
@@ -347,7 +351,7 @@ class ParallelExecutor:
             self._print_footer(file, final_state)
 
         except Exception as e:
-            self._print(file, str(e) if e is not None else '!! Noname exception !!')
+            self._print(file, "GENERAL EXCEPTION: " + str(e) if e is not None else '!! Noname exception !!')
             final_state = False
         finally:
             if file is not None:
@@ -388,7 +392,7 @@ class ParallelExecutor:
             self._print_footer(file, final_state)
 
         except Exception as e:
-            self._print(file, str(e) if e is not None else '!! Noname exception !!')
+            self._print(file, "GENERAL EXCEPTION: " + str(e) if e is not None else '!! Noname exception !!')
             final_state = False
         finally:
             if file is not None:

@@ -12,14 +12,14 @@ import time
 from os import path
 import shutil
 
-def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
+def prf_GIL_impact(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
     # init (contain executor synchonization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
-        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col} [{run_return.probe}]")
+        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
 
     while (True):
 
@@ -37,7 +37,7 @@ def prf_GIL_impact(run_return: RunReturn, run_setup: RunSetup):
         raise Exception('Simulated error')
 
     # return outputs
-    run_return.probe=probe
+    return probe
 
 class TestCasePerf(unittest.TestCase):
 
@@ -49,6 +49,14 @@ class TestCasePerf(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    def test_null_function_exception(self):
+        generator = ParallelExecutor(None,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+
+        self.assertFalse(generator.one_run())
 
     def test_one_run(self):
         generator = ParallelExecutor(prf_GIL_impact,
@@ -118,7 +126,7 @@ class TestCasePerf(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
-        setup=RunSetup(duration_second=4, start_delay=2)
+        setup=RunSetup(duration_second=4, start_delay=4)
         self.assertTrue(generator.run(2, 2, setup))
 
     def test_run_exception(self):
@@ -233,6 +241,24 @@ class TestCasePerf(unittest.TestCase):
 
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertTrue(generator.run(1, 2, setup))
+
+    def test_general_exception(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="*&%$.txt")
+
+        setup=RunSetup(duration_second=0, start_delay=0)
+        self.assertFalse(generator.run(1, 2, setup))
+
+    def test_general_exception2(self):
+        generator = ParallelExecutor(prf_GIL_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file="*&%$.txt")
+
+        setup=RunSetup(duration_second=0, start_delay=0)
+        self.assertFalse(generator.run_executor([[1,1]], setup))
 
 
 # if __name__ == '__main__':

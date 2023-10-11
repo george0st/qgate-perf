@@ -10,14 +10,14 @@ import time
 from os import path
 import shutil
 
-def prf_test(run_return: RunReturn, run_setup: RunSetup):
+def prf_test(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
     # init (contain executor synchonization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
-        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col} [{run_return.probe}]")
+        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
 
     while (True):
 
@@ -34,9 +34,7 @@ def prf_test(run_return: RunReturn, run_setup: RunSetup):
     if run_setup.param("generate_error"):
         raise Exception('Simulated error')
 
-    # return outputs
-    run_return.probe=probe
-
+    return probe
 
 class TestCaseGraph(unittest.TestCase):
     OUTPUT_ADR = "../output/test_graph/"
