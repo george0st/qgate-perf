@@ -1,7 +1,7 @@
 import os
 import unittest
 import logging
-from qgate_perf.parallel_executor import ParallelExecutor, InitCallSetting
+from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import ExecutorHelper
