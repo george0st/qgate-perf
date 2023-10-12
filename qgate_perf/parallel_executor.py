@@ -23,16 +23,6 @@ from qgate_graph.graph_executor import GraphExecutor
 
 from contextlib import suppress
 
-
-class InitCallSetting:
-    Off = 0
-    EachBundle = 1
-    EachExecutor = 2
-
-    @staticmethod
-    def all():
-        return InitCallSetting.EachBundle + InitCallSetting.EachExecutor
-
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
     """
     Lightweight internal wrapper for exception handling in executor
@@ -60,21 +50,21 @@ class ParallelExecutor:
                  label = None,
                  detail_output = True,
                  output_file = None,
-                 init_call: InitCallSetting = InitCallSetting.Off):
+                 init_each_bulk = False):
         """ Setting of execution
 
         :param func:            function for parallel run
         :param label:           text label for parallel run
         :param detail_output:   provide details output from executors
         :param output_file:     output to the file, defualt is without file
-        :param init_call:       init call before exection
+        :param init_each_bulk:  call 'init_run' before each bulk (useful e.g. change amount of columns in target)
         """
         self._func = func
         self._func_wrapper = _executor_wrapper
         self._detail_output = detail_output
         self._label = label
         self._output_file = output_file
-        self._init_call = init_call
+        self._init_each_bulk = init_each_bulk
 
         # Technical point, how to close Process
         #   in python >= 3.7 Close() as soft closing
@@ -287,10 +277,10 @@ class ParallelExecutor:
                 p.terminate()   # hard close
 
     def run_bulk_executor(self,
-                              bulk_list= BundleHelper.ROW_1_COL_10_100,
-                              executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
-                              run_setup: RunSetup=None,
-                              sleep_between_bulks=0):
+                          bulk_list= BundleHelper.ROW_1_COL_10_100,
+                          executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
+                          run_setup: RunSetup=None,
+                          sleep_between_bulks=0):
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
@@ -301,6 +291,7 @@ class ParallelExecutor:
                                     False - some exceptions
         """
         final_state = True
+
         for bulk in bulk_list:
             run_setup.set_bulk(bulk[0], bulk[1])
 
@@ -325,8 +316,7 @@ class ParallelExecutor:
         print('Execution...')
 
         try:
-            # TODO: experiment with init call
-            if self._init_call & InitCallSetting.EachBundle:
+            if self._init_each_bulk:
                 self.init_run(run_setup)
 
             if self._output_file is not None:
@@ -372,8 +362,7 @@ class ParallelExecutor:
         print('Execution...')
 
         try:
-            # TODO: experiment with init call
-            if self._init_call & InitCallSetting.EachBundle:
+            if self._init_each_bulk:
                 self.init_run(run_setup)
 
             if self._output_file is not None:

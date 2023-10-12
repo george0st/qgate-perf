@@ -1,7 +1,7 @@
 import os
 import unittest
 import logging
-from qgate_perf.parallel_executor import ParallelExecutor, InitCallSetting
+from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import ExecutorHelper
@@ -165,7 +165,8 @@ class TestCasePerf(unittest.TestCase):
         generator = ParallelExecutor(prf_GIL_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"),
+                                     init_each_bulk=True)
 
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
@@ -216,7 +217,7 @@ class TestCasePerf(unittest.TestCase):
                                      label="GIL_impact",
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"),
-                                     init_call=InitCallSetting.all())
+                                     init_each_bulk=True)
 
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
@@ -237,7 +238,7 @@ class TestCasePerf(unittest.TestCase):
                                      label="GIL_impact",
                                      detail_output=True,
                                      output_file=None,
-                                     init_call=InitCallSetting.all())
+                                     init_each_bulk=True)
 
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertTrue(generator.run(1, 2, setup))
