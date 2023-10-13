@@ -23,9 +23,12 @@ class ParallelProbe:
         self.standard_deviation=0
         self.pid = os.getpid()
         self.exception = exception
-
         self.track_time={}
         self.track_time[FileFormat.PRF_DETAIL_TIME_INIT]=datetime.datetime.utcnow()
+
+        # setup default values 1/1/1970 for keys 'TIME_START' and 'TIME_END'
+        self.track_time[FileFormat.PRF_DETAIL_TIME_START]=datetime.datetime(1970,1,1)
+        self.track_time[FileFormat.PRF_DETAIL_TIME_END]=datetime.datetime(1970,1,1)
 
         if run_setup:
             # init incremental calculation of standard deviation
@@ -95,7 +98,7 @@ class ParallelProbe:
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
                 FileFormat.PRF_DETAIL_PROCESSID: self.pid,
                 FileFormat.PRF_DETAIL_CALLS: self.counter,
-                FileFormat.PRF_DETAIL_AVRG: self.total_duration / self.counter,
+                FileFormat.PRF_DETAIL_AVRG: 0 if self.counter==0 else self.total_duration / self.counter,
                 FileFormat.PRF_DETAIL_MIN: self.min_duration,
                 FileFormat.PRF_DETAIL_MAX: self.max_duration,
                 FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,
