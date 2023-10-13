@@ -2,6 +2,7 @@ import datetime
 import time
 import os, sys, math
 import json
+
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 
@@ -93,12 +94,13 @@ class ParallelProbe:
 
     def ToString(self):
         """ Provider view to return value """
+
         if self.exception is None:
             out={
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
                 FileFormat.PRF_DETAIL_PROCESSID: self.pid,
                 FileFormat.PRF_DETAIL_CALLS: self.counter,
-                FileFormat.PRF_DETAIL_AVRG: 0 if self.counter==0 else self.total_duration / self.counter,
+                FileFormat.PRF_DETAIL_AVRG: math.nan if self.counter == 0 else self.total_duration / self.counter,
                 FileFormat.PRF_DETAIL_MIN: self.min_duration,
                 FileFormat.PRF_DETAIL_MAX: self.max_duration,
                 FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,
