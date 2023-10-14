@@ -32,14 +32,11 @@ def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
     :param run_setup:   setup for run
     """
     try:
-#        run_return.probe=func(run_return,run_setup)
         if not func:
             raise ValueError("Missing function for performance tests, update this code 'ParallelExecutor(null)'.")
         run_return.probe=func(run_setup)
-
     except Exception as ex:
-        # return outputs in case of error
-        run_return.probe=ParallelProbe(None, ex)
+        run_return.probe=ParallelProbe(None, f"{type(ex).__name__}: {str(ex)}")
 
 
 class ParallelExecutor:
@@ -72,15 +69,18 @@ class ParallelExecutor:
         self._process_close=True if version.parse(python_version()) >= version.parse("3.7") else False
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
-        with ThreadPoolExecutor(max_workers=threads) as executor:
-            features = []
-            for threadKey in range(threads):
-                run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
-                features.append(
-                    executor.submit(self._func_wrapper, self._func, run_return, run_setup))
+        try:
+            with ThreadPoolExecutor(max_workers=threads) as executor:
+                features = []
+                for threadKey in range(threads):
+                    run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
+                    features.append(
+                        executor.submit(self._func_wrapper, self._func, run_return, run_setup))
 
-            for future in concurrent.futures.as_completed(features):
-                future.result()
+                for future in concurrent.futures.as_completed(features):
+                    future.result()
+        except Exception as ex:
+            print(f"SYSTEM ERROR in '_coreThreadClassPool': {type(ex).__name__} - '{str(ex)}'")
 
     # def _coreThreadClass(self, threads, return_key, return_dict, run_setup):
     #     thrd = []
@@ -183,7 +183,9 @@ class ParallelExecutor:
         """
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
-            if parallel_ret.exception is not None:
+            if parallel_ret is None:
+                return False
+            elif parallel_ret.exception is not None:
                 return False
         return True
 
@@ -206,13 +208,14 @@ class ParallelExecutor:
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
-            if (parallel_ret.counter > 0):
-                sum_time = sum_time + (parallel_ret.total_duration / parallel_ret.counter)
-                sum_deviation += parallel_ret.standard_deviation
-                sum_call += parallel_ret.counter
-                count += 1
+            if parallel_ret:
+                if (parallel_ret.counter > 0):
+                    sum_time = sum_time + (parallel_ret.total_duration / parallel_ret.counter)
+                    sum_deviation += parallel_ret.standard_deviation
+                    sum_call += parallel_ret.counter
+                    count += 1
             if (self._detail_output == True):
-                self._print(file, f"     {parallel_ret.ToString()}")
+                self._print(file, f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}")
 
         #TDDO: return detail also in case that count=0
         if (count > 0):
@@ -247,34 +250,37 @@ class ParallelExecutor:
         # define synch time for run of all executors
         run_setup.set_start_time()
 
-        if threads == 1:
-            for process_key in range(processes):
-                run_return = RunReturn(process_key, return_dict)
-                p = Process(target=self._func_wrapper,
-                            args=(self._func, run_return, run_setup))
-                # oldversion                args=(process_key, return_dict, run_setup))
+        try:
+            if threads == 1:
+                for process_key in range(processes):
+                    run_return = RunReturn(process_key, return_dict)
+                    p = Process(target=self._func_wrapper,
+                                args=(self._func, run_return, run_setup))
+                    # oldversion                args=(process_key, return_dict, run_setup))
 
-                proc.append(p)
-        else:
-            for process_key in range(processes):
-                p = Process(target=self._coreThreadClassPool,
-                            args=(threads, process_key, return_dict, run_setup))
-                # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
-                # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
-                # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
-                proc.append(p)
-
-        # start
-        for p in proc:
-            p.start()
-
-        # wait for finish
-        for p in proc:
-            p.join()
-            if self._process_close:
-                p.close()       # soft close
+                    proc.append(p)
             else:
-                p.terminate()   # hard close
+                for process_key in range(processes):
+                    p = Process(target=self._coreThreadClassPool,
+                                args=(threads, process_key, return_dict, run_setup))
+                    # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
+                    # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
+                    # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
+                    proc.append(p)
+
+            # start
+            for p in proc:
+                p.start()
+
+            # wait for finish
+            for p in proc:
+                p.join()
+                if self._process_close:
+                    p.close()       # soft close
+                else:
+                    p.terminate()   # hard close
+        except Exception as ex:
+            print(f"SYSTEM ERROR in '_executeCore': '{str(ex)}'")
 
     def run_bulk_executor(self,
                           bulk_list= BundleHelper.ROW_1_COL_10_100,
@@ -340,8 +346,8 @@ class ParallelExecutor:
 
             self._print_footer(file, final_state)
 
-        except Exception as e:
-            self._print(file, "GENERAL EXCEPTION: " + str(e) if e is not None else '!! Noname exception !!')
+        except Exception as ex:
+            self._print(file,f"SYSTEM ERROR in 'run_executor': {type(ex).__name__} - '{str(ex) if ex is not None else '!! Noname exception !!'}'")
             final_state = False
         finally:
             if file is not None:
@@ -381,7 +387,7 @@ class ParallelExecutor:
             self._print_footer(file, final_state)
 
         except Exception as e:
-            self._print(file, "GENERAL EXCEPTION: " + str(e) if e is not None else '!! Noname exception !!')
+            self._print(file, f"SYSTEM ERROR in 'run': '{str(e) if e is not None else '!! Noname exception !!'}'")
             final_state = False
         finally:
             if file is not None:
@@ -454,7 +460,7 @@ class ParallelExecutor:
         ret=dictionary[key]
         if ret:
             if print_output:
-                print(ret.ToString())
+                print(str(ret))
             if ret.exception is not None:
                 return False
         return True
