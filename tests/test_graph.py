@@ -5,15 +5,20 @@ from qgate_perf.run_setup import RunSetup
 import time
 from os import path
 import shutil
+import numpy
+
 
 def prf_test(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
+
+    generator = numpy.random.default_rng()
 
     # init (contain executor synchonization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
         print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
+        return None
 
     while True:
 
@@ -27,8 +32,13 @@ def prf_test(run_setup: RunSetup) -> ParallelProbe:
         if probe.stop():
             break
 
-    if run_setup.param("generate_error"):
-        raise Exception('Simulated error')
+    # generate random exception
+    gen_err=run_setup.param("generate_error")
+    if gen_err =="yes":
+        raise Exception('Simulated exception')
+    elif gen_err == "random":
+        if generator.integers(0,4)==0:
+            raise Exception('Random exception')
 
     return probe
 
@@ -49,8 +59,6 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
 
-        setting = {"generate_error": "yes"}
-
         setup = RunSetup(duration_second=4, start_delay=2, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[10, 10], [100, 10]],
                                                     [[1, 2, 'Austria perf'], [2, 2, 'Austria perf'], [4, 2, 'Austria perf'],
@@ -58,7 +66,7 @@ class TestCaseGraph(unittest.TestCase):
                                                     setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-    def test_graph2(self):
+    def test_graph_run_exception(self):
         generator = ParallelExecutor(prf_test,
                                      label="test",
                                      detail_output=True,
@@ -70,7 +78,7 @@ class TestCaseGraph(unittest.TestCase):
         self.assertFalse(generator.run(1,1, setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-    def test_graph3(self):
+    def test_graph_runexecutor_exception(self):
         generator = ParallelExecutor(prf_test,
                                      label="test",
                                      detail_output=True,
@@ -80,4 +88,16 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
         self.assertFalse(generator.run_executor([[2,2]], setup))
+        generator.create_graph(self.OUTPUT_ADR)
+
+    def test_graph_runbulkexecutor_exception_random(self):
+        generator = ParallelExecutor(prf_test,
+                                     label="test_random",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_random.txt"))
+
+        setting = {"generate_error": "random"}
+
+        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph(self.OUTPUT_ADR)
