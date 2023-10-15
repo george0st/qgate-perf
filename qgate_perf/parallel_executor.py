@@ -217,7 +217,6 @@ class ParallelExecutor:
             if (self._detail_output == True):
                 self._print(file, f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}")
 
-        #TDDO: return detail also in case that count=0
         if (count > 0):
             total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
         out = {
