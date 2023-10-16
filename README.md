@@ -6,7 +6,7 @@
 
 # QGate-Perf
 
-Performance test generator, part of Quality Gate solution. Key benefits:
+The QGate Performance is enabler for performance test execution. Key benefits:
  - **easy performance testing** your python code (key parts - init, start, stop, return)
  - **measure only specific part** of your code 
  - scalability **without limits** (e.g. from 1 to 1k executors)
