@@ -5,3 +5,4 @@ packaging>=21.3
 coverage>=7
 coverage-badge>=1
 pympler==1.0.1
+qgate_graph>=1.3.9
