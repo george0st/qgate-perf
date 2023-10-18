@@ -65,8 +65,12 @@ generator.run_bulk_executor(bulk_list=[[10, 5], [1000, 50]],
                                            [2, 4, '4x thread'], [4, 4, '4x thread'],[8, 4,'4x thread']],
                             run_setup=setup)
 
-# We made 12 performance tests (two bulk_list x six executor_list) and write 
+# Note: We made 12 performance tests (two bulk_list x six executor_list) and write 
 # outputs to the file 'prf_gil_impact_01.txt'
+
+# We generate performance graph based on performance tests to the 
+# directory './output/graph-perf/*' (two files each for different bundle) 
+generator.create_graph_perf()
 ```
 
 ## Outputs in text file 
