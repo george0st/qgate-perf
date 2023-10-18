@@ -107,6 +107,10 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(len(file) == 1)
         print(file[0])
 
+        # TODO: add assert for these two tests
+        generator.create_graph_perf(self.OUTPUT_ADR)
+        generator.create_graph_exec(self.OUTPUT_ADR)
+
 
     def test_graph_runbulkexecutor_exception_random(self):
         generator = ParallelExecutor(prf_test,
@@ -128,3 +132,4 @@ class TestCaseGraph(unittest.TestCase):
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_random-*-bulk-1x5.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
+

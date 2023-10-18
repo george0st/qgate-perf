@@ -468,12 +468,34 @@ class ParallelExecutor:
         """
         Generate graph(s) based on output from performance tests
 
-        :param output_graph_dir:    directory for graph outputs
+        :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         """
 
         graph = GraphPerformance(picture_dpi)
         graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"))
+
+        graph = GraphExecutor(picture_dpi)
+        graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"))
+
+    def create_graph_perf(self, output_graph_dir="output", picture_dpi=100):
+        """
+        Generate performance graph(s) based on output from performance tests
+
+        :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
+        :param picture_dpi:         quality of picture (default is 100 DPI)
+        """
+
+        graph = GraphPerformance(picture_dpi)
+        graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"))
+
+    def create_graph_exec(self, output_graph_dir="output", picture_dpi=100):
+        """
+        Generate executors graph(s) based on output from performance tests
+
+        :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
+        :param picture_dpi:         quality of picture (default is 100 DPI)
+        """
 
         graph = GraphExecutor(picture_dpi)
         graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"))
