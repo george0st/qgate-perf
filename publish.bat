@@ -3,6 +3,7 @@ rem pip install --upgrade twine
 
 rmdir /S /Q dist
 rmdir /S /Q build
+rmdir /S /Q qgate_perf.egg-info
 
 rem 'setup.py bdist_wheel' is deprecated recommendation is to use 'python -m build'
 rem python -m build --wheel
