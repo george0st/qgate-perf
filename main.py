@@ -52,8 +52,7 @@ def graph(input, output):
     #                            RunSetup(duration_second=5, start_delay=20))
 
     generator.run_bulk_executor([[1, 1], [1, 20]],
-                                [[16, 1, 'calc'], [16, 2, 'calc'], [64, 1, 'calc'], [64, 2, 'calc'], [64, 4, 'calc'],
-                                 [128, 4, 'calc']],
+                                [[16, 1, 'calc']],
                                 RunSetup(duration_second=5, start_delay=20))
 
     # generator.run_bulk_executor(bulk_list=[[1, 1]],
