@@ -8,7 +8,8 @@ description = "Performance test generator, part of Quality Gate"  # Optional
 
 requires-python = ">=3.6"
 
-license = {file = "LICENSE"}
+license = {text = "MIT"}
+#license = {file = "LICENSE"}
 
 keywords = ["PerformanceTest", "Performance", "QualityGate"]    # Optional
 
@@ -23,6 +24,9 @@ classifiers = [  # Optional
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.6",
   "Programming Language :: Python :: 3.7",
@@ -43,16 +47,17 @@ repository='https://pypi.org/project/qgate_perf/'
 #download_url='https://pypi.org/project/qgate_perf/'
 #"Source" = "https://github.com/pypa/sampleproject/"
 
+[tool.setuptools]
+include-package-data = false
+
+# it has relation only to --wheel
+[tool.setuptools.packages.find]
+include = ["qgate_perf*"]
+exclude = ["input*", "output*", "tests*"]
+
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
-
-#[tool.setuptools]
-#include-package-data = false
-#
-#[tool.setuptools.packages.find]
-#include = ["qgate_perf*"]
-#exclude = ["docs*", "tests*"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
