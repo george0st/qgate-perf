@@ -11,7 +11,7 @@ rem py -m build
 rem helper 'https://www.scivision.dev/python-minimal-package/'
 rem https://pypa-build.readthedocs.io/en/latest/
 rem https://github.com/pypa/build
-python -m build --sdist
+python -m build --sdist --wheel
 
 rem  --no-isolation
 rem --sdist, -s - build a source distribution (disables the default behavior)
