@@ -100,10 +100,10 @@ generator.create_graph_perf()
 
 ## Graphs generated from qgate-graph based on outputs from qgate-perf
 #### 512 executors (128 processes x 4 threads)
-![graph](https://github.com/george0st/qgate-perf/blob/main/assets/PRF-Calc-2023-05-06_18-22-19-bulk-1x10.png)
-![graph](https://github.com/george0st/qgate-perf/blob/main/assets/EXE-Calc-2023-05-06_18-22-19-bulk-1x10-plan-128x4.png)
+![graph](https://github.com/george0st/qgate-perf/blob/main/assets/PRF-Calc-2023-05-06_18-22-19-bulk-1x10.png?raw=true)
+![graph](https://github.com/george0st/qgate-perf/blob/main/assets/EXE-Calc-2023-05-06_18-22-19-bulk-1x10-plan-128x4.png?raw=true)
 
 #### 32 executors (8 processes x 4 threads)
-![graph](https://github.com/george0st/qgate-perf/blob/main/assets/PRF-NoSQL_igz_nonprod-2023-04-23_14-41-18-bulk-100x50.png)
-![graph](https://github.com/george0st/qgate-perf/blob/main/assets/EXE-NoSQL-2023-05-04_19-33-30-bulk-1x50-plan-8x2.png)
+![graph](https://github.com/george0st/qgate-perf/blob/main/assets/PRF-NoSQL_igz_nonprod-2023-04-23_14-41-18-bulk-100x50.png?raw=true)
+![graph](https://github.com/george0st/qgate-perf/blob/main/assets/EXE-NoSQL-2023-05-04_19-33-30-bulk-1x50-plan-8x2.png?raw=true)
 
