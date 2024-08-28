@@ -464,45 +464,48 @@ class ParallelExecutor:
                 return False
         return True
 
-    def create_graph(self, output_graph_dir="output", picture_dpi=100) -> list[str]:
+    def create_graph(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
+        :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
         output_file=[]
 
         graph = GraphPerformance(picture_dpi)
-        for file in graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf")):
+        for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
             output_file.append(file)
 
         graph = GraphExecutor(picture_dpi)
-        for file in graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec")):
+        for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
             output_file.append(file)
         return output_file
 
-    def create_graph_perf(self, output_graph_dir="output", picture_dpi=100) -> list[str]:
+    def create_graph_perf(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate performance graph(s) based on output from performance tests
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
         :param picture_dpi:         quality of picture (default is 100 DPI)
+        :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
 
         graph = GraphPerformance(picture_dpi)
-        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"))
+        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"), suppress_error = True)
 
-    def create_graph_exec(self, output_graph_dir="output", picture_dpi=100) -> list[str]:
+    def create_graph_exec(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate executors graph(s) based on output from performance tests
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
+        :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
 
         graph = GraphExecutor(picture_dpi)
-        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"))
+        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"), suppress_error)
