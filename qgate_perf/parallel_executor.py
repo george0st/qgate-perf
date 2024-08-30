@@ -297,14 +297,20 @@ class ParallelExecutor:
                                     False - some exceptions
         """
         final_state = True
-
+        count = 0
         for bulk in bulk_list:
-            run_setup.set_bulk(bulk[0], bulk[1])
+
+            # sleep before other bulk
+            count += 1
+            if count>1:
+                time.sleep(sleep_between_bulks)
 
             # execute
+            run_setup.set_bulk(bulk[0], bulk[1])
             if not self.run_executor(executor_list, run_setup):
                 final_state=False
-            time.sleep(sleep_between_bulks)
+
+            # memory clean
             gc.collect()
         return final_state
 
