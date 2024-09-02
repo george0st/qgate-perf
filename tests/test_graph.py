@@ -67,11 +67,11 @@ class TestCaseGraph(unittest.TestCase):
                                                     setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_aus_ger-*-bulk-10x10.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_aus_ger-*-bulk-10x10.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_aus_ger-*-bulk-100x10.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_aus_ger-*-bulk-100x10.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -87,7 +87,7 @@ class TestCaseGraph(unittest.TestCase):
         self.assertFalse(generator.run(1,1, setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_exception-*-bulk-1x1.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_exception-*-bulk-1x1.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -103,7 +103,7 @@ class TestCaseGraph(unittest.TestCase):
         self.assertFalse(generator.run_executor([[2,2]], setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_exception2-*-bulk-1x1.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_exception2-*-bulk-1x1.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -125,11 +125,11 @@ class TestCaseGraph(unittest.TestCase):
         generator.create_graph(self.OUTPUT_ADR)
 
         # check relevant files
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_random-*-bulk-1x1.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_random-*-bulk-1x1.png"))
         self.assertTrue(len(file)==1)
         print(file[0])
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf",f"PRF-test_random-*-bulk-1x5.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_random-*-bulk-1x5.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
