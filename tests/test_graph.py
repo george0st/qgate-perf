@@ -1,3 +1,4 @@
+import datetime
 import glob
 import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
@@ -67,11 +68,12 @@ class TestCaseGraph(unittest.TestCase):
                                                     setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_aus_ger-*-bulk-10x10.png"))
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_aus_ger-*-bulk-10x10.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_aus_ger-*-bulk-100x10.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_aus_ger-*-bulk-100x10.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -87,6 +89,7 @@ class TestCaseGraph(unittest.TestCase):
         self.assertFalse(generator.run(1,1, setup))
         generator.create_graph(self.OUTPUT_ADR)
 
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_exception-*-bulk-1x1.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
