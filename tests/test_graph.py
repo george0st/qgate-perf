@@ -90,7 +90,7 @@ class TestCaseGraph(unittest.TestCase):
         generator.create_graph(self.OUTPUT_ADR)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_exception-*-bulk-1x1.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_exception-*-bulk-1x1.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -106,7 +106,8 @@ class TestCaseGraph(unittest.TestCase):
         self.assertFalse(generator.run_executor([[2,2]], setup))
         generator.create_graph(self.OUTPUT_ADR)
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_exception2-*-bulk-1x1.png"))
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_exception2-*-bulk-1x1.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
@@ -128,7 +129,8 @@ class TestCaseGraph(unittest.TestCase):
         generator.create_graph(self.OUTPUT_ADR)
 
         # check relevant files
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_random-*-bulk-1x1.png"))
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_random-*-bulk-1x1.png"))
         self.assertTrue(len(file)==1)
         print(file[0])
 
