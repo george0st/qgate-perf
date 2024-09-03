@@ -128,13 +128,14 @@ class TestCaseGraph(unittest.TestCase):
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph(self.OUTPUT_ADR)
 
-        # check relevant files
         today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+        # check relevant files
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_random-*-bulk-1x1.png"))
         self.assertTrue(len(file)==1)
         print(file[0])
 
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", f"PRF-test_random-*-bulk-1x5.png"))
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_random-*-bulk-1x5.png"))
         self.assertTrue(len(file) == 1)
         print(file[0])
 
