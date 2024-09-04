@@ -1,9 +1,9 @@
-# numpy higher version need python>=3.10 (not 3.9)
-numpy>=1.26.4,<=2.0.1
+# numpy higher version need python==3.9 max numpy==2.0.1
+numpy>=1.26.4,<=2.1.1
 
 contourpy>=1.0.0,<=1.3.0
 
 psutil>=5.9.0,<=6.0.0
 packaging>=21.0
 
-qgate_graph==1.4.14
+qgate_graph==1.4.15
