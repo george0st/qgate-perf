@@ -52,9 +52,11 @@ class ParallelExecutor:
 
         :param func:            function for parallel run
         :param label:           text label for parallel run
-        :param detail_output:   provide details output from visualization of executor curves, default is True
+        :param detail_output:   provide detailed output from visualization of time, when executor was started
+                                see usage in method create_graph_exec, default is True
         :param output_file:     output to the file, default is without file
-        :param init_each_bulk:  call 'init_run' before each bulk (useful e.g. change amount of columns in target)
+        :param init_each_bulk:  call 'init_run' before each bulk (useful e.g. change amount of columns in target),
+                                default is False
         """
         self._func = func
         self._func_wrapper = _executor_wrapper
