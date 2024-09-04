@@ -2,7 +2,6 @@ import gc
 import os.path
 from multiprocessing import Process
 import multiprocessing
-import threading
 import datetime
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -14,14 +13,12 @@ from qgate_perf.bundle_helper import BundleHelper
 from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
-
 from platform import python_version
 from packaging import version
-
 from qgate_graph.graph_performance import GraphPerformance
 from qgate_graph.graph_executor import GraphExecutor
-
 from contextlib import suppress
+
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
     """
@@ -50,7 +47,7 @@ class ParallelExecutor:
                  init_each_bulk = False):
         """ Setting of execution
 
-        :param func:            function for parallel run
+        :param func:            function for parallel run in format see 'def my_func(run_setup: RunSetup) -> ParallelProbe:'
         :param label:           text label for parallel run
         :param detail_output:   provide detailed output from visualization of time, when executor was started
                                 see usage in method create_graph_exec, default is True

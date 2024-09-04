@@ -1,20 +1,23 @@
 import datetime
 
+
 class RunSetup:
 
-    def __init__(self, duration_second = 0, start_delay: int=0, parameters: dict={}):
+    def __init__(self, duration_second = 0, start_delay: int = 0, parameters: dict = {}):
         """ Setup of execution
 
-        :param duration_second:     parameters for duration of atomic execution (it is up to function, if it will reflect the value)
-        :param start_delay:         maximal time in seconds for waiting/synchronization,
-                                    before execution of all executors (0 = without synchronization)
+        :param duration_second:     parameter for duration of atomic execution (it is up to function,
+                                    if fuction will reflect the defined value)
+        :param start_delay:         maximal time in seconds for waiting to the all executors,
+                                    after this time all executors will continue in run. It is usefull
+                                    parameter for executor synchronization, value 0 = without synchronization
         :param parameters:          addition parameters for execution
         """
-        self._duration_second=duration_second
+        self._duration_second = duration_second
         self._bulk_row = 1
         self._bulk_col = 1
-        self._start_delay=start_delay
-        self._when_start=None
+        self._start_delay = start_delay
+        self._when_start = None
 
         # collection of specific keys for project such as project_name, feature_set_name, etc.
         self._parameters=parameters

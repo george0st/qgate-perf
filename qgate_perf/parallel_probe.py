@@ -2,7 +2,6 @@ import datetime
 import time
 import os, sys, math
 import json
-
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.standard_deviation import StandardDeviation
