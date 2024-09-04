@@ -5,8 +5,9 @@ class RunSetup:
     def __init__(self, duration_second = 0, start_delay: int=0, parameters: dict={}):
         """ Setup of execution
 
-        :param duration_second:     parametrs for duration of atomic execution (it is up to function, if it will reflect the value)
-        :param start_delay:         maximal time for waiting/synchronization, before execution of all executors (0 = without synchronization)
+        :param duration_second:     parameters for duration of atomic execution (it is up to function, if it will reflect the value)
+        :param start_delay:         maximal time in seconds for waiting/synchronization,
+                                    before execution of all executors (0 = without synchronization)
         :param parameters:          addition parameters for execution
         """
         self._duration_second=duration_second

@@ -52,8 +52,8 @@ class ParallelExecutor:
 
         :param func:            function for parallel run
         :param label:           text label for parallel run
-        :param detail_output:   provide details output from executors
-        :param output_file:     output to the file, defualt is without file
+        :param detail_output:   provide details output from visualization of executor curves, default is True
+        :param output_file:     output to the file, default is without file
         :param init_each_bulk:  call 'init_run' before each bulk (useful e.g. change amount of columns in target)
         """
         self._func = func
