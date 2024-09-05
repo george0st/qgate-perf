@@ -39,7 +39,7 @@ class ParallelProbe:
                 # key part of init timer (import for stop parallel run)
                 self.init_time = time.time()
                 self.track_start = datetime.datetime.utcnow()
-                self.track_end=datetime.datetime(1970, 1, 1)
+                self.track_end = datetime.datetime(1970, 1, 1)
 
     def start(self):
         """ Start measurement each test"""
@@ -70,7 +70,7 @@ class ParallelProbe:
         # Is it possible to end performance testing?
         if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
             # write time
-            self.track_end=datetime.datetime.utcnow()
+            self.track_end = datetime.datetime.utcnow()
             # calc standard deviation
             self.standard_deviation = self.stddev.std
             # release unused sources (we calculated standard deviation)
@@ -85,7 +85,7 @@ class ParallelProbe:
             :param when_start:      datetime, when to start execution
             :param tolerance:       time tolerance in second (when it does not make to wait), default is 100 ms
         """
-        # wait till specific time (the time for run is variable for each exector based on system processing and delay)
+        # wait till specific time (the time for run is variable for each executor based on system processing and delay)
         sleep_time = when_start - datetime.datetime.now()
         sleep_time = sleep_time.total_seconds()
 
