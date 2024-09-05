@@ -99,13 +99,13 @@ class ParallelProbe:
         if self.exception is None:
             return json.dumps({
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
-                FileFormat.PRF_DETAIL_PROCESSID: self.pid,
-                FileFormat.PRF_DETAIL_CALLS: self.counter,                          # important
+                FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
+                FileFormat.PRF_DETAIL_CALLS: self.counter,                          # for perf graph
                 FileFormat.PRF_DETAIL_AVRG: math.nan if self.counter == 0 else self.total_duration / self.counter,
-                FileFormat.PRF_DETAIL_MIN: self.min_duration,
-                FileFormat.PRF_DETAIL_MAX: self.max_duration,
-                FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # important
-                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # important
+                FileFormat.PRF_DETAIL_MIN: self.min_duration,                       # info
+                FileFormat.PRF_DETAIL_MAX: self.max_duration,                       # info
+                FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # for perf graph
+                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # for perf graph
                 FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
                 FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
                 FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
