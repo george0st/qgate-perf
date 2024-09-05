@@ -7,7 +7,7 @@ class RunSetup:
         """ Setup of execution
 
         :param duration_second:     parameter for duration of atomic execution (it is up to function,
-                                    if fuction will reflect the defined value)
+                                    if function will reflect the defined value)
         :param start_delay:         maximal time in seconds for waiting to the all executors,
                                     after this time all executors will continue in run. It is usefull
                                     parameter for executor synchronization, value 0 = without synchronization

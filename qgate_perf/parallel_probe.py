@@ -79,18 +79,18 @@ class ParallelProbe:
         return False
 
     @staticmethod
-    def _wait_for_others(when_start, tollerance=0.1):
+    def _wait_for_others(when_start, tolerance=0.1):
         """ Waiting for other executors
 
             :param when_start:      datetime, when to start execution
-            :param tollerance:      time tollerance in second (when it does not make to wait), default is 100 ms
+            :param tolerance:       time tolerance in second (when it does not make to wait), default is 100 ms
         """
         # wait till specific time (the time for run is variable for each exector based on system processing and delay)
         sleep_time = when_start - datetime.datetime.now()
         sleep_time = sleep_time.total_seconds()
 
-        # define size of tollerance for synchronization
-        if sleep_time > tollerance:
+        # define size of tolerance for synchronization
+        if sleep_time > tolerance:
             time.sleep(sleep_time)
 
     def __str__(self):
@@ -100,15 +100,15 @@ class ParallelProbe:
             return json.dumps({
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
                 FileFormat.PRF_DETAIL_PROCESSID: self.pid,
-                FileFormat.PRF_DETAIL_CALLS: self.counter,
+                FileFormat.PRF_DETAIL_CALLS: self.counter,                          # important
                 FileFormat.PRF_DETAIL_AVRG: math.nan if self.counter == 0 else self.total_duration / self.counter,
                 FileFormat.PRF_DETAIL_MIN: self.min_duration,
                 FileFormat.PRF_DETAIL_MAX: self.max_duration,
-                FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,
-                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,
-                FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),
-                FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),
-                FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')
+                FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # important
+                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # important
+                FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
+                FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
+                FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
             })
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
