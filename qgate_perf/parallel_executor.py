@@ -501,7 +501,7 @@ class ParallelExecutor:
         """
 
         graph = GraphPerformance(picture_dpi)
-        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-perf"), suppress_error = True)
+        return graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error)
 
     def create_graph_exec(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
