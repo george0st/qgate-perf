@@ -1,10 +1,11 @@
 import datetime
 import time
-import os, sys, math
+import os
 import json
+from qgate_perf.standard_deviation import StandardDeviation
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.standard_deviation import StandardDeviation
+from math import nan
 
 
 class ParallelProbe:
@@ -23,7 +24,7 @@ class ParallelProbe:
 
         if exception is None:
             self.total_duration = 0
-            self.min_duration = sys.maxsize
+            self.min_duration = 1000000000
             self.max_duration = 0
             self.standard_deviation = 0
             self.track_init = datetime.datetime.utcnow()
@@ -101,7 +102,7 @@ class ParallelProbe:
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
                 FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
                 FileFormat.PRF_DETAIL_CALLS: self.counter,                          # for perf graph
-                FileFormat.PRF_DETAIL_AVRG: math.nan if self.counter == 0 else self.total_duration / self.counter,
+                FileFormat.PRF_DETAIL_AVRG: nan if self.counter == 0 else self.total_duration / self.counter,
                 FileFormat.PRF_DETAIL_MIN: self.min_duration,                       # info
                 FileFormat.PRF_DETAIL_MAX: self.max_duration,                       # info
                 FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # for perf graph

@@ -1,12 +1,10 @@
-import gc
-import os.path
-from multiprocessing import Process
+import concurrent.futures
 import multiprocessing
+import os.path
 import datetime
 import time
-from concurrent.futures import ThreadPoolExecutor
-import concurrent.futures
 import json
+import gc
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.bundle_helper import BundleHelper
@@ -15,8 +13,6 @@ from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
-from qgate_graph.graph_performance import GraphPerformance
-from qgate_graph.graph_executor import GraphExecutor
 from contextlib import suppress
 
 
@@ -69,7 +65,7 @@ class ParallelExecutor:
 
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         try:
-            with ThreadPoolExecutor(max_workers=threads) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
                 features = []
                 for threadKey in range(threads):
                     run_return=RunReturn(f"{return_key}x{threadKey}", return_dict)
@@ -114,7 +110,7 @@ class ParallelExecutor:
     #         t = None
     #
     # def _coreThreadPool(func, threads, return_key, return_dict, run_setup):
-    #     with ThreadPoolExecutor(max_workers=threads) as executor:
+    #     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
     #         features = []
     #         for thread_key in range(threads):
     #             features.append(
@@ -253,18 +249,18 @@ class ParallelExecutor:
             if threads == 1:
                 for process_key in range(processes):
                     run_return = RunReturn(process_key, return_dict)
-                    p = Process(target=self._func_wrapper,
+                    p = multiprocessing.Process(target=self._func_wrapper,
                                 args=(self._func, run_return, run_setup))
                     # oldversion                args=(process_key, return_dict, run_setup))
 
                     proc.append(p)
             else:
                 for process_key in range(processes):
-                    p = Process(target=self._coreThreadClassPool,
+                    p = multiprocessing.Process(target=self._coreThreadClassPool,
                                 args=(threads, process_key, return_dict, run_setup))
-                    # p = Process(target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
-                    # p = Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
-                    # p = Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
+                    # p = multiprocessing.target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
+                    # p = multiprocessing.Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
+                    # p = multiprocessing.Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
                     proc.append(p)
 
             # start
@@ -479,6 +475,9 @@ class ParallelExecutor:
         :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
+        from qgate_graph.graph_performance import GraphPerformance
+        from qgate_graph.graph_executor import GraphExecutor
+
         output_file=[]
 
         graph = GraphPerformance(picture_dpi)
@@ -499,6 +498,7 @@ class ParallelExecutor:
         :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
+        from qgate_graph.graph_performance import GraphPerformance
 
         graph = GraphPerformance(picture_dpi)
         return graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error)
@@ -512,6 +512,7 @@ class ParallelExecutor:
         :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
+        from qgate_graph.graph_executor import GraphExecutor
 
         graph = GraphExecutor(picture_dpi)
         return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"), suppress_error)
