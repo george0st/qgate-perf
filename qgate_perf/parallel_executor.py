@@ -498,7 +498,7 @@ class ParallelExecutor:
     def create_graph(self, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests.
-        The outputs will be in sub-directories 'graph-perf' and 'graph-exec'.
+        The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
         :param scope:               definition of scope generation (default ExecutorGraph.all)
@@ -530,7 +530,7 @@ class ParallelExecutor:
     def create_graph_perf(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate performance graph(s) based on output from performance tests.
-        The outputs will be in sub-directory 'graph-perf'.
+        The outputs will be in subdirectory 'graph-perf'.
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
         :param picture_dpi:         quality of picture (default is 100 DPI)
@@ -551,7 +551,7 @@ class ParallelExecutor:
     def create_graph_exec(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate executors graph(s) based on output from performance tests.
-        The outputs will be in sub-directory 'graph-exec'.
+        The outputs will be in subdirectory 'graph-exec'.
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
