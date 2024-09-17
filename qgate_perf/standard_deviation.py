@@ -6,7 +6,7 @@ class StandardDeviation:
     Welford's alg for incrementally calculation of standard deviation
     """
 
-    def __init__(self, ddof=1):
+    def __init__(self, ddof = 1):
         self.ddof, self.n, self.mean, self.M2 = ddof, 0, 0.0, 0.0
 
     def include(self, data):
