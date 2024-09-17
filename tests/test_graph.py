@@ -156,7 +156,6 @@ class TestCaseGraph(unittest.TestCase):
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"PRF-test_graph_scope-*-bulk-10x10.png"))
         self.assertTrue(len(file) == 1)
-        print(file[0])
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 0) # without these file
 
@@ -166,4 +165,3 @@ class TestCaseGraph(unittest.TestCase):
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 2)
-        print(file[0])
