@@ -536,7 +536,7 @@ class ParallelExecutor:
         :return:                    list of output files
         """
         return ParallelExecutor.create_graph(self._output_file,
-                                      output_graph_dir,
+                                      os.path.join(output_graph_dir,"graph-perf"),
                                       GraphScope.perf,
                                       picture_dpi,
                                       suppress_error)
@@ -556,7 +556,7 @@ class ParallelExecutor:
         :return:                    list of output files
         """
         return ParallelExecutor.create_graph(self._output_file,
-                                      output_graph_dir,
+                                      os.path.join(output_graph_dir,"graph-exec"),
                                       GraphScope.exe,
                                       picture_dpi,
                                       suppress_error)
