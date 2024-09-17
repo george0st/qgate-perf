@@ -4,6 +4,7 @@ import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.executor_helper import GraphScope
 import time
 from os import path
 import shutil
@@ -139,3 +140,27 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(len(file) == 1)
         print(file[0])
 
+    def test_graph_scope(self):
+        generator = ParallelExecutor(prf_test,
+                                     label="test_graph_scope",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_graph_scope.txt"))
+
+        setup = RunSetup(duration_second=1, start_delay=2, parameters=None)
+        self.assertTrue(generator.run_bulk_executor([[10, 10]],
+                                                    [[1, 2, 'Austria perf'],
+                                                    [1, 4, 'Germany perf']],
+                                                    setup))
+        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf)
+
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"PRF-test_graph_scope-*-bulk-10x10.png"))
+        self.assertTrue(len(file) == 1)
+        print(file[0])
+
+        generator.create_graph(self.OUTPUT_ADR, GraphScope.exe)
+
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
+        self.assertTrue(len(file) == 2)
+        print(file[0])
