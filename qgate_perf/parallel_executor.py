@@ -466,10 +466,12 @@ class ParallelExecutor:
                 return False
         return True
 
-    def create_graph(self, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
+    @staticmethod
+    def create_graph(input_file, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
+        :param input_file:          source file with detail of outputs from performance tests
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
         :param scope:               definition of scope generation (default ExecutorGraph.all)
         :param picture_dpi:         quality of picture (default is 100 DPI)
@@ -483,14 +485,46 @@ class ParallelExecutor:
 
         if scope in GraphScope.perf:
             graph = GraphPerformance(picture_dpi)
-            for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
         if scope in GraphScope.exe:
             graph = GraphExecutor(picture_dpi)
-            for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
                 output_file.append(file)
+
         return output_file
+
+    def create_graph(self, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
+        """
+        Generate graph(s) based on output from performance tests
+
+        :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
+        :param scope:               definition of scope generation (default ExecutorGraph.all)
+        :param picture_dpi:         quality of picture (default is 100 DPI)
+        :param suppress_error:      suppress error (default is False)
+        :return:                    list of output files
+        """
+        return ParallelExecutor.create_graph(self._output_file,
+                                      output_graph_dir,
+                                      scope,
+                                      picture_dpi,
+                                      suppress_error)
+        # from qgate_graph.graph_performance import GraphPerformance
+        # from qgate_graph.graph_executor import GraphExecutor
+        #
+        # output_file=[]
+        #
+        # if scope in GraphScope.perf:
+        #     graph = GraphPerformance(picture_dpi)
+        #     for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
+        #         output_file.append(file)
+        #
+        # if scope in GraphScope.exe:
+        #     graph = GraphExecutor(picture_dpi)
+        #     for file in graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
+        #         output_file.append(file)
+        # return output_file
 
     def create_graph_perf(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
@@ -501,10 +535,16 @@ class ParallelExecutor:
         :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
-        from qgate_graph.graph_performance import GraphPerformance
+        return ParallelExecutor.create_graph(self._output_file,
+                                      output_graph_dir,
+                                      GraphScope.perf,
+                                      picture_dpi,
+                                      suppress_error)
 
-        graph = GraphPerformance(picture_dpi)
-        return graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error)
+        # from qgate_graph.graph_performance import GraphPerformance
+        #
+        # graph = GraphPerformance(picture_dpi)
+        # return graph.generate_from_file(self._output_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error)
 
     def create_graph_exec(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
         """
@@ -515,7 +555,13 @@ class ParallelExecutor:
         :param suppress_error:      suppress error (default is False)
         :return:                    list of output files
         """
-        from qgate_graph.graph_executor import GraphExecutor
+        return ParallelExecutor.create_graph(self._output_file,
+                                      output_graph_dir,
+                                      GraphScope.exe,
+                                      picture_dpi,
+                                      suppress_error)
 
-        graph = GraphExecutor(picture_dpi)
-        return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"), suppress_error)
+        # from qgate_graph.graph_executor import GraphExecutor
+        #
+        # graph = GraphExecutor(picture_dpi)
+        # return graph.generate_from_file(self._output_file,os.path.join(output_graph_dir,"graph-exec"), suppress_error)
