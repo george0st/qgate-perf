@@ -476,7 +476,7 @@ class ParallelExecutor:
         :param scope:               definition of scope generation (default ExecutorGraph.all)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
-        :return:                    list of output files
+        :return:                    list of generated files
         """
         output_file=[]
 
@@ -505,7 +505,7 @@ class ParallelExecutor:
         :param scope:               definition of scope generation (default ExecutorGraph.all)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
-        :return:                    list of output files
+        :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
                                       output_graph_dir,
@@ -521,7 +521,7 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
-        :return:                    list of output files
+        :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
                                       os.path.join(output_graph_dir,"graph-perf"),
@@ -537,7 +537,7 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
-        :return:                    list of output files
+        :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
                                       os.path.join(output_graph_dir,"graph-exec"),
