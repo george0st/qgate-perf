@@ -10,7 +10,7 @@ class GraphScope(Flag):
     all = perf | exe    # generation of performance and executor graph
 
 class ExecutorHelper:
-    """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ..] """
+    """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
 
     PROCESS_8_32_THREAD_2_4 = [[8, 2, '2x thread'], [16, 2, '2x thread'], [32, 2, '2x thread'],
                                [8, 4, '4x thread'], [16, 4, '4x thread'], [32, 4, '4x thread']]
@@ -73,6 +73,7 @@ class ExecutorHelper:
         Generate sequence of executors, number of processes are stable, and
         number of thread grow from 2^thread_pow_start to 2^thread_pow_stop
 
+        :param label_thread:        label for executors
         :param process:             stable number of processes
         :param thread_pow_start:    start number of thread from 2^thread_pow_start
         :param thread_pow_stop:     stop number of thread to 2^thread_pow_stop
@@ -91,6 +92,7 @@ class ExecutorHelper:
         Generate sequence of executors, number of threads are stable, and
         number of thread grow from 2^process_pow_start to 2^process_pow_stop
 
+        :param label_thread:        label for executors
         :param thread:              stable number of threads
         :param process_pow_start:   start number of process from 2^process_pow_start
         :param process_pow_stop:    stop number of thread to 2^process_pow_stop
