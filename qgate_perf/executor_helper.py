@@ -92,7 +92,7 @@ class ExecutorHelper:
         Generate sequence of executors, number of threads are stable, and
         number of thread grow from 2^process_pow_start to 2^process_pow_stop
 
-        :param label_thread:        label for executors
+        :param label_process:       label for executors
         :param thread:              stable number of threads
         :param process_pow_start:   start number of process from 2^process_pow_start
         :param process_pow_stop:    stop number of thread to 2^process_pow_stop
