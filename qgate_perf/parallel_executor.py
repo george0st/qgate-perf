@@ -120,8 +120,12 @@ class ParallelExecutor:
     #             future.result()
 
     def _print(self, file, out: str):
+
+        # print to the file
         if file is not None:
             file.write(out + "\n")
+
+        # print to the console
         print(out)
 
     def _print_header(self, file, run_setup: RunSetup=None):
@@ -165,10 +169,32 @@ class ParallelExecutor:
         return host
 
     def _print_footer(self, file, final_state):
+        seconds = round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)
         self._print(file,
                     f"############### State: {'OK' if final_state else 'Error'}, "
-                    f" Duration: {round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)}"
-                    f" seconds ###############")
+                    f" Duration: {self._readable_duration(seconds)} ({seconds}"
+                    f" seconds) ###############")
+
+    def _readable_duration(self, duration_seconds):
+        """Return duration in human-readable form"""
+
+        if duration_seconds < 0:
+            return "n/a"
+
+        str_duration = []
+        days = duration_seconds // 86400
+        if days > 0:
+            str_duration.append(f"{days} day")
+        hours = duration_seconds // 3600 % 24
+        if hours > 0:
+            str_duration.append(f"{hours} hour")
+        minutes = duration_seconds // 60 % 60
+        if minutes > 0:
+            str_duration.append(f"{minutes} min")
+        seconds = duration_seconds % 60
+        if seconds > 0:
+            str_duration.append(f"{seconds} sec")
+        return ' '.join(str_duration)
 
     def _final_state(self, return_dict):
         """
