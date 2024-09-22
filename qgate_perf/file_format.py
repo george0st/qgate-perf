@@ -13,7 +13,7 @@ class FileFormat:
     PRF_HDR_MEMORY = "mem"
     PRF_HDR_MEMORY_FREE = "mem_free"
     PRF_HDR_NOW = "now"
-
+    # header for HUMAN
     HR_PRF_HDR_LABEL = "lbl"
     HR_PRF_HDR_MEMORY = "mem/free"
 
@@ -31,7 +31,7 @@ class FileFormat:
     PRF_DETAIL_TIME_INIT = "initexec"
     PRF_DETAIL_TIME_START = "startexec"
     PRF_DETAIL_TIME_END = "endexec"
-
+    # detail for HUMAN
     HR_PRF_DETAIL_STDEV = "stdev"
 
     # core output
@@ -45,7 +45,7 @@ class FileFormat:
     PRF_CORE_STD_DEVIATION = "std_deviation"
     PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"
     PRF_CORE_TIME_END = "endexec"
-
+    # core output for HUMAN
     HM_PRF_CORE_PLAN_EXECUTOR_ALL = "plan_exec"
     HM_PRF_CORE_PLAN_EXECUTOR = "plan_detail"
     HM_PRF_CORE_REAL_EXECUTOR = "exec"
