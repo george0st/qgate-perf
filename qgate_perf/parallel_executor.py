@@ -256,15 +256,14 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
         }
         readable_out = {
-            FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
-            FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
-            FileFormat.PRF_CORE_REAL_EXECUTOR: count,
-            FileFormat.PRF_CORE_GROUP: group,
-            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, ParallelProbe.HUMAN_NUMBER_PRECISION),
-            FileFormat.PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, ParallelProbe.HUMAN_NUMBER_PRECISION),
-            FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, ParallelProbe.HUMAN_NUMBER_PRECISION),
-            FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
+            FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes}, {threads}]",
+#            FileFormat.HM_PRF_CORE_PLAN_EXECUTOR: [processes, threads],
+            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.HM_PRF_CORE_GROUP: group,
+            FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
+            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, ParallelProbe.HUMAN_NUMBER_PRECISION),
+            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, ParallelProbe.HUMAN_NUMBER_PRECISION),
+            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, ParallelProbe.HUMAN_NUMBER_PRECISION)
         }
         self._print(file,
                     f"  {json.dumps(out)}",
