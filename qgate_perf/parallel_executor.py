@@ -257,7 +257,6 @@ class ParallelExecutor:
         }
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes}, {threads}]",
-#            FileFormat.HM_PRF_CORE_PLAN_EXECUTOR: [processes, threads],
             FileFormat.HM_PRF_CORE_REAL_EXECUTOR: count,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
