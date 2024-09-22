@@ -24,6 +24,7 @@ class FileFormat:
     PRF_DETAIL_MIN = "min"
     PRF_DETAIL_MAX = "max"
     PRF_DETAIL_STDEV = "st-dev"
+    HR_PRF_DETAIL_STDEV = "stdev"
     PRF_DETAIL_ERR = "err"
     PRF_DETAIL_TIME_INIT = "initexec"
     PRF_DETAIL_TIME_START = "startexec"
