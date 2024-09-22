@@ -14,6 +14,9 @@ class FileFormat:
     PRF_HDR_MEMORY_FREE = "mem_free"
     PRF_HDR_NOW = "now"
 
+    HR_PRF_HDR_LABEL = "lbl"
+    HR_PRF_HDR_MEMORY = "mem/free"
+
     # detail
     PRF_DETAIL_TYPE = "detail"
     PRF_DETAIL_PROCESSID = "processid"
@@ -29,6 +32,8 @@ class FileFormat:
     PRF_DETAIL_TIME_START = "startexec"
     PRF_DETAIL_TIME_END = "endexec"
 
+    HR_PRF_DETAIL_STDEV = "stdev"
+
     # core output
     PRF_CORE_TYPE = "core"
     PRF_CORE_PLAN_EXECUTOR_ALL = "plan_executors"
@@ -40,3 +45,12 @@ class FileFormat:
     PRF_CORE_STD_DEVIATION = "std_deviation"
     PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"
     PRF_CORE_TIME_END = "endexec"
+
+    HM_PRF_CORE_PLAN_EXECUTOR_ALL = "plan_exec"
+    HM_PRF_CORE_PLAN_EXECUTOR = "plan_detail"
+    HM_PRF_CORE_REAL_EXECUTOR = "exec"
+    HM_PRF_CORE_GROUP = "grp"
+    HM_PRF_CORE_TOTAL_CALL = "calls"
+    HM_PRF_CORE_AVRG_TIME = "avrg"
+    HM_PRF_CORE_STD_DEVIATION = "st-dev"
+    HM_PRF_CORE_TOTAL_CALL_PER_SEC = "call_sec"
