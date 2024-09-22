@@ -10,6 +10,7 @@ from math import nan
 
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
+    HUMAN_NUMBER_PRECISION = 5
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
@@ -110,6 +111,21 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
                 FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
                 FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
+            })
+        else:
+            return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
+
+    def readable_str(self):
+        """Provide view to return value in readable and shorter form (for human check)"""
+
+        if self.exception is None:
+            return json.dumps({
+                FileFormat.PRF_DETAIL_CALLS: self.counter,
+                FileFormat.PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, ParallelProbe.HUMAN_NUMBER_PRECISION),
+                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, ParallelProbe.HUMAN_NUMBER_PRECISION),
+                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_NUMBER_PRECISION),
+                FileFormat.PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_NUMBER_PRECISION),
+                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_NUMBER_PRECISION)
             })
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
