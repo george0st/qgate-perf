@@ -119,14 +119,14 @@ class ParallelExecutor:
     #         for future in concurrent.futures.as_completed(features):
     #             future.result()
 
-    def _print(self, file, out: str):
+    def _print(self, file, out: str, readable_out: str = None):
 
-        # print to the file
+        # print to the file 'out'
         if file is not None:
             file.write(out + "\n")
 
-        # print to the console
-        print(out)
+        # print to the console 'readable_out' or 'out'
+        print(readable_out if readable_out else out)
 
     def _print_header(self, file, run_setup: RunSetup=None):
         self._start_tasks = datetime.datetime.utcnow()
@@ -237,7 +237,9 @@ class ParallelExecutor:
                     sum_call += parallel_ret.counter
                     count += 1
             if (self._detail_output == True):
-                self._print(file, f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}")
+                self._print(file,
+                            f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')},",
+                            f"     {parallel_ret.readable_str() if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')},")
 
         if (count > 0):
             total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
@@ -253,7 +255,20 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else sum_deviation / count,
             FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
         }
-        self._print(file, f"  {json.dumps(out)}")
+        readable_out = {
+            FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
+            FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
+            FileFormat.PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.PRF_CORE_GROUP: group,
+            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
+            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, ParallelProbe.HUMAN_NUMBER_PRECISION),
+            FileFormat.PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, ParallelProbe.HUMAN_NUMBER_PRECISION),
+            FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, ParallelProbe.HUMAN_NUMBER_PRECISION),
+            FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
+        }
+        self._print(file,
+                    f"  {json.dumps(out)}",
+                    f"  {json.dumps(readable_out)}")
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
