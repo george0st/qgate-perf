@@ -159,7 +159,6 @@ class TestCaseGraph(unittest.TestCase):
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 0) # without these file
 
-
         generator.create_graph(self.OUTPUT_ADR, GraphScope.exe)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
