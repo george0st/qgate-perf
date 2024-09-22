@@ -144,12 +144,11 @@ class ParallelExecutor:
             FileFormat.PRF_HDR_NOW: self._start_tasks.isoformat(' ')
         }
         readable_out = {
-            FileFormat.PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
+            FileFormat.HR_PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
             FileFormat.PRF_HDR_BULK: [run_setup._bulk_row, run_setup._bulk_col],
             FileFormat.PRF_HDR_DURATION: run_setup._duration_second,
             FileFormat.PRF_HDR_AVIALABLE_CPU: multiprocessing.cpu_count(),
-            FileFormat.PRF_HDR_MEMORY: total,
-            FileFormat.PRF_HDR_MEMORY_FREE: free,
+            FileFormat.PRF_HDR_MEMORY: f"{total}/{free}",
             FileFormat.PRF_HDR_HOST: self._host()
         }
 

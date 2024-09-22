@@ -6,11 +6,13 @@ class FileFormat:
     # header
     PRF_HDR_TYPE = "headr"
     PRF_HDR_LABEL = "label"
+    HR_PRF_HDR_LABEL = "lbl"
     PRF_HDR_BULK = "bulk"
     PRF_HDR_DURATION = "duration"
     PRF_HDR_AVIALABLE_CPU = "cpu"
     PRF_HDR_HOST = "host"
     PRF_HDR_MEMORY = "mem"
+    HR_PRF_HDR_MEMORY = "mem/free"
     PRF_HDR_MEMORY_FREE = "mem_free"
     PRF_HDR_NOW = "now"
 
