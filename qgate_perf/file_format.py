@@ -32,7 +32,7 @@ class FileFormat:
     PRF_DETAIL_TIME_START = "startexec"
     PRF_DETAIL_TIME_END = "endexec"
         # detail for HUMAN
-    HR_PRF_DETAIL_CALLS = "calls"
+    HR_PRF_DETAIL_CALLS = "call"
     HR_PRF_DETAIL_AVRG = "avr"
     HR_PRF_DETAIL_STDEV = "std"
 
@@ -48,10 +48,10 @@ class FileFormat:
     PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"
     PRF_CORE_TIME_END = "endexec"
         # core output for HUMAN
-    HM_PRF_CORE_PLAN_EXECUTOR_ALL = "planexec"
+    HM_PRF_CORE_PLAN_EXECUTOR_ALL = "plan"
     HM_PRF_CORE_REAL_EXECUTOR = "exec"
     HM_PRF_CORE_GROUP = "grp"
-    HM_PRF_CORE_TOTAL_CALL = "calls"
+    HM_PRF_CORE_TOTAL_CALL = "call"
     HM_PRF_CORE_TOTAL_CALL_PER_SEC = "callsec"
     HM_PRF_CORE_AVRG_TIME = "avr"
     HM_PRF_CORE_STD_DEVIATION = "std"
