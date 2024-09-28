@@ -131,7 +131,8 @@ class ParallelProbe:
                 FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_MIN: round(self.min_duration, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION)
+                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
+                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
             })
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
