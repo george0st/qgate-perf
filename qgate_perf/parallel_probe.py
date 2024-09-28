@@ -48,7 +48,7 @@ class ParallelProbe:
         self.start_time_one_shot = time.time()
 
     def stop(self) -> bool:
-        """ Test, if it is possible to stop whole execution
+        """ Test, if it is possible to stop whole execution, based on duration of test
 
         :return:   True - stop execution, False - continue in execution
         """
