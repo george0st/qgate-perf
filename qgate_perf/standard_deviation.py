@@ -4,7 +4,8 @@ import math
 class StandardDeviation:
     """
     Welford's alg for incrementally calculation of standard deviation
-    NOTE: You can see the same outputs as in functions STDEVPA and STDEV.P in Microsoft Excel
+
+    NOTE: You can see the same outputs as in functions 'STDEVPA' and 'STDEV.P' in Microsoft Excel
     """
 
     def __init__(self, ddof = 1):
