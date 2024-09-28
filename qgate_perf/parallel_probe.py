@@ -48,12 +48,22 @@ class ParallelProbe:
         self.start_time_one_shot = time.time()
 
     def stop(self) -> bool:
-        """ Test, if it is possible to stop whole execution
+        """Test, if it is possible to stop execution, based on duration of test
 
         :return:   True - stop execution, False - continue in execution
         """
         self.stop_time_one_shot = time.time()
         duration_one_shot = self.stop_time_one_shot - self.start_time_one_shot
+        self._core_calc(duration_one_shot)
+
+        # Is it possible to end performance testing?
+        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
+            self._core_close()
+            return True
+        return False
+
+    def _core_calc(self, duration_one_shot):
+        """Core for calculation (and simulation)"""
 
         self.counter += 1
         self.total_duration += duration_one_shot
@@ -69,16 +79,13 @@ class ParallelProbe:
         if duration_one_shot > self.max_duration:
             self.max_duration = duration_one_shot
 
-        # Is it possible to end performance testing?
-        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
-            # write time
-            self.track_end = datetime.datetime.utcnow()
-            # calc standard deviation
-            self.standard_deviation = self.stddev.std
-            # release unused sources (we calculated standard deviation)
-            del self.stddev
-            return True
-        return False
+    def _core_close(self):
+        # write time
+        self.track_end = datetime.datetime.utcnow()
+        # calc standard deviation
+        self.standard_deviation = self.stddev.std
+        # release unused sources (we calculated standard deviation)
+        del self.stddev
 
     @staticmethod
     def _wait_for_others(when_start, tolerance=0.1):
@@ -124,7 +131,8 @@ class ParallelProbe:
                 FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_MIN: round(self.min_duration, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION)
+                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
+                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
             })
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
