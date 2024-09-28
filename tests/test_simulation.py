@@ -97,5 +97,14 @@ class TestCasePerf(unittest.TestCase):
         simulate.run(sequence)
         self._check(simulate, sequence)
 
-    def test_random_statistic(self):
+    def test_random_statistic1(self):
+        # TODO: Add random sequences, range (0.1 - 0.98)
+        pass
+
+    def test_random_statistic2(self):
+        # TODO: Add random sequences, range (0.1 - 10)
+        pass
+
+    def test_random_statistic3(self):
+        # TODO: Add random sequences, range (0.1 - 100)
         pass
