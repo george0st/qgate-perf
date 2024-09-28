@@ -53,9 +53,16 @@ class ParallelProbe:
         :return:   True - stop execution, False - continue in execution
         """
         self.stop_time_one_shot = time.time()
-        return self._core(self.stop_time_one_shot - self.start_time_one_shot)
+        duration_one_shot = self.stop_time_one_shot - self.start_time_one_shot
+        self._core_calc(duration_one_shot)
 
-    def _core(self, duration_one_shot) -> bool:
+        # Is it possible to end performance testing?
+        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
+            self._core_close()
+            return True
+        return False
+
+    def _core_calc(self, duration_one_shot):
         """Core for calculation (and simulation)"""
 
         self.counter += 1
@@ -72,16 +79,13 @@ class ParallelProbe:
         if duration_one_shot > self.max_duration:
             self.max_duration = duration_one_shot
 
-        # Is it possible to end performance testing?
-        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
-            # write time
-            self.track_end = datetime.datetime.utcnow()
-            # calc standard deviation
-            self.standard_deviation = self.stddev.std
-            # release unused sources (we calculated standard deviation)
-            del self.stddev
-            return True
-        return False
+    def _core_close(self):
+        # write time
+        self.track_end = datetime.datetime.utcnow()
+        # calc standard deviation
+        self.standard_deviation = self.stddev.std
+        # release unused sources (we calculated standard deviation)
+        del self.stddev
 
     @staticmethod
     def _wait_for_others(when_start, tolerance=0.1):
