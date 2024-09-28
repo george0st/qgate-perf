@@ -48,12 +48,15 @@ class ParallelProbe:
         self.start_time_one_shot = time.time()
 
     def stop(self) -> bool:
-        """ Test, if it is possible to stop whole execution, based on duration of test
+        """Test, if it is possible to stop execution, based on duration of test
 
         :return:   True - stop execution, False - continue in execution
         """
         self.stop_time_one_shot = time.time()
-        duration_one_shot = self.stop_time_one_shot - self.start_time_one_shot
+        return self._core(self.stop_time_one_shot - self.start_time_one_shot)
+
+    def _core(self, duration_one_shot) -> bool:
+        """Core for calculation (and simulation)"""
 
         self.counter += 1
         self.total_duration += duration_one_shot
