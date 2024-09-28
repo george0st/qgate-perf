@@ -12,7 +12,7 @@ class SimulateProbe(ParallelProbe):
         super().__init__(setup)
 
     def run(self, duration_second: list[float] = []):
-        
+
         for duration in duration_second:
             self._core_calc(duration)
         self._core_close()
@@ -33,5 +33,6 @@ class TestCasePerf(unittest.TestCase):
         simulate=SimulateProbe()
 
         simulate.run([0.24, 0.21, 0.34, 0.33])
+        print("")
 
 
