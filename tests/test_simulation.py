@@ -8,7 +8,7 @@ from numpy import random
 
 class PercentilHeap():
 
-    def __init__(self, percentile, process_fn):
+    def __init__(self, process_fn, percentile = 99):
         self._count = 0
         self._reserve = 2
         self._sequence = [-1] * self._reserve
@@ -18,33 +18,37 @@ class PercentilHeap():
     def call(self, itm):
         self._count += 1
 
-        if (self._count % 100) == 0:
-            one_percent = ((self._count + 1) / 100)
-            if (one_percent + self._reserve) > len(self._sequence):
+        if (self._count % self._percentile) == 0:
+            expected_size = ((self._count + 1) * self._percentile / 100)
+            if (expected_size + self._reserve) > len(self._sequence):
+                # extend heap and push value
                 heapq.heappush(self._sequence, itm)
-        else:
-            if itm >= self._sequence[0]:
-                print(heapq.heapreplace(self._sequence, itm))
-                # TODO: processing return value
+                return
+
+        # add item to heap
+        if itm >= self._sequence[0]:
+            old_itm = heapq.heapreplace(self._sequence, itm)
+            print(old_itm)
+            # TODO: processing old_itm
 
     def close(self):
         # identification, how many value must be pop form 99p
-        if self._count > 99:
-            requested_size = self._count - ((self._count + 1) * 99 / 100)
+        if self._count > self._percentile:
+            requested_size = self._count - ((self._count + 1) * self._percentile / 100)
             pop_operation = int(len(self._sequence) - requested_size)
         else:
             pop_operation = len(self._sequence)
 
-        # free addition values till 99 percentile
+        # free addition values till requested percentile
         for a in range(pop_operation):
             print(heapq.heappop(self._sequence))
             # TODO: processing return value
-        print("DONE 99p")
+        print("DONE requested percentile")
 
         for b in range(len(self._sequence)):
             print(heapq.heappop(self._sequence))
             # TODO: processing return value
-        print("DONE 100p")
+        print("DONE all (100p)")
 
 
 class SimulateProbe(ParallelProbe):
