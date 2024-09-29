@@ -118,16 +118,28 @@ class TestCasePerf(unittest.TestCase):
         self._check(simulate, sequence)
 
     def test_random_statistic1(self):
-        # TODO: Add random sequences, range (0.1 - 0.98)
-        pass
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 100,10) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
 
     def test_random_statistic2(self):
-        # TODO: Add random sequences, range (0.1 - 10)
-        pass
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 1000,50) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
 
     def test_random_statistic3(self):
-        # TODO: Add random sequences, range (0.1 - 100)
-        pass
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 10000,100) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
 
     def test_percentile(self):
         # https://www.geeksforgeeks.org/max-heap-in-python/
