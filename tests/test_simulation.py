@@ -1,8 +1,10 @@
+import heapq
 import unittest
 import time
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 import numpy as np
+from numpy import random
 
 
 class SimulateProbe(ParallelProbe):
@@ -17,6 +19,24 @@ class SimulateProbe(ParallelProbe):
         for duration in duration_second:
             self._core_calc(duration)
         self._core_close()
+
+def get_rng_generator(complex_init = True) -> random._generator.Generator:
+    """Create generator of random values with initiation"""
+
+    # now and now_ms (as detail about milliseconds)
+    now = time.time()
+    now_ms = (now - int(now)) * 1000000000
+
+    # calc based on CPU speed
+    ns_start = time.perf_counter_ns()
+    if complex_init:
+        time.sleep(0.01)
+        ns_stop = time.perf_counter_ns()
+
+        # create generator with more random seed (now, now_ms, cpu speed)
+        return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
+    else:
+        return random.default_rng([int(now), int(now_ms), ns_start])
 
 
 class TestCasePerf(unittest.TestCase):
@@ -97,5 +117,109 @@ class TestCasePerf(unittest.TestCase):
         simulate.run(sequence)
         self._check(simulate, sequence)
 
-    def test_random_statistic(self):
-        pass
+    def test_random_statistic1(self):
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 100,10) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
+
+    def test_random_statistic2(self):
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 1000,50) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
+
+    def test_random_statistic3(self):
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 10000,100) / 100
+
+        simulate=SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
+
+    def test_percentile(self):
+        # https://www.geeksforgeeks.org/max-heap-in-python/
+        #https://www.datova-akademie.cz/slovnik-pojmu/percentil/
+        #https://github.com/sengelha/streaming-percentiles
+
+        from heapq import heappop, heappush, heapify
+
+        size = 128
+        # Creating empty heap
+        sequence = [-1] * size
+
+        generator = get_rng_generator()
+
+        for i in range(1, 1000):
+            itm = generator.integers( 0, 500)/10000
+            one_percent = (i+1) / 100
+            if one_percent > size:
+#                if itm >= sequence[0]:
+                size +=1
+                heapq.heappush(sequence, itm)
+                continue
+
+            if itm >= sequence[0]:
+                print(heapq.heapreplace(sequence, itm))
+                # work with return value
+        print("size:",size)
+
+        if i > 99:
+            requested_size = i - ((i + 1) * 99 / 100)
+            pop_operation = int(len(sequence) - requested_size)
+        else:
+            pop_operation = len(sequence)
+
+        # free addition values till 99 percentile
+        for a in range(pop_operation):
+            print(heapq.heappop(sequence))
+        print("DONE 99p")
+
+        for b in range(len(sequence)):
+            print(heapq.heappop(sequence))
+        print("DONE 100p")
+        # for i in range(500):
+        #     itm = generator.integers(-1000, 0)
+        #     heapq.heapreplace(sequence, itm)
+        #     print(str(-1*sequence[0]))
+
+
+        # sequence = [-0.24, -0.21, -0.34, -0.33, -0.345, -0.11, -0.232435, -0.2344, -1.4, -2.455]
+        # heapify(sequence)
+        #
+        # # # printing the value of maximum element
+        # # print("Head value of heap : " + str(-1 * sequence[0]))
+        #
+        # print(str(-1*heappop(sequence)))
+        # heappush(sequence, -1)
+        # print(str(-1*heappop(sequence)))
+        # heappush(sequence, -19)
+        # print(str(-1*heappop(sequence)))
+        # print(str(-1*heapq.heapreplace(sequence, -0.5)))
+        # print(str(-1*heapq.heapreplace(sequence, -0.5)))
+        # print(str(-1*heapq.heapreplace(sequence, -0.5)))
+
+        # # importing "heapq" to implement heap queue
+        # import heapq
+        #
+        # # initializing list
+        # li = [5, 7, 9, 1, 3]
+        #
+        # # using heapify to convert list into heap
+        # heapq.heapify(li)
+        #
+        # # printing created heap
+        # print("The created heap is : ", (list(li)))
+        #
+
+        # sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455]
+        # percentile50 =
+        # for itm in sequence:
+
+
+#https://www.datova-akademie.cz/slovnik-pojmu/percentil/
+#https://github.com/sengelha/streaming-percentiles
