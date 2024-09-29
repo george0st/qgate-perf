@@ -33,8 +33,8 @@ class PercentilHeap():
 
     def close(self):
         # identification, how many value must be pop form 99p
-        if self._count > self._percentile:
-            requested_size = self._count - ((self._count + 1) * self._percentile / 100)
+        requested_size = self._count - ((self._count + 1) * self._percentile / 100)
+        if requested_size > 1:
             pop_operation = int(len(self._sequence) - requested_size)
         else:
             pop_operation = len(self._sequence)
