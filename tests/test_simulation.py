@@ -8,12 +8,13 @@ from numpy import random
 
 class PercentilHeap():
 
-    def __init__(self, process_fn, percentile = 99):
+    def __init__(self, call_fn, close_fn, percentile = 99):
         self._count = 0
         self._reserve = 2
         self._sequence = [-1] * self._reserve
         self._percentile = percentile
-        self._process_fn = process_fn
+        self._call_fn = call_fn
+        self._close_fn = close_fn
 
     def call(self, itm):
         self._count += 1
@@ -28,7 +29,7 @@ class PercentilHeap():
         # add item to heap
         if itm >= self._sequence[0]:
             old_itm = heapq.heapreplace(self._sequence, itm)
-            self._process_fn(old_itm)
+            self._call_fn(old_itm)
 
     def close(self):
         # identification, how many value must be pop form 99p
@@ -41,13 +42,15 @@ class PercentilHeap():
         # free addition values till requested percentile
         for a in range(pop_operation):
             itm = heapq.heappop(self._sequence)
-            self._process_fn(itm)
+            self._call_fn(itm)
         print("DONE requested percentile")
+        self._close_fn(99)
 
         for b in range(len(self._sequence)):
             itm = heapq.heappop(self._sequence)
-            self._process_fn(itm)
+            self._call_fn(itm)
         print("DONE all (100p)")
+        self._close_fn(100)
 
 
 class SimulateProbe(ParallelProbe):
