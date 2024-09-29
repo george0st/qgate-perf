@@ -28,8 +28,7 @@ class PercentilHeap():
         # add item to heap
         if itm >= self._sequence[0]:
             old_itm = heapq.heapreplace(self._sequence, itm)
-            print(old_itm)
-            # TODO: processing old_itm
+            self._process_fn(old_itm)
 
     def close(self):
         # identification, how many value must be pop form 99p
@@ -41,13 +40,13 @@ class PercentilHeap():
 
         # free addition values till requested percentile
         for a in range(pop_operation):
-            print(heapq.heappop(self._sequence))
-            # TODO: processing return value
+            itm = heapq.heappop(self._sequence)
+            self._process_fn(itm)
         print("DONE requested percentile")
 
         for b in range(len(self._sequence)):
-            print(heapq.heappop(self._sequence))
-            # TODO: processing return value
+            itm = heapq.heappop(self._sequence)
+            self._process_fn(itm)
         print("DONE all (100p)")
 
 
