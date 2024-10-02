@@ -319,18 +319,19 @@ class TestCasePerf(unittest.TestCase):
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
                                     executor_list=[[1,1]],
                                     run_setup=setup))
+        # TODO: compare final performance
 
         setup=RunSetup(duration_second=2, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
                                     executor_list=[[2,1]],
                                     run_setup=setup))
+        # TODO: compare final performance
 
         setup=RunSetup(duration_second=3, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
                                     executor_list=[[4,1]],
                                     run_setup=setup))
-
-        # TODO: add measurement of callsec
+        # TODO: compare final performance
 
 # if __name__ == '__main__':
 #     unittest.main()
