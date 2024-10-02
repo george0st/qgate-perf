@@ -135,13 +135,20 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
             })
         else:
-            return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
+            return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
     @staticmethod
     def dump_error(exception, pid=0, counter=0):
         return json.dumps({
             FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
             FileFormat.PRF_DETAIL_PROCESSID: pid,
+            FileFormat.PRF_DETAIL_CALLS: counter,
+            FileFormat.PRF_DETAIL_ERR: str(exception)
+        })
+
+    @staticmethod
+    def readable_dump_error(exception, pid=0, counter=0):
+        return json.dumps({
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
         })
