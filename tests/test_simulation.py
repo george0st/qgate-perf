@@ -106,7 +106,7 @@ class TestCasePerf(unittest.TestCase):
         expected['std'] = float(round(np.std(sequence), ParallelProbe.HUMAN_PRECISION))
         expected['total'] = float(round(np.sum(sequence),ParallelProbe.HUMAN_PRECISION))
 
-        print("Parallel probe    :", simulate.readable_str())
+        print("Parallel probe    :", simulate.readable_str(False))
         print("Numpy calculation :", str(expected))
 
         self.assertTrue(simulate.counter == expected['call'])

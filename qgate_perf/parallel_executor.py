@@ -14,6 +14,7 @@ from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
 from contextlib import suppress
+from qgate_perf.output_setup import OutputSetup
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -151,7 +152,7 @@ class ParallelExecutor:
             FileFormat.HR_PRF_HDR_MEMORY: f"{total}/{free}"
         }
 
-        self._print(file, json.dumps(out), json.dumps(readable_out, separators=(', ', ':')))
+        self._print(file, json.dumps(out), json.dumps(readable_out, separators = OutputSetup().human_json_separator))
 
     def _memory(self):
 
@@ -274,7 +275,7 @@ class ParallelExecutor:
         }
         self._print(file,
                     f"  {json.dumps(out)}",
-                    f"  {json.dumps(readable_out, separators=(', ', ':'))}")
+                    f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)

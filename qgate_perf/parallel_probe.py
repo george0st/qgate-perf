@@ -5,6 +5,7 @@ import json
 from qgate_perf.standard_deviation import StandardDeviation
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.output_setup import OutputSetup
 from math import nan
 
 
@@ -122,7 +123,7 @@ class ParallelProbe:
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
 
-    def readable_str(self):
+    def readable_str(self, compact_form = True):
         """Provide view to return value in readable and shorter form (for human check)"""
 
         if self.exception is None:
@@ -133,7 +134,7 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
-            }, separators=(', ', ':'))
+            }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
@@ -151,4 +152,4 @@ class ParallelProbe:
         return json.dumps({
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
-        }, separators=(', ', ':'))
+        }, separators = OutputSetup().human_json_separator)
