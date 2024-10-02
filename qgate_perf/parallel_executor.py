@@ -151,7 +151,7 @@ class ParallelExecutor:
             FileFormat.HR_PRF_HDR_MEMORY: f"{total}/{free}"
         }
 
-        self._print(file, json.dumps(out), json.dumps(readable_out))
+        self._print(file, json.dumps(out), json.dumps(readable_out, separators=(', ', ':')))
 
     def _memory(self):
 
@@ -246,8 +246,8 @@ class ParallelExecutor:
                     count += 1
             if (self._detail_output == True):
                 self._print(file,
-                            f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
-                            f"     {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
+                            f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
+                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         if (count > 0):
             total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
@@ -274,7 +274,7 @@ class ParallelExecutor:
         }
         self._print(file,
                     f"  {json.dumps(out)}",
-                    f"  {json.dumps(readable_out)}")
+                    f"  {json.dumps(readable_out, separators=(', ', ':'))}")
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)

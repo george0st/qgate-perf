@@ -133,7 +133,7 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
                 FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
-            })
+            }, separators=(', ', ':'))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
@@ -151,4 +151,4 @@ class ParallelProbe:
         return json.dumps({
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
-        })
+        }, separators=(', ', ':'))
