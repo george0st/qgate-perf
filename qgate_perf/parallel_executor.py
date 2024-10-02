@@ -231,47 +231,57 @@ class ParallelExecutor:
         :param threads:         Number of threads
         :param group:           Name of group
         """
-        sum_time = 0
+        sum_avrg_time = 0
         sum_deviation = 0
         sum_call = 0
-        count = 0
+        executors = 0
         total_call_per_sec=0
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
             if parallel_ret:
                 if (parallel_ret.counter > 0):
-                    sum_time = sum_time + (parallel_ret.total_duration / parallel_ret.counter)
+                    # sum of average time for one call
+                    sum_avrg_time = sum_avrg_time + (parallel_ret.total_duration / parallel_ret.counter)
                     sum_deviation += parallel_ret.standard_deviation
                     sum_call += parallel_ret.counter
-                    count += 1
+                    executors += 1
             if (self._detail_output == True):
                 self._print(file,
                             f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
                             f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
-        if (count > 0):
-            total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
+        if (executors > 0):
+            avrg_time_per_call = sum_avrg_time / executors
+            amount_call_per_sec = 1 / avrg_time_per_call
+            total_call_per_sec = amount_call_per_sec * sum_call * run_setup._bulk_row
+
+            # calc clarification
+            #   sum_avrg_time / count = average time for one executor (average is cross all calls and executors)
+            #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
+            total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
+
+
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
             FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
             FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
-            FileFormat.PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.PRF_CORE_GROUP: group,
-            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
+            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                       # ok
             FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,
-            FileFormat.PRF_CORE_AVRG_TIME: 0 if count==0 else sum_time / count,
-            FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else sum_deviation / count,
+            FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,        # ok
+            FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,    # ok
             FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
         }
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
-            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
             FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, OutputSetup().human_precision)
+            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
         self._print(file,
                     f"  {json.dumps(out)}",
