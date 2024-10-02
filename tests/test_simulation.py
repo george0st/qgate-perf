@@ -3,6 +3,7 @@ import unittest
 import time
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.output_setup import OutputSetup
 import numpy as np
 from numpy import random
 
@@ -100,21 +101,21 @@ class TestCasePerf(unittest.TestCase):
         """Check value from ParallelProbe vs calc from Numpy"""
         expected ={}
         expected['call'] = len(sequence)
-        expected['avr'] = float(round(np.average(sequence), ParallelProbe.HUMAN_PRECISION))
-        expected['min'] = float(round(np.min(sequence), ParallelProbe.HUMAN_PRECISION))
-        expected['max'] = float(round(np.max(sequence), ParallelProbe.HUMAN_PRECISION))
-        expected['std'] = float(round(np.std(sequence), ParallelProbe.HUMAN_PRECISION))
-        expected['total'] = float(round(np.sum(sequence),ParallelProbe.HUMAN_PRECISION))
+        expected['avr'] = float(round(np.average(sequence), OutputSetup().human_precision))
+        expected['min'] = float(round(np.min(sequence), OutputSetup().human_precision))
+        expected['max'] = float(round(np.max(sequence), OutputSetup().human_precision))
+        expected['std'] = float(round(np.std(sequence), OutputSetup().human_precision))
+        expected['total'] = float(round(np.sum(sequence), OutputSetup().human_precision))
 
         print("Parallel probe    :", simulate.readable_str(False))
         print("Numpy calculation :", str(expected))
 
         self.assertTrue(simulate.counter == expected['call'])
-        self.assertTrue(round(simulate.total_duration / simulate.counter, ParallelProbe.HUMAN_PRECISION) == expected['avr'])
-        self.assertTrue(round(simulate.min_duration, ParallelProbe.HUMAN_PRECISION) == expected['min'])
-        self.assertTrue(round(simulate.max_duration, ParallelProbe.HUMAN_PRECISION) == expected['max'])
-        self.assertTrue(round(simulate.standard_deviation,ParallelProbe.HUMAN_PRECISION) == expected['std'])
-        self.assertTrue(round(simulate.total_duration, ParallelProbe.HUMAN_PRECISION) == expected['total'])
+        self.assertTrue(round(simulate.total_duration / simulate.counter, OutputSetup().human_precision) == expected['avr'])
+        self.assertTrue(round(simulate.min_duration, OutputSetup().human_precision) == expected['min'])
+        self.assertTrue(round(simulate.max_duration, OutputSetup().human_precision) == expected['max'])
+        self.assertTrue(round(simulate.standard_deviation, OutputSetup().human_precision) == expected['std'])
+        self.assertTrue(round(simulate.total_duration, OutputSetup().human_precision) == expected['total'])
 
     def test_basic_statistic1(self):
         sequence = [0.24, 0.21, 0.34, 0.33]

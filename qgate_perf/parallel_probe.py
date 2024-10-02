@@ -11,7 +11,6 @@ from math import nan
 
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
-    HUMAN_PRECISION = 4
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
@@ -129,11 +128,11 @@ class ParallelProbe:
         if self.exception is None:
             return json.dumps({
                 FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
-                FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
+                FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
+                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
             }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
