@@ -339,7 +339,7 @@ class ParallelExecutor:
                           bulk_list= BundleHelper.ROW_1_COL_10_100,
                           executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup=None,
-                          sleep_between_bulks=0):
+                          sleep_between_bulks=0) -> bool:
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
@@ -368,7 +368,7 @@ class ParallelExecutor:
         return final_state
 
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
-                         run_setup: RunSetup=None):
+                         run_setup: RunSetup=None) -> bool:
         """ Run executor sequencies
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
@@ -413,7 +413,7 @@ class ParallelExecutor:
                 file.close()
         return final_state
 
-    def run(self, processes=2, threads=2, run_setup: RunSetup=None):
+    def run(self, processes=2, threads=2, run_setup: RunSetup=None) -> bool:
         """ Run execution of parallel call
 
         :param processes:       how much processes will be used
@@ -453,7 +453,7 @@ class ParallelExecutor:
                 file.close()
         return final_state
 
-    def one_run(self, run_setup: RunSetup=None):
+    def one_run(self, run_setup: RunSetup=None) -> bool:
         """ Run test, only one call, execution in new process, with standart write outputs
 
         :param run_setup:       setting for run
@@ -472,7 +472,7 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=run_setup)
 
-    def init_run(self, run_setup: RunSetup=None, print_output=False):
+    def init_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Init call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file). One new parametr was added '__INIT__': True
 
@@ -493,7 +493,7 @@ class ParallelExecutor:
             test_run_setup.set_bulk(1, 1)
         return self.test_run(test_run_setup, print_output)
 
-    def test_run(self, run_setup: RunSetup=None, print_output=False):
+    def test_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Test call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file)
 
