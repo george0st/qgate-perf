@@ -262,7 +262,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertFalse(generator.run_executor([[1,1]], setup))
 
-    def test_different_output_precision(self):
+    def test_output_precision(self):
         generator = ParallelExecutor(prf_gil_impact,
                                      label="GIL_impact",
                                      detail_output=True,
@@ -272,7 +272,7 @@ class TestCasePerf(unittest.TestCase):
         OutputSetup().human_precision = 7
         self.assertTrue(generator.run(2, 2, setup))
 
-    def test_different_output_json_separator(self):
+    def test_output_json_separator(self):
         generator = ParallelExecutor(prf_gil_impact,
                                      label="GIL_impact",
                                      detail_output=True,
