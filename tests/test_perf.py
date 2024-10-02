@@ -8,6 +8,7 @@ from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.run_return import RunReturn
 from qgate_perf.bundle_helper import BundleHelper
 from qgate_perf.executor_helper import ExecutorHelper
+from qgate_perf.output_setup import OutputSetup
 import time
 from os import path
 import shutil
@@ -261,6 +262,25 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertFalse(generator.run_executor([[1,1]], setup))
 
+    def test_different_output_precision(self):
+        generator = ParallelExecutor(prf_gil_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+
+        setup=RunSetup(duration_second=4, start_delay=4)
+        OutputSetup().human_precision = 7
+        self.assertTrue(generator.run(2, 2, setup))
+
+    def test_different_output_json_separator(self):
+        generator = ParallelExecutor(prf_gil_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+
+        setup = RunSetup(duration_second=4, start_delay=4)
+        OutputSetup().human_json_separator = (' - ', '::')
+        self.assertTrue(generator.run(2, 2, setup))
 
 # if __name__ == '__main__':
 #     unittest.main()

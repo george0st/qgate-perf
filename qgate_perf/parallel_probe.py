@@ -5,12 +5,12 @@ import json
 from qgate_perf.standard_deviation import StandardDeviation
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
+from qgate_perf.output_setup import OutputSetup
 from math import nan
 
 
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
-    HUMAN_PRECISION = 4
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
@@ -122,20 +122,20 @@ class ParallelProbe:
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
 
-    def readable_str(self):
+    def readable_str(self, compact_form = True):
         """Provide view to return value in readable and shorter form (for human check)"""
 
         if self.exception is None:
             return json.dumps({
                 FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
-                FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, ParallelProbe.HUMAN_PRECISION),
-                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, ParallelProbe.HUMAN_PRECISION)
-            })
+                FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
+                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
+                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
+            }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
-            return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
+            return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
     @staticmethod
     def dump_error(exception, pid=0, counter=0):
@@ -145,3 +145,10 @@ class ParallelProbe:
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
         })
+
+    @staticmethod
+    def readable_dump_error(exception, pid=0, counter=0):
+        return json.dumps({
+            FileFormat.PRF_DETAIL_CALLS: counter,
+            FileFormat.PRF_DETAIL_ERR: str(exception)
+        }, separators = OutputSetup().human_json_separator)

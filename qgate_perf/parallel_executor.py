@@ -14,6 +14,7 @@ from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
 from contextlib import suppress
+from qgate_perf.output_setup import OutputSetup
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -151,7 +152,7 @@ class ParallelExecutor:
             FileFormat.HR_PRF_HDR_MEMORY: f"{total}/{free}"
         }
 
-        self._print(file, json.dumps(out), json.dumps(readable_out))
+        self._print(file, json.dumps(out), json.dumps(readable_out, separators = OutputSetup().human_json_separator))
 
     def _memory(self):
 
@@ -246,8 +247,8 @@ class ParallelExecutor:
                     count += 1
             if (self._detail_output == True):
                 self._print(file,
-                            f"     {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
-                            f"     {parallel_ret.readable_str() if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}")
+                            f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
+                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         if (count > 0):
             total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
@@ -268,13 +269,13 @@ class ParallelExecutor:
             FileFormat.HM_PRF_CORE_REAL_EXECUTOR: count,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, ParallelProbe.HUMAN_PRECISION),
-            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, ParallelProbe.HUMAN_PRECISION),
-            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, ParallelProbe.HUMAN_PRECISION)
+            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, OutputSetup().human_precision)
         }
         self._print(file,
                     f"  {json.dumps(out)}",
-                    f"  {json.dumps(readable_out)}")
+                    f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
