@@ -257,6 +257,8 @@ class ParallelExecutor:
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
             total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
 
+        # TODO: Save to the output buffer final value of performance, for possible check in unit tests, etc.
+
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
             FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
