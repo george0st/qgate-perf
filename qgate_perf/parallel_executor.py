@@ -231,47 +231,54 @@ class ParallelExecutor:
         :param threads:         Number of threads
         :param group:           Name of group
         """
-        sum_time = 0
+        sum_avrg_time = 0
         sum_deviation = 0
         sum_call = 0
-        count = 0
+        executors = 0
         total_call_per_sec=0
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
             if parallel_ret:
                 if (parallel_ret.counter > 0):
-                    sum_time = sum_time + (parallel_ret.total_duration / parallel_ret.counter)
+                    # sum of average time for one call
+                    sum_avrg_time = sum_avrg_time + (parallel_ret.total_duration / parallel_ret.counter)
                     sum_deviation += parallel_ret.standard_deviation
                     sum_call += parallel_ret.counter
-                    count += 1
+                    executors += 1
             if (self._detail_output == True):
                 self._print(file,
                             f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
                             f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
-        if (count > 0):
-            total_call_per_sec=0 if (sum_time / count) == 0 else (1 / (sum_time / count)) * count * run_setup._bulk_row
+        if (executors > 0):
+            # Calc clarification:
+            #   sum_avrg_time / count = average time for one executor (average is cross all calls and executors)
+            #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
+            total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
+
+        # TODO: Save to the output buffer final value of performance, for possible check in unit tests, etc.
+
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
             FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
             FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
-            FileFormat.PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.PRF_CORE_GROUP: group,
-            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,
-            FileFormat.PRF_CORE_AVRG_TIME: 0 if count==0 else sum_time / count,
-            FileFormat.PRF_CORE_STD_DEVIATION: 0 if count==0 else sum_deviation / count,
+            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                                   # ok
+            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
+            FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
+            FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
             FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
         }
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
-            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: count,
+            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
             FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if count==0 else round(sum_time / count, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if count==0 else round (sum_deviation / count, OutputSetup().human_precision)
+            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
         self._print(file,
                     f"  {json.dumps(out)}",
@@ -329,7 +336,7 @@ class ParallelExecutor:
                           bulk_list= BundleHelper.ROW_1_COL_10_100,
                           executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup=None,
-                          sleep_between_bulks=0):
+                          sleep_between_bulks=0) -> bool:
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
@@ -358,7 +365,7 @@ class ParallelExecutor:
         return final_state
 
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
-                         run_setup: RunSetup=None):
+                         run_setup: RunSetup=None) -> bool:
         """ Run executor sequencies
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
@@ -403,7 +410,7 @@ class ParallelExecutor:
                 file.close()
         return final_state
 
-    def run(self, processes=2, threads=2, run_setup: RunSetup=None):
+    def run(self, processes=2, threads=2, run_setup: RunSetup=None) -> bool:
         """ Run execution of parallel call
 
         :param processes:       how much processes will be used
@@ -443,7 +450,7 @@ class ParallelExecutor:
                 file.close()
         return final_state
 
-    def one_run(self, run_setup: RunSetup=None):
+    def one_run(self, run_setup: RunSetup=None) -> bool:
         """ Run test, only one call, execution in new process, with standart write outputs
 
         :param run_setup:       setting for run
@@ -462,7 +469,7 @@ class ParallelExecutor:
                  threads=1,
                  run_setup=run_setup)
 
-    def init_run(self, run_setup: RunSetup=None, print_output=False):
+    def init_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Init call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file). One new parametr was added '__INIT__': True
 
@@ -483,7 +490,7 @@ class ParallelExecutor:
             test_run_setup.set_bulk(1, 1)
         return self.test_run(test_run_setup, print_output)
 
-    def test_run(self, run_setup: RunSetup=None, print_output=False):
+    def test_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Test call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file)
 
