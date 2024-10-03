@@ -79,48 +79,6 @@ class ParallelExecutor:
         except Exception as ex:
             print(f"SYSTEM ERROR in '_coreThreadClassPool': {type(ex).__name__} - '{str(ex)}'")
 
-    # def _coreThreadClass(self, threads, return_key, return_dict, run_setup):
-    #     thrd = []
-    #     for threadKey in range(threads):
-    #         t = threading.Thread(target=self._func,
-    #                              args=(str(return_key) + "x" + str(threadKey), return_dict, run_setup))
-    #         thrd.append(t)
-    #
-    #     # start
-    #     for t in thrd:
-    #         t.start()
-    #
-    #     # wait for finish
-    #     for t in thrd:
-    #         t.join()
-    #         t = None
-    #
-    # def _coreThread(func, threads, return_key, return_dict, run_setup):
-    #     thrd = []
-    #     for thread_key in range(threads):
-    #         t = threading.Thread(target=func,
-    #                              args=(str(return_key) + "x" + str(thread_key), return_dict, run_setup))
-    #         thrd.append(t)
-    #
-    #     # start
-    #     for t in thrd:
-    #         t.start()
-    #
-    #     # wait for finish
-    #     for t in thrd:
-    #         t.join()
-    #         t = None
-    #
-    # def _coreThreadPool(func, threads, return_key, return_dict, run_setup):
-    #     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-    #         features = []
-    #         for thread_key in range(threads):
-    #             features.append(
-    #                 executor.submit(func, f"{return_key}x{thread_key}", return_dict, run_setup))
-    #
-    #         for future in concurrent.futures.as_completed(features):
-    #             future.result()
-
     def _print(self, file, out: str, readable_out: str = None):
 
         # print to the file 'out'
@@ -308,16 +266,11 @@ class ParallelExecutor:
                     run_return = RunReturn(process_key, return_dict)
                     p = multiprocessing.Process(target=self._func_wrapper,
                                 args=(self._func, run_return, run_setup))
-                    # oldversion                args=(process_key, return_dict, run_setup))
-
                     proc.append(p)
             else:
                 for process_key in range(processes):
                     p = multiprocessing.Process(target=self._coreThreadClassPool,
                                 args=(threads, process_key, return_dict, run_setup))
-                    # p = multiprocessing.target=self._coreThreadClass, args=(threads, process_key, return_dict, run_setup))
-                    # p = multiprocessing.Process(target=ParallelExecutor._coreThread, args=(self.func, threads, process_key, return_dict, run_setup))
-                    # p = multiprocessing.Process(target=ParallelExecutor._coreThreadPool, args=(self.func, threads, process_key, return_dict, run_setup))
                     proc.append(p)
 
             # start
