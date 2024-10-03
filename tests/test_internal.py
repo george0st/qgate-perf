@@ -16,6 +16,7 @@ import shutil
 
 
 class TestCaseInternal(unittest.TestCase):
+    """Only small internal checks"""
     @classmethod
     def setUpClass(cls):
         pass

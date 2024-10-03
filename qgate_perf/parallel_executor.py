@@ -15,6 +15,7 @@ from platform import python_version
 from packaging import version
 from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
+from qgate_perf.output_performance import OutputPerformance
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -230,6 +231,7 @@ class ParallelExecutor:
         :param processes:       Number of processes
         :param threads:         Number of threads
         :param group:           Name of group
+        :return:                Performance, total calls per one second
         """
         sum_avrg_time = 0
         sum_deviation = 0
@@ -257,8 +259,6 @@ class ParallelExecutor:
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
             total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
 
-        # TODO: Save to the output buffer final value of performance, for possible check in unit tests, etc.
-
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
             FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
@@ -284,6 +284,8 @@ class ParallelExecutor:
                     f"  {json.dumps(out)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
+        return total_call_per_sec
+
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
         if dirname:
@@ -293,7 +295,7 @@ class ParallelExecutor:
 
     def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
 
-        from qgate_perf.run_return import RunReturn
+        #from qgate_perf.run_return import RunReturn
 
         proc = []
 
@@ -333,21 +335,24 @@ class ParallelExecutor:
             print(f"SYSTEM ERROR in '_executeCore': '{str(ex)}'")
 
     def run_bulk_executor(self,
-                          bulk_list= BundleHelper.ROW_1_COL_10_100,
-                          executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
-                          run_setup: RunSetup=None,
-                          sleep_between_bulks=0) -> bool:
+                          bulk_list = BundleHelper.ROW_1_COL_10_100,
+                          executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
+                          run_setup: RunSetup = None,
+                          sleep_between_bulks = 0,
+                          return_performance = False):
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
+        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
         :return:                    return state, True - all executions was without exceptions,
                                     False - some exceptions
         """
         final_state = True
         count = 0
+        performance = []
         for bulk in bulk_list:
 
             # sleep before other bulk
@@ -357,24 +362,37 @@ class ParallelExecutor:
 
             # execute
             run_setup.set_bulk(bulk[0], bulk[1])
-            if not self.run_executor(executor_list, run_setup):
-                final_state=False
 
+            if return_performance:
+                state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
+                if not state:
+                    final_state=False
+                for bulk_perf in bulk_performance:
+                    performance.append(bulk_perf)
+            else:
+                if not self.run_executor(executor_list, run_setup):
+                    final_state=False
             # memory clean
             gc.collect()
+
+        if return_performance:
+            return final_state, performance
         return final_state
 
-    def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
-                         run_setup: RunSetup=None) -> bool:
-        """ Run executor sequencies
+    def run_executor(self, executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
+                     run_setup: RunSetup = None,
+                     return_performance = False):
+        """ Run executor sequences
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
+        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
         :return:                    return state, True - all executions was without exceptions,
                                     False - some exceptions
         """
         file = None
-        final_state=True
+        final_state = True
+        performance = []
         print('Execution...')
 
         try:
@@ -391,14 +409,23 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    self._print_detail(file,
+                    cals_sec = self._print_detail(file,
                                        run_setup,
                                        return_dict,
                                        executors[0],
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
+                    if return_performance:
+                        performance.append(OutputPerformance(run_setup.bulk_row,
+                                                      run_setup.bulk_col,
+                                                      executors[0],
+                                                      executors[1],
+                                                      cals_sec))
                     if not self._final_state(return_dict):
                         final_state=False
+
+                # memory clean
+                gc.collect(generation = 1)
 
             self._print_footer(file, final_state)
 
@@ -408,6 +435,9 @@ class ParallelExecutor:
         finally:
             if file is not None:
                 file.close()
+
+        if return_performance:
+            return final_state, performance
         return final_state
 
     def run(self, processes=2, threads=2, run_setup: RunSetup=None) -> bool:

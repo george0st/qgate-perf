@@ -35,6 +35,7 @@ class FileFormat:
     HR_PRF_DETAIL_CALLS = "call"
     HR_PRF_DETAIL_AVRG = "avr"
     HR_PRF_DETAIL_STDEV = "std"
+    HR_PRF_DETAIL_TOTAL = "tduration"
 
     # core output
     PRF_CORE_TYPE = "core"

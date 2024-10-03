@@ -16,7 +16,7 @@ import shutil
 def prf_gil_impact(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
-    # init (contain executor synchonization, if needed)
+    # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
@@ -29,33 +29,6 @@ def prf_gil_impact(run_setup: RunSetup) -> ParallelProbe:
 
         for r in range(run_setup.bulk_row * run_setup.bulk_col):
             time.sleep(0)
-
-        # STOP - performance measure specific part of code
-        if probe.stop():
-            break
-
-    if run_setup.param("generate_error"):
-        raise Exception('Simulated error')
-
-    # return outputs
-    return probe
-
-def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
-    """ Function for performance testing"""
-
-    # init (contain executor synchonization, if needed)
-    probe = ParallelProbe(run_setup)
-
-    if run_setup.is_init:
-        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
-
-    while (True):
-
-        # START - performance measure for specific part of code
-        probe.start()
-
-        for r in range(run_setup.bulk_row * run_setup.bulk_col):
-            time.sleep(0.1)
 
         # STOP - performance measure specific part of code
         if probe.stop():
@@ -308,30 +281,6 @@ class TestCasePerf(unittest.TestCase):
         setup = RunSetup(duration_second=4, start_delay=4)
         OutputSetup().human_json_separator = (' - ', '::')
         self.assertTrue(generator.run(2, 2, setup))
-
-    def test_detail_track(self):
-        generator = ParallelExecutor(prf_calibration_onehundred_ms,
-                                     label="GIL_impact",
-                                     detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
-
-        setup=RunSetup(duration_second=1, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[1,1]],
-                                    run_setup=setup))
-        # TODO: compare final performance
-
-        setup=RunSetup(duration_second=2, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[2,1]],
-                                    run_setup=setup))
-        # TODO: compare final performance
-
-        setup=RunSetup(duration_second=3, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[4,1]],
-                                    run_setup=setup))
-        # TODO: compare final performance
 
 # if __name__ == '__main__':
 #     unittest.main()
