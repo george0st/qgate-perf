@@ -40,8 +40,10 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
     # return outputs
     return probe
 
-class TestCaseCoreEvaluationCheck(unittest.TestCase):
+class TestCaseCoreEvaluation(unittest.TestCase):
     """
+    Test, if calculation of performance is correct
+    
         IMPORTANT (main ideas)
           - all cases will have similar calls per second
           - the different duration time of tests does not change performance (calls per second)
