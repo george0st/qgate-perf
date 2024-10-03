@@ -71,3 +71,10 @@ class TestCaseInternal(unittest.TestCase):
         print('StandardDeviation size: ' + str(round(asizeof.asizeof(dev) / (1024 * 1024), 2)) + '/' + \
               str(round(asizeof.asizeof(dev) / (1024), 2)) + '/' + \
               str(asizeof.asizeof(dev)) + ' [MB/KB/B]')
+
+    def test_readable_time(self):
+        exec = ParallelExecutor(None)
+
+        print(exec._readable_duration(100))
+        print(exec._readable_duration(100.45))
+        print(exec._readable_duration(5004.45))

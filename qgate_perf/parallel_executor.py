@@ -192,16 +192,16 @@ class ParallelExecutor:
             return "n/a"
 
         str_duration = []
-        days = duration_seconds // 86400
+        days = int(duration_seconds // 86400)
         if days > 0:
             str_duration.append(f"{days} day")
-        hours = duration_seconds // 3600 % 24
+        hours = int(duration_seconds // 3600 % 24)
         if hours > 0:
             str_duration.append(f"{hours} hour")
-        minutes = duration_seconds // 60 % 60
+        minutes = int(duration_seconds // 60 % 60)
         if minutes > 0:
             str_duration.append(f"{minutes} min")
-        seconds = duration_seconds % 60
+        seconds = int(duration_seconds % 60)
         if seconds > 0:
             str_duration.append(f"{seconds} sec")
         return ' '.join(str_duration)
