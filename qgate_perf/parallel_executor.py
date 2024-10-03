@@ -337,18 +337,21 @@ class ParallelExecutor:
                           bulk_list = BundleHelper.ROW_1_COL_10_100,
                           executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup = None,
-                          sleep_between_bulks = 0) -> bool:
+                          sleep_between_bulks = 0,
+                          return_performance = False):
         """ Run cykle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
+        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
         :return:                    return state, True - all executions was without exceptions,
                                     False - some exceptions
         """
         final_state = True
         count = 0
+        performance = {}
         for bulk in bulk_list:
 
             # sleep before other bulk
@@ -358,11 +361,20 @@ class ParallelExecutor:
 
             # execute
             run_setup.set_bulk(bulk[0], bulk[1])
-            if not self.run_executor(executor_list, run_setup):
-                final_state=False
 
+            if return_performance:
+                state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
+                if not state:
+                    final_state=False
+                performance.update(bulk_performance)
+            else:
+                if not self.run_executor(executor_list, run_setup):
+                    final_state=False
             # memory clean
             gc.collect()
+
+        if return_performance:
+            return final_state, performance
         return final_state
 
     def run_executor(self, executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
@@ -372,7 +384,7 @@ class ParallelExecutor:
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
-        :param return_performance:  add to the return also performance (default is False)
+        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
         :return:                    return state, True - all executions was without exceptions,
                                     False - some exceptions
         """
