@@ -54,24 +54,24 @@ class TestCaseCheckMeasurement(unittest.TestCase):
 
     def test_expected_output1(self):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
-                                     label="GIL_impact",
-                                     detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+                                     label = "GIL_impact",
+                                     detail_output = True,
+                                     output_file = path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
-        setup=RunSetup(duration_second=1, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[1,1]],
-                                    run_setup=setup))
+        setup=RunSetup(duration_second = 1, start_delay = 0)
+        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
+                                    executor_list = [[1,1]],
+                                    run_setup = setup))
 
-        setup=RunSetup(duration_second=2, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[1,1]],
-                                    run_setup=setup))
+        setup=RunSetup(duration_second = 2, start_delay = 0)
+        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
+                                    executor_list = [[1,1]],
+                                    run_setup = setup))
 
-        setup=RunSetup(duration_second=10, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[1,1]],
-                                    run_setup=setup))
+        setup=RunSetup(duration_second = 10, start_delay = 0)
+        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
+                                    executor_list = [[1,1]],
+                                    run_setup = setup))
 
         # TODO: compare final performance
 
