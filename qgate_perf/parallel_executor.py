@@ -491,28 +491,35 @@ class ParallelExecutor:
             return final_state, performance
         return final_state
 
-    def one_run(self, run_setup: RunSetup=None) -> bool:
-        """ Run test, only one call, execution in new process, with standart write outputs
+    def one_run(self, run_setup: RunSetup = None, return_performance = False):
+        """ Run test, only one call, execution in new process, with standard write outputs
 
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
+        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
         :return:                return state, True - all executions was without exceptions,
                                 False - some exceptions
         """
 
         # setup minimalistic values
         if not run_setup:
-            run_setup = RunSetup(duration_second=0, start_delay=0)
+            run_setup = RunSetup(duration_second = 0, start_delay = 0)
             run_setup.set_bulk(1,1)
 
         # run
-        return self.run(processes=1,
-                 threads=1,
-                 run_setup=run_setup)
+        if return_performance:
+            state, perf = self.run(processes = 1,
+                            threads = 1,
+                            run_setup = run_setup,
+                            return_performance = return_performance)
+            return state, perf
+        return self.run(processes = 1,
+                 threads = 1,
+                 run_setup = run_setup)
 
     def init_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Init call in current process/thread (without ability to define parallel execution and without
-         write standard outputs to file). One new parametr was added '__INIT__': True
+         write standard outputs to file). One new parameter was added '__INIT__': True
 
         :param parameters:      parameters for execution, application in case the run_setup is None
         :return:                return state, True - execution was without exception,
