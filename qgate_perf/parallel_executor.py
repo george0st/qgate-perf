@@ -15,6 +15,7 @@ from platform import python_version
 from packaging import version
 from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
+from qgate_perf.output_performance import OutputPerformance
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -351,7 +352,7 @@ class ParallelExecutor:
         """
         final_state = True
         count = 0
-        performance = {}
+        performance = []
         for bulk in bulk_list:
 
             # sleep before other bulk
@@ -366,7 +367,8 @@ class ParallelExecutor:
                 state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
                 if not state:
                     final_state=False
-                performance.update(bulk_performance)
+                for bulk_perf in bulk_performance:
+                    performance.append(bulk_perf)
             else:
                 if not self.run_executor(executor_list, run_setup):
                     final_state=False
@@ -390,7 +392,7 @@ class ParallelExecutor:
         """
         file = None
         final_state = True
-        performance = {}
+        performance = []
         print('Execution...')
 
         try:
@@ -414,7 +416,11 @@ class ParallelExecutor:
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
                     if return_performance:
-                        performance[f"bulk [{run_setup.bulk_row}x{run_setup.bulk_col}], executor [{executors[0]}x{executors[1]}]"] = cals_sec
+                        performance.append(OutputPerformance(run_setup.bulk_row,
+                                                      run_setup.bulk_col,
+                                                      executors[0],
+                                                      executors[1],
+                                                      cals_sec))
                     if not self._final_state(return_dict):
                         final_state=False
 

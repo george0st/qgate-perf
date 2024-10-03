@@ -59,9 +59,14 @@ class TestCaseCheckMeasurement(unittest.TestCase):
                                      output_file = path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second = 1, start_delay = 0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
-                                    executor_list = [[1,1]],
-                                    run_setup = setup))
+        state, performance = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                         executor_list = [[1,1]],
+                                                         run_setup = setup,
+                                                         return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(performance[0].calls_sec >= 9 and performance[0].calls_sec<=11)
+
+
 
         setup=RunSetup(duration_second = 2, start_delay = 0)
         self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
