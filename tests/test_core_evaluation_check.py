@@ -41,7 +41,12 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
     return probe
 
 class TestCaseCoreEvaluationCheck(unittest.TestCase):
-
+    """
+        IMPORTANT (main ideas)
+          - all cases will have similar calls per second
+          - the different duration time of tests does not change performance (calls per second)
+          - peformance will affect size of bundle and amount of executors
+    """
     OUTPUT_ADR = "../output/test_perf/"
 
     @classmethod
@@ -53,6 +58,7 @@ class TestCaseCoreEvaluationCheck(unittest.TestCase):
         pass
 
     def test_expected_output1(self):
+
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
                                      label = "GIL_impact",
                                      detail_output = True,
