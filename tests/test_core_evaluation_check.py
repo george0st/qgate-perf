@@ -58,6 +58,7 @@ class TestCaseCoreEvaluationCheck(unittest.TestCase):
                                      detail_output = True,
                                      output_file = path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
+        # first
         setup=RunSetup(duration_second = 1, start_delay = 0)
         state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
                                                          executor_list = [[1,1]],
@@ -66,6 +67,7 @@ class TestCaseCoreEvaluationCheck(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 11)
 
+        # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
         state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
                                                   executor_list = [[1,1]],
@@ -74,7 +76,7 @@ class TestCaseCoreEvaluationCheck(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 11)
 
-
+        # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
         state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
                                                   executor_list = [[1,1]],
@@ -88,23 +90,33 @@ class TestCaseCoreEvaluationCheck(unittest.TestCase):
                                      label="GIL_impact",
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
-
+        # first
         setup=RunSetup(duration_second=1, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[2,1]],
-                                    run_setup=setup))
+        state, perf = generator.run_bulk_executor(bulk_list=[[1,1]],
+                                                  executor_list=[[2,1]],
+                                                  run_setup=setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 21)
 
+        # second
         setup=RunSetup(duration_second=2, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[2,1]],
-                                    run_setup=setup))
+        state, perf = generator.run_bulk_executor(bulk_list=[[1,1]],
+                                                  executor_list=[[2,1]],
+                                                  run_setup=setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 21)
 
+        # third
         setup=RunSetup(duration_second=10, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=[[2,1]],
-                                    run_setup=setup))
+        state, perf = generator.run_bulk_executor(bulk_list=[[1,1]],
+                                                  executor_list=[[2,1]],
+                                                  run_setup=setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 21)
 
-        # TODO: compare final performance
 
     def test_expected_output3(self):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
