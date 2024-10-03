@@ -366,7 +366,7 @@ class ParallelExecutor:
 
     def run_executor(self, executor_list= ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                          run_setup: RunSetup=None) -> bool:
-        """ Run executor sequencies
+        """ Run executor sequences
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
@@ -399,6 +399,9 @@ class ParallelExecutor:
                                        '' if len(executors) <= 2 else executors[2])
                     if not self._final_state(return_dict):
                         final_state=False
+                
+                # memory clean
+                gc.collect()
 
             self._print_footer(file, final_state)
 
