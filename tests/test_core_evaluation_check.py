@@ -40,13 +40,13 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
     # return outputs
     return probe
 
-class TestCaseCheckMeasurement(unittest.TestCase):
+class TestCaseCoreEvaluationCheck(unittest.TestCase):
 
     OUTPUT_ADR = "../output/test_perf/"
 
     @classmethod
     def setUpClass(cls):
-        shutil.rmtree(TestCaseCheckMeasurement.OUTPUT_ADR, True)
+        shutil.rmtree(TestCaseCoreEvaluationCheck.OUTPUT_ADR, True)
 
     @classmethod
     def tearDownClass(cls):
@@ -59,26 +59,29 @@ class TestCaseCheckMeasurement(unittest.TestCase):
                                      output_file = path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second = 1, start_delay = 0)
-        state, performance = generator.run_bulk_executor(bulk_list = [[1,1]],
+        state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
                                                          executor_list = [[1,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
         self.assertTrue(state)
-        self.assertTrue(performance[0].calls_sec >= 9 and performance[0].calls_sec<=11)
-
-
+        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 11)
 
         setup=RunSetup(duration_second = 2, start_delay = 0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
-                                    executor_list = [[1,1]],
-                                    run_setup = setup))
+        state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                  executor_list = [[1,1]],
+                                                  run_setup = setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 11)
+
 
         setup=RunSetup(duration_second = 10, start_delay = 0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list = [[1,1]],
-                                    executor_list = [[1,1]],
-                                    run_setup = setup))
-
-        # TODO: compare final performance
+        state, perf = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                  executor_list = [[1,1]],
+                                                  run_setup = setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 11)
 
     def test_expected_output2(self):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
