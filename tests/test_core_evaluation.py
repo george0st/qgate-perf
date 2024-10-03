@@ -43,7 +43,7 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
 class TestCaseCoreEvaluation(unittest.TestCase):
     """
     Test, if calculation of performance is correct
-    
+
         IMPORTANT (main ideas)
           - all cases will have similar calls per second
           - the different duration time of tests does not change performance (calls per second)
@@ -53,7 +53,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        shutil.rmtree(TestCaseCoreEvaluationCheck.OUTPUT_ADR, True)
+        shutil.rmtree(TestCaseCoreEvaluation.OUTPUT_ADR, True)
 
     @classmethod
     def tearDownClass(cls):
