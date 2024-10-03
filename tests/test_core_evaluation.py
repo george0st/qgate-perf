@@ -53,7 +53,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        shutil.rmtree(TestCaseCoreEvaluationCheck.OUTPUT_ADR, True)
+        shutil.rmtree(TestCaseCoreEvaluation.OUTPUT_ADR, True)
 
     @classmethod
     def tearDownClass(cls):
