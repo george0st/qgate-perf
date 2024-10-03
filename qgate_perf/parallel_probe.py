@@ -132,7 +132,7 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
                 FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
                 FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
-                FileFormat.PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
+                FileFormat.HR_PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
             }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
