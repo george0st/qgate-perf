@@ -78,3 +78,9 @@ class TestCaseInternal(unittest.TestCase):
         print(exec._readable_duration(100))
         print(exec._readable_duration(100.45))
         print(exec._readable_duration(5004.45))
+
+    def test_precison(self):
+        text_format="{:<05}"
+
+        print(text_format.format(round(810.1234567,4)))
+        print(text_format.format(round(0.12, 4)))
