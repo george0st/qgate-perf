@@ -1,7 +1,9 @@
-import datetime
-import time
+#import datetime
+#import time
 import os
 import json
+from time import time, sleep
+from datetime import datetime
 from qgate_perf.standard_deviation import StandardDeviation
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
@@ -28,7 +30,7 @@ class ParallelProbe:
             self.min_duration = 1000000000
             self.max_duration = 0
             self.standard_deviation = 0
-            self.track_init = datetime.datetime.utcnow()
+            self.track_init = datetime.utcnow()
             if run_setup:
                 # init incremental calculation of standard deviation
                 self.stddev = StandardDeviation(ddof=0)
@@ -39,25 +41,25 @@ class ParallelProbe:
                 self.duration_second = run_setup.duration_second
 
                 # key part of init timer (import for stop parallel run)
-                self.init_time = time.time()
-                self.track_start = datetime.datetime.utcnow()
-                self.track_end = datetime.datetime(1970, 1, 1)
+                self.init_time = time()
+                self.track_start = datetime.utcnow()
+                self.track_end = datetime(1970, 1, 1)
 
     def start(self):
         """ Start measurement each test"""
-        self.start_time_one_shot = time.time()
+        self.start_time_one_shot = time()
 
     def stop(self) -> bool:
         """Test, if it is possible to stop execution, based on duration of test
 
         :return:   True - stop execution, False - continue in execution
         """
-        self.stop_time_one_shot = time.time()
-        duration_one_shot = self.stop_time_one_shot - self.start_time_one_shot
+        stop_time_one_shot = time()
+        duration_one_shot = stop_time_one_shot - self.start_time_one_shot
         self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
-        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
+        if (stop_time_one_shot - self.init_time) >= self.duration_second:
             self._core_close()
             return True
         return False
@@ -81,7 +83,7 @@ class ParallelProbe:
 
     def _core_close(self):
         # write time
-        self.track_end = datetime.datetime.utcnow()
+        self.track_end = datetime.utcnow()
         # calc standard deviation
         self.standard_deviation = self.stddev.std
         # release unused sources (we calculated standard deviation)
@@ -95,12 +97,12 @@ class ParallelProbe:
             :param tolerance:       time tolerance in second (when it does not make to wait), default is 100 ms
         """
         # wait till specific time (the time for run is variable for each executor based on system processing and delay)
-        sleep_time = when_start - datetime.datetime.now()
+        sleep_time = when_start - datetime.now()
         sleep_time = sleep_time.total_seconds()
 
         # define size of tolerance for synchronization
         if sleep_time > tolerance:
-            time.sleep(sleep_time)
+            sleep(sleep_time)
 
     def __str__(self):
         """ Provider view to return value """
