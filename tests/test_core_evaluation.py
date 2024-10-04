@@ -3,13 +3,13 @@ from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
-from time import time, sleep
+from time import sleep
 import shutil
 
 def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
-    # init (contain executor synchonization, if needed)
+    # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
@@ -36,7 +36,7 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
 def prf_calibration_ten_ms(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
-    # init (contain executor synchonization, if needed)
+    # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
@@ -68,7 +68,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         IMPORTANT (main ideas)
           - all cases will have similar calls per second
           - the different duration time of tests does not change performance (calls per second)
-          - peformance will affect size of bundle and amount of executors
+          - performance will affect size of bundle and amount of executors
     """
     OUTPUT_ADR = "../output/test_perf/"
 
