@@ -3,7 +3,7 @@ from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
-import time
+from time import time, sleep
 import shutil
 
 def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
@@ -21,7 +21,7 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
         probe.start()
 
         for r in range(run_setup.bulk_row * run_setup.bulk_col):
-            time.sleep(0.1)
+            sleep(0.1)
 
         # STOP - performance measure specific part of code
         if probe.stop():
@@ -48,7 +48,7 @@ def prf_calibration_ten_ms(run_setup: RunSetup) -> ParallelProbe:
         probe.start()
 
         for r in range(run_setup.bulk_row * run_setup.bulk_col):
-            time.sleep(0.01)
+            sleep(0.01)
 
         # STOP - performance measure specific part of code
         if probe.stop():
