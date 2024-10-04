@@ -54,12 +54,12 @@ class ParallelProbe:
 
         :return:   True - stop execution, False - continue in execution
         """
-        self.stop_time_one_shot = time()
-        duration_one_shot = self.stop_time_one_shot - self.start_time_one_shot
+        stop_time_one_shot = time()
+        duration_one_shot = stop_time_one_shot - self.start_time_one_shot
         self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
-        if (self.stop_time_one_shot - self.init_time) >= self.duration_second:
+        if (stop_time_one_shot - self.init_time) >= self.duration_second:
             self._core_close()
             return True
         return False
