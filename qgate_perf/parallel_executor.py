@@ -1,10 +1,10 @@
 import concurrent.futures
 import multiprocessing
 import os.path
-import datetime
-import time
 import json
 import gc
+from datetime import datetime
+from time import sleep
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.bundle_helper import BundleHelper
@@ -89,7 +89,7 @@ class ParallelExecutor:
         print(readable_out if readable_out else out)
 
     def _print_header(self, file, run_setup: RunSetup=None):
-        self._start_tasks = datetime.datetime.utcnow()
+        self._start_tasks = datetime.utcnow()
         self._print(file, f"############### {self._start_tasks.isoformat(' ')} ###############")
         total, free = self._memory()
         out = {
@@ -137,7 +137,7 @@ class ParallelExecutor:
         return host
 
     def _print_footer(self, file, final_state):
-        seconds = round((datetime.datetime.utcnow() - self._start_tasks).total_seconds(), 1)
+        seconds = round((datetime.utcnow() - self._start_tasks).total_seconds(), 1)
         self._print(file,
                     f"############### State: {'OK' if final_state else 'Error'}, "
                     f" Duration: {self._readable_duration(seconds)} ({seconds}"
@@ -227,7 +227,7 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
             FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
             FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
-            FileFormat.PRF_CORE_TIME_END: datetime.datetime.utcnow().isoformat(' ')
+            FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
         }
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
@@ -311,7 +311,7 @@ class ParallelExecutor:
             # sleep before other bulk
             count += 1
             if count>1:
-                time.sleep(sleep_between_bulks)
+                sleep(sleep_between_bulks)
 
             # execute
             run_setup.set_bulk(bulk[0], bulk[1])

@@ -1,5 +1,3 @@
-import datetime
-
 
 class Singleton (type):
     _instances = {}
@@ -9,6 +7,7 @@ class Singleton (type):
         return cls._instances[cls]
 
 class OutputSetup(metaclass=Singleton):
+    """Global setup/setting for tuning of output"""
 
     HUMAN_PRECISION = 4
     HUMAN_JSON_SEPARATOR = (', ', ':')
