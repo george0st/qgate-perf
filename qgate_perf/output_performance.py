@@ -1,5 +1,7 @@
 
 class OutputPerformance:
+    """Outputs from performance tests"""
+
     def __init__(self, row, col, process, thread, calls_sec):
 
         self.bundle_row = row
