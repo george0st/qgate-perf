@@ -1,16 +1,9 @@
-import os
 import unittest
-import logging
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.executor_helper import ExecutorHelper
-from qgate_perf.run_return import RunReturn
-from qgate_perf.bundle_helper import BundleHelper
-from qgate_perf.executor_helper import ExecutorHelper
 from qgate_perf.output_setup import OutputSetup
 import time
-from os import path
 import shutil
 
 def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
@@ -92,7 +85,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
                                      label = "GIL_impact",
                                      detail_output = True,
-                                     output_file = path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+                                     output_file = None)
 
         # first
         setup=RunSetup(duration_second = 1, start_delay = 0)
@@ -125,7 +118,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+                                     output_file = None)
         # first
         setup=RunSetup(duration_second=1, start_delay=0)
         state, perf = generator.run_bulk_executor(bulk_list=[[1,1]],
@@ -157,7 +150,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         generator = ParallelExecutor(prf_calibration_onehundred_ms,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
+                                     output_file = None)
 
         # first
         setup=RunSetup(duration_second=1, start_delay=0)
@@ -256,6 +249,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
 
     def test_expected_output10ms_3(self):
 
+        OutputSetup().human_precision = 7
         generator = ParallelExecutor(prf_calibration_ten_ms,
                                      label = "GIL_impact",
                                      detail_output = True,
