@@ -2,7 +2,6 @@ import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.output_setup import OutputSetup
 from time import sleep
 import shutil
 
@@ -20,8 +19,7 @@ def prf_calibration_onehundred_ms(run_setup: RunSetup) -> ParallelProbe:
         # START - performance measure for specific part of code
         probe.start()
 
-        for r in range(run_setup.bulk_row * run_setup.bulk_col):
-            sleep(0.1)
+        sleep(0.1)
 
         # STOP - performance measure specific part of code
         if probe.stop():
@@ -47,8 +45,7 @@ def prf_calibration_ten_ms(run_setup: RunSetup) -> ParallelProbe:
         # START - performance measure for specific part of code
         probe.start()
 
-        for r in range(run_setup.bulk_row * run_setup.bulk_col):
-            sleep(0.01)
+        sleep(0.01)
 
         # STOP - performance measure specific part of code
         if probe.stop():
@@ -249,7 +246,6 @@ class TestCaseCoreEvaluation(unittest.TestCase):
 
     def test_expected_output10ms_3(self):
 
-        OutputSetup().human_precision = 7
         generator = ParallelExecutor(prf_calibration_ten_ms,
                                      label = "GIL_impact",
                                      detail_output = True,
