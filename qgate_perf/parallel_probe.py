@@ -1,8 +1,6 @@
-#import datetime
-#import time
 import os
 import json
-from time import time, sleep
+from time import time, sleep, perf_counter
 from datetime import datetime
 from qgate_perf.standard_deviation import StandardDeviation
 from qgate_perf.file_format import FileFormat
@@ -47,19 +45,20 @@ class ParallelProbe:
 
     def start(self):
         """ Start measurement each test"""
-        self.start_time_one_shot = time()
+        self.start_time_one_shot = perf_counter()
 
     def stop(self) -> bool:
         """Test, if it is possible to stop execution, based on duration of test
 
         :return:   True - stop execution, False - continue in execution
         """
-        stop_time_one_shot = time()
+        stop_time_one_shot = perf_counter()
+
         duration_one_shot = stop_time_one_shot - self.start_time_one_shot
         self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
-        if (stop_time_one_shot - self.init_time) >= self.duration_second:
+        if (time() - self.init_time) >= self.duration_second:
             self._core_close()
             return True
         return False

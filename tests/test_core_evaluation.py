@@ -1,3 +1,4 @@
+import time
 import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
@@ -203,7 +204,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 39 and perf[0].calls_sec <= 40)
 
-    def test_expected_output10ms_1(self):
+    def test_expected_output010ms_1(self):
 
         generator = ParallelExecutor(prf_calibration_10_ms,
                                      label = "GIL_impact",
@@ -237,7 +238,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 90 and perf[0].calls_sec <= 100)
 
-    def test_expected_output10ms_2(self):
+    def test_expected_output010ms_2(self):
 
         generator = ParallelExecutor(prf_calibration_10_ms,
                                      label = "GIL_impact",
@@ -271,7 +272,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 180 and perf[0].calls_sec <= 200)
 
-    def test_expected_output10ms_3(self):
+    def test_expected_output010ms_3(self):
 
         generator = ParallelExecutor(prf_calibration_10_ms,
                                      label = "GIL_impact",
@@ -305,7 +306,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 360 and perf[0].calls_sec <= 400)
 
-    def test_expected_output1ms_1(self):
+    def test_expected_output004ms_1(self):
 
         generator = ParallelExecutor(prf_calibration_4_ms,
                                      label = "GIL_impact",
@@ -339,7 +340,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 200 and perf[0].calls_sec <= 250)
 
-    def test_expected_output1ms_2(self):
+    def test_expected_output004ms_2(self):
 
         generator = ParallelExecutor(prf_calibration_4_ms,
                                      label = "GIL_impact",
@@ -373,7 +374,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 400 and perf[0].calls_sec <= 500)
 
-    def test_expected_output1ms_3(self):
+    def test_expected_output004ms_3(self):
 
         generator = ParallelExecutor(prf_calibration_4_ms,
                                      label = "GIL_impact",
@@ -406,3 +407,4 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   return_performance = True)
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
+
