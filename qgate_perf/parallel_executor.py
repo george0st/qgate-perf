@@ -293,7 +293,7 @@ class ParallelExecutor:
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
                           return_performance = False):
-        """ Run cykle of bulks in cycle of sequences for function execution
+        """ Run cycle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
@@ -413,7 +413,7 @@ class ParallelExecutor:
                 self.init_run(run_setup)
 
             if self._output_file is not None:
-                file=self._open_output()
+                file = self._open_output()
 
             self._print_header(file, run_setup)
 
@@ -503,7 +503,7 @@ class ParallelExecutor:
 
         # init
         key="test-no-parallel"
-        dictionary={key: ""}
+        dictionary = {key: ""}
         run_return = RunReturn(key, dictionary)
 
         if not run_setup:
@@ -523,7 +523,7 @@ class ParallelExecutor:
         return True
 
     @staticmethod
-    def create_graph_static(input_file, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
+    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
@@ -552,7 +552,7 @@ class ParallelExecutor:
 
         return output_file
 
-    def create_graph(self, output_graph_dir="output", scope: GraphScope = GraphScope.all, picture_dpi=100, suppress_error = False) -> list[str]:
+    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests.
         The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
@@ -569,7 +569,7 @@ class ParallelExecutor:
                                       picture_dpi,
                                       suppress_error)
 
-    def create_graph_perf(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
+    def create_graph_perf(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate performance graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-perf'.
@@ -585,7 +585,7 @@ class ParallelExecutor:
                                       picture_dpi,
                                       suppress_error)
 
-    def create_graph_exec(self, output_graph_dir="output", picture_dpi=100, suppress_error = False) -> list[str]:
+    def create_graph_exec(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate executors graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-exec'.
