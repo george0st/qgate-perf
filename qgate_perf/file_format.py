@@ -54,7 +54,6 @@ class FileFormat:
     HM_PRF_CORE_REAL_EXECUTOR = "exec"
     HM_PRF_CORE_GROUP = "grp"
     HM_PRF_CORE_TOTAL_CALL = "call"
-    HM_PRF_CORE_TOTAL_CALL_PER_SEC = "callsec"                      # total raw performance and multiply by rows in bundle
-    HM_PRF_CORE_TOTAL_CALL_PER_SEC_RAW = "callsec_raw"              # total raw performance (calls per one second)
+    HM_PRF_CORE_TOTAL_CALL_PER_SEC = "callsec(raw)"
     HM_PRF_CORE_AVRG_TIME = "avr"
     HM_PRF_CORE_STD_DEVIATION = "std"

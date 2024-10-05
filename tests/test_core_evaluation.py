@@ -408,3 +408,36 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
 
+    def test_expected_output004ms_buldle(self):
+
+        generator = ParallelExecutor(prf_calibration_4_ms,
+                                     label = "GIL_impact",
+                                     detail_output = True,
+                                     output_file = None)
+
+        # first
+        setup=RunSetup(duration_second = 1, start_delay = 0)
+        state, perf = generator.run_bulk_executor(bulk_list = [[2,1]],
+                                                         executor_list = [[4,1]],
+                                                         run_setup = setup,
+                                                         return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 1600 and perf[0].calls_sec <= 2000)
+
+        # second
+        setup=RunSetup(duration_second = 2, start_delay = 0)
+        state, perf = generator.run_bulk_executor(bulk_list = [[2,1]],
+                                                  executor_list = [[4,1]],
+                                                  run_setup = setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 1600 and perf[0].calls_sec <= 2000)
+
+        # third
+        setup=RunSetup(duration_second = 10, start_delay = 0)
+        state, perf = generator.run_bulk_executor(bulk_list = [[2,1]],
+                                                  executor_list = [[4,1]],
+                                                  run_setup = setup,
+                                                  return_performance = True)
+        self.assertTrue(state)
+        self.assertTrue(perf[0].calls_sec >= 1600 and perf[0].calls_sec <= 2000)

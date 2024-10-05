@@ -231,13 +231,17 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
             FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
         }
+
+        if total_call_per_sec_raw == total_call_per_sec:
+            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}"
+        else:
+            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}/{round(total_call_per_sec, OutputSetup().human_precision)}"
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
             FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC_RAW: round(total_call_per_sec_raw, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: total_call_readable,
             FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
