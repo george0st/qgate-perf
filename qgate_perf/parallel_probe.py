@@ -119,7 +119,7 @@ class ParallelProbe:
                 FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
                 FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
                 FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
-            })
+            }, separators = OutputSetup().json_separator)
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
 
@@ -145,7 +145,7 @@ class ParallelProbe:
             FileFormat.PRF_DETAIL_PROCESSID: pid,
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
-        })
+        }, separators = OutputSetup().json_separator)
 
     @staticmethod
     def readable_dump_error(exception, pid=0, counter=0):

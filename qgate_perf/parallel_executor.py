@@ -111,7 +111,9 @@ class ParallelExecutor:
             FileFormat.HR_PRF_HDR_MEMORY: f"{total}/{free}"
         }
 
-        self._print(file, json.dumps(out), json.dumps(readable_out, separators = OutputSetup().human_json_separator))
+        self._print(file,
+                    json.dumps(out, separators=OutputSetup().json_separator),
+                    json.dumps(readable_out, separators = OutputSetup().human_json_separator))
 
     def _memory(self):
 
@@ -243,7 +245,7 @@ class ParallelExecutor:
             FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
         self._print(file,
-                    f"  {json.dumps(out)}",
+                    f"  {json.dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
         return total_call_per_sec_raw, total_call_per_sec
