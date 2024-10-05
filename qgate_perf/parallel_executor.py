@@ -191,11 +191,8 @@ class ParallelExecutor:
         :param group:           Name of group
         :return:                Performance, total calls per one second
         """
-        sum_avrg_time = 0
-        sum_deviation = 0
-        sum_call = 0
-        executors = 0
-        total_call_per_sec=0
+        sum_avrg_time, sum_deviation, sum_call, executors = 0, 0, 0, 0
+        total_call_per_sec_raw, total_call_per_sec = 0, 0
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
@@ -215,7 +212,8 @@ class ParallelExecutor:
             # Calc clarification:
             #   sum_avrg_time / count = average time for one executor (average is cross all calls and executors)
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
-            total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
+            total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
+            total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
 
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
@@ -224,17 +222,23 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.PRF_CORE_GROUP: group,
             FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                                   # ok
+            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW: total_call_per_sec_raw,                         # ok
             FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
             FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
             FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
             FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
         }
+
+        if total_call_per_sec_raw == total_call_per_sec:
+            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}"
+        else:
+            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}/{round(total_call_per_sec, OutputSetup().human_precision)}"
         readable_out = {
             FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
             FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
+            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: total_call_readable,
             FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
@@ -242,7 +246,7 @@ class ParallelExecutor:
                     f"  {json.dumps(out)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return total_call_per_sec
+        return total_call_per_sec_raw, total_call_per_sec
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
@@ -362,7 +366,7 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    cals_sec = self._print_detail(file,
+                    calls_sec_raw, calls_sec = self._print_detail(file,
                                        run_setup,
                                        return_dict,
                                        executors[0],
@@ -370,10 +374,11 @@ class ParallelExecutor:
                                        '' if len(executors) <= 2 else executors[2])
                     if return_performance:
                         performance.append(OutputPerformance(run_setup.bulk_row,
-                                                      run_setup.bulk_col,
-                                                      executors[0],
-                                                      executors[1],
-                                                      cals_sec))
+                                                             run_setup.bulk_col,
+                                                             executors[0],
+                                                             executors[1],
+                                                             calls_sec_raw,
+                                                             calls_sec))
                     if not self._final_state(return_dict):
                         final_state=False
 
@@ -421,13 +426,14 @@ class ParallelExecutor:
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
-                cals_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
+                calls_sec_raw, calls_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
                 if return_performance:
                     performance.append(OutputPerformance(run_setup.bulk_row,
                                                          run_setup.bulk_col,
                                                          processes,
                                                          threads,
-                                                         cals_sec))
+                                                         calls_sec_raw,
+                                                         calls_sec))
                 if not self._final_state(return_dict):
                     final_state = False
 

@@ -46,13 +46,14 @@ class FileFormat:
     PRF_CORE_TOTAL_CALL = "total_calls"
     PRF_CORE_AVRG_TIME = "avrg_time"
     PRF_CORE_STD_DEVIATION = "std_deviation"
-    PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"
+    PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"              # total raw performance and multiply by rows in bundle
+    PRF_CORE_TOTAL_CALL_PER_SEC_RAW = "total_call_per_sec_raw"      # total raw performance (calls per one second)
     PRF_CORE_TIME_END = "endexec"
         # core output for HUMAN
     HM_PRF_CORE_PLAN_EXECUTOR_ALL = "plan"
     HM_PRF_CORE_REAL_EXECUTOR = "exec"
     HM_PRF_CORE_GROUP = "grp"
     HM_PRF_CORE_TOTAL_CALL = "call"
-    HM_PRF_CORE_TOTAL_CALL_PER_SEC = "callsec"
+    HM_PRF_CORE_TOTAL_CALL_PER_SEC = "callsec(raw)"
     HM_PRF_CORE_AVRG_TIME = "avr"
     HM_PRF_CORE_STD_DEVIATION = "std"
