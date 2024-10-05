@@ -2,7 +2,7 @@
 class OutputPerformance:
     """Outputs from performance tests"""
 
-    def __init__(self, row, col, process, thread, calls_sec):
+    def __init__(self, row, col, process, thread, calls_sec_raw, calls_sec):
 
         self.bundle_row = row
         self.bundle_col = col
@@ -10,6 +10,7 @@ class OutputPerformance:
         self.executor_process = process
         self.executor_thread = thread
 
+        self.calls_sec_raw = calls_sec_raw
         self.calls_sec = calls_sec
 
     def __str__(self):

@@ -408,7 +408,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
 
-    def test_expected_output004ms_buldle(self):
+    def test_expected_output004ms_bundle(self):
 
         generator = ParallelExecutor(prf_calibration_4_ms,
                                      label = "GIL_impact",

@@ -249,7 +249,7 @@ class ParallelExecutor:
                     f"  {json.dumps(out)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return total_call_per_sec
+        return total_call_per_sec_raw, total_call_per_sec
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
@@ -369,7 +369,7 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    cals_sec = self._print_detail(file,
+                    calls_sec_raw, calls_sec = self._print_detail(file,
                                        run_setup,
                                        return_dict,
                                        executors[0],
@@ -377,10 +377,11 @@ class ParallelExecutor:
                                        '' if len(executors) <= 2 else executors[2])
                     if return_performance:
                         performance.append(OutputPerformance(run_setup.bulk_row,
-                                                      run_setup.bulk_col,
-                                                      executors[0],
-                                                      executors[1],
-                                                      cals_sec))
+                                                             run_setup.bulk_col,
+                                                             executors[0],
+                                                             executors[1],
+                                                             calls_sec_raw,
+                                                             calls_sec))
                     if not self._final_state(return_dict):
                         final_state=False
 
@@ -428,13 +429,14 @@ class ParallelExecutor:
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
-                cals_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
+                calls_sec_raw, calls_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
                 if return_performance:
                     performance.append(OutputPerformance(run_setup.bulk_row,
                                                          run_setup.bulk_col,
                                                          processes,
                                                          threads,
-                                                         cals_sec))
+                                                         calls_sec_raw,
+                                                         calls_sec))
                 if not self._final_state(return_dict):
                     final_state = False
 
