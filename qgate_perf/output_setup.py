@@ -11,6 +11,7 @@ class OutputSetup(metaclass=Singleton):
 
     HUMAN_PRECISION = 4
     HUMAN_JSON_SEPARATOR = (', ', ':')
+    JSON_SEPARATOR = (',', ':')
 
     def __init__(self):
         self._human_precision = OutputSetup.HUMAN_PRECISION
@@ -31,3 +32,8 @@ class OutputSetup(metaclass=Singleton):
     @human_json_separator.setter
     def human_json_separator(self, value):
         self._human_json_separator = value
+
+    @property
+    def json_separator(self):
+        return OutputSetup.JSON_SEPARATOR
+
