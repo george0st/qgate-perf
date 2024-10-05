@@ -98,12 +98,12 @@ class TestCaseCoreEvaluation(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        OutputSetup().human_precision=7
+        OutputSetup().human_precision = 7
         shutil.rmtree(TestCaseCoreEvaluation.OUTPUT_ADR, True)
 
     @classmethod
     def tearDownClass(cls):
-        pass
+        OutputSetup().human_precision = OutputSetup().HUMAN_PRECISION
 
     def test_expected_output100ms_1(self):
 
