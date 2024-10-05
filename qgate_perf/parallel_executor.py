@@ -215,7 +215,8 @@ class ParallelExecutor:
             # Calc clarification:
             #   sum_avrg_time / count = average time for one executor (average is cross all calls and executors)
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
-            total_call_per_sec = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors * run_setup._bulk_row
+            total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
+            total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
 
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
@@ -224,6 +225,7 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.PRF_CORE_GROUP: group,
             FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                                   # ok
+            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW: total_call_per_sec_raw,                         # ok
             FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
             FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
             FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
@@ -234,6 +236,7 @@ class ParallelExecutor:
             FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
             FileFormat.HM_PRF_CORE_GROUP: group,
             FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
+            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC_RAW: round(total_call_per_sec_raw, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: round(total_call_per_sec, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
