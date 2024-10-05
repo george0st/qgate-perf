@@ -191,11 +191,8 @@ class ParallelExecutor:
         :param group:           Name of group
         :return:                Performance, total calls per one second
         """
-        sum_avrg_time = 0
-        sum_deviation = 0
-        sum_call = 0
-        executors = 0
-        total_call_per_sec=0
+        sum_avrg_time, sum_deviation, sum_call, executors = 0, 0, 0, 0
+        total_call_per_sec_raw, total_call_per_sec = 0, 0
 
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
