@@ -547,7 +547,13 @@ class ParallelExecutor:
         if GraphScope.perf in scope:
             from qgate_graph.graph_performance import GraphPerformance
 
-            graph = GraphPerformance(picture_dpi)
+            # raw format FALSE
+            graph = GraphPerformance(picture_dpi, raw_format = False)
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
+                output_file.append(file)
+
+            # raw format TRUE
+            graph = GraphPerformance(picture_dpi, raw_format = True)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
