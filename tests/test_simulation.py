@@ -20,7 +20,7 @@ class SimulateProbe(ParallelProbe):
         self._core_close()
 
 class TestCaseSimulate(unittest.TestCase):
-    """Simulate processing of input from performance tests"""
+    """Simulate performance input for calculation of call, min, max, avr, std, total."""
 
     OUTPUT_ADR = "../output/test_perf/"
     @classmethod
@@ -121,3 +121,10 @@ class TestCaseSimulate(unittest.TestCase):
         simulate.run(sequence)
         self._check(simulate, sequence)
 
+    def test_random_statistic4(self):
+        generator = get_rng_generator()
+        sequence = generator.integers(0, 100, 1000) / 100
+
+        simulate = SimulateProbe()
+        simulate.run(sequence)
+        self._check(simulate, sequence)
