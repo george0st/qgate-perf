@@ -121,10 +121,9 @@ class TestCasePercentile(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
-
     def test_percentile1(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
-        heap = PercentilHeap(self.my_call_fn, self.my_close_fn, 50)
+        heap = PercentilHeap(None, None, 50)
         for itm in sequence:
             heap.call(itm)
         heap.close()
@@ -147,12 +146,6 @@ class TestCasePercentile(unittest.TestCase):
             heap.call(itm)
         heap.close()
 
-
-    def my_call_fn(self, itm):
-        print("Processing:", itm)
-
-    def my_close_fn(self, itm):
-        print("Close")
 
     def test_percentile2(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
