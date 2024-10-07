@@ -9,7 +9,7 @@ numpy>=1.26.4,<=2.1.1
 psutil>=5.9.0,<=6.0.0
 packaging>=21.0,<=24.1
 
-qgate_graph==1.4.21
+qgate_graph==1.4.22
 
 coverage>=7
 coverage-badge>=1
