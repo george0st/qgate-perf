@@ -4,10 +4,11 @@ from enum import Flag
 
 class GraphScope(Flag):
     """Define typy of graph for generation"""
-    off = 0             # without graph generation
-    perf = 1            # generation of performance graph
-    exe = 2             # generation of executor graph
-    all = perf | exe    # generation of performance and executor graph
+    off = 0                         # without graph generation
+    perf = 1                        # generation of performance graph
+    perf_raw = 2                    # generation of performance graph in RAW format
+    exe = 4                         # generation of executor graph
+    all = perf | perf_raw | exe    # generation of performance and executor graph
 
 class ExecutorHelper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
