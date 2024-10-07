@@ -4,7 +4,7 @@ import unittest
 from qgate_perf.executor_helper import get_rng_generator
 
 
-class PercentilHeap():
+class PercentileHeap():
 
     # https://www.geeksforgeeks.org/max-heap-in-python/
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
@@ -74,18 +74,17 @@ class PercentilHeap():
             itm = heapq.heappop(self._sequence)
             if itm >= 0:
                 self._call_fn(itm)
-        print("DONE requested percentile: ", self._percentile)
-        self._close_fn(99)
+        self._close_fn()
 
         for b in range(len(self._sequence)):
             itm = heapq.heappop(self._sequence)
             if itm >= 0:
                 self._call_fn(itm)
         print("DONE all (100p)")
-        self._close_fn(100)
+        self._close_fn()
         self._clean()
 
-class SimulatePercentilHeap(PercentilHeap):
+class SimulatePercentileHeap(PercentileHeap):
 
     def __init__(self, percentile = 99, init_size = 2):
         super().__init__(self._simulate_call_fn, self._simulate_close_fn, percentile, init_size)
@@ -97,18 +96,23 @@ class SimulatePercentilHeap(PercentilHeap):
         if self._simulate_open:
             self._simulate_buffer.append(itm)
         self._simulate_buffer_full.append(itm)
+        print("Call: ", itm)
 
-    def _simulate_close_fn(self, percentile):
+    def _simulate_close_fn(self):
         self._simulate_open = False
+        print("Requested percentile: ", self._percentile)
 
-    def check(self, percentile_size_list, out_of_percentile):
-        if len(self._simulate_buffer) != percentile_size_list:
-            print("ERR")
+    def check(self, percentile_list_size: int, percentile_out_of_list: list):
+        if len(self._simulate_buffer) != percentile_list_size:
+            print("Unexpected size of collection")
+            return False
 
-        for itm in out_of_percentile:
+        for itm in percentile_out_of_list:
             if itm in self._simulate_buffer:
-                print("ERR")
+                print(f"Unexpected valie '{itm}' in collection")
+                return False
 
+        return True
 
 class TestCasePercentile(unittest.TestCase):
 
@@ -123,7 +127,7 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile1(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
-        heap = PercentilHeap(None, None, 50)
+        heap = PercentileHeap(None, None, 50)
         for itm in sequence:
             heap.call(itm)
         heap.close()
@@ -149,12 +153,35 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile2(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
-        heap = SimulatePercentilHeap(50)
+        heap = SimulatePercentileHeap(50)
         for itm in sequence:
             heap.call(itm)
         heap.close()
+        self.assertTrue(heap.check(3, [0.33, 0.34]))
+        print("----------------")
 
-        heap.check(3, [0.33, 0.34])
+        sequence = [0.34, 0.24, 0.11, 0.21, 0.33]
+        heap = SimulatePercentileHeap(50)
+        for itm in sequence:
+            heap.call(itm)
+        heap.close()
+        self.assertTrue(heap.check(3, [0.33, 0.34]))
+        print("----------------")
+
+        sequence = [0.34, 0.24, 0.11, 0.21]
+        heap = SimulatePercentileHeap(50)
+        for itm in sequence:
+            heap.call(itm)
+        heap.close()
+        self.assertTrue(heap.check(2, [0.33, 0.24]))
+        print("----------------")
+
+        sequence = [0.34, 0.24, 0.11]
+        heap = SimulatePercentileHeap(50)
+        for itm in sequence:
+            heap.call(itm)
+        heap.close()
+        self.assertTrue(heap.check(2, [0.34]))
 
 
     def test_percentile3(self):
