@@ -10,6 +10,14 @@ from numpy import random
 class PercentilHeap():
 
     def __init__(self, call_fn, close_fn, percentile = 99):
+        """
+        The keep in the heap values above requested percentile
+
+        :param call_fn:         function for standard processing value
+        :param close_fn:        function for close processing
+        :param percentile:      requested percentile (smaller value will affect bigger memory allocation),
+                                recommendation is to use 99 or 95 (99 is default)
+        """
         self._count = 0
         self._reserve = 2
         self._sequence = [-1] * self._reserve
@@ -18,12 +26,17 @@ class PercentilHeap():
         self._close_fn = close_fn
 
     def call(self, itm):
+        """
+        Function push value to the heap and also pop valid value for processing (via call_fn).
+
+        :param itm:     item for precessing
+        """
         self._count += 1
 
         if (self._count % self._percentile) == 0:
             expected_size = ((self._count + 1) * self._percentile / 100)
             if (expected_size + self._reserve) > len(self._sequence):
-                # extend heap and push value
+                # extend heap and only push value
                 heapq.heappush(self._sequence, itm)
                 return
 
@@ -33,6 +46,9 @@ class PercentilHeap():
             self._call_fn(old_itm)
 
     def close(self):
+        """
+        The close processing, will be caller function call_fn and close_fn
+        """
         # identification, how many value must be pop form 99p
         requested_size = self._count - ((self._count + 1) * self._percentile / 100)
         if requested_size > 1:
@@ -53,7 +69,6 @@ class PercentilHeap():
         print("DONE all (100p)")
         self._close_fn(100)
 
-
 class SimulateProbe(ParallelProbe):
 
     def __init__(self):
@@ -71,20 +86,19 @@ def get_rng_generator(complex_init = True) -> random._generator.Generator:
     """Create generator of random values with initiation"""
 
     # now and now_ms (as detail about milliseconds)
-    now = time.time()
+    now = time.perf_counter()
     now_ms = (now - int(now)) * 1000000000
 
     # calc based on CPU speed
     ns_start = time.perf_counter_ns()
     if complex_init:
-        time.sleep(0.01)
+        time.sleep(0.001)
         ns_stop = time.perf_counter_ns()
 
         # create generator with more random seed (now, now_ms, cpu speed)
         return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
     else:
         return random.default_rng([int(now), int(now_ms), ns_start])
-
 
 class TestCasePerf(unittest.TestCase):
 
@@ -99,7 +113,7 @@ class TestCasePerf(unittest.TestCase):
 
     def _check(self, simulate, sequence):
         """Check value from ParallelProbe vs calc from Numpy"""
-        expected ={}
+        expected = {}
         expected['call'] = len(sequence)
         expected['avr'] = float(round(np.average(sequence), OutputSetup().human_precision))
         expected['min'] = float(round(np.min(sequence), OutputSetup().human_precision))
@@ -120,21 +134,21 @@ class TestCasePerf(unittest.TestCase):
     def test_basic_statistic1(self):
         sequence = [0.24, 0.21, 0.34, 0.33]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
     def test_basic_statistic2(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
     def test_basic_statistic3(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -142,7 +156,7 @@ class TestCasePerf(unittest.TestCase):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33,
                     0.222, 0.2323, 0.456, 0.545, 0.332]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -150,7 +164,7 @@ class TestCasePerf(unittest.TestCase):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33,
                     0.222, 0.2323, 0.456, 0.545, 0.332, 7.334, 3.454, 7.3333, 0.3344, 0.576565, 0.8787]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -159,7 +173,7 @@ class TestCasePerf(unittest.TestCase):
                     0.222, 0.2323, 0.456, 0.545, 0.332, 7.334, 3.454, 7.3333, 0.3344, 0.576565, 0.8787, 1.1, 1.1, 1.4,
                     1.3, 1.5, 3.2, 0.44]
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -167,7 +181,7 @@ class TestCasePerf(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 100,10) / 100
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -175,7 +189,7 @@ class TestCasePerf(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 1000,50) / 100
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -183,7 +197,7 @@ class TestCasePerf(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 10000,100) / 100
 
-        simulate=SimulateProbe()
+        simulate = SimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
