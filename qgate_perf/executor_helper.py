@@ -1,5 +1,7 @@
 import math
 from enum import Flag
+from time import perf_counter, perf_counter_ns, sleep
+from numpy import random
 
 
 class GraphScope(Flag):
@@ -106,3 +108,22 @@ class ExecutorHelper:
             label = f"{added}x process" if label_process else f"{thread}x thread"
             pattern.append([added, thread, label])
         return pattern
+
+
+def get_rng_generator(complex_init = True) -> random._generator.Generator:
+    """Create generator of random values with initiation"""
+
+    # now and now_ms (as detail about milliseconds)
+    now = perf_counter()
+    now_ms = (now - int(now)) * 1000000000
+
+    # calc based on CPU speed
+    ns_start = perf_counter_ns()
+    if complex_init:
+        sleep(0.001)
+        ns_stop = perf_counter_ns()
+
+        # create generator with more random seed (now, now_ms, cpu speed)
+        return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
+    else:
+        return random.default_rng([int(now), int(now_ms), ns_start])
