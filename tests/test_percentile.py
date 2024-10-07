@@ -103,16 +103,24 @@ class SimulatePercentileHeap(PercentileHeap):
         print("Requested percentile: ", self._percentile)
 
     def check(self, percentile_list_size: int, percentile_out_of_list: list):
+        # check size of final collection
         if len(self._simulate_buffer) != percentile_list_size:
             print("Unexpected size of collection")
             return False
 
+        # check missing values
         for itm in percentile_out_of_list:
             if itm in self._simulate_buffer:
                 print(f"Unexpected valie '{itm}' in collection")
                 return False
 
         return True
+
+    def clean(self):
+        self._simulate_buffer = []
+        self._simulate_buffer_full = []
+        self._simulate_open = True
+        super()._clean()
 
 class TestCasePercentile(unittest.TestCase):
 
@@ -126,62 +134,35 @@ class TestCasePercentile(unittest.TestCase):
         pass
 
     def test_percentile1(self):
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
-        heap = PercentileHeap(None, None, 50)
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-
-        print("--------------")
-        sequence = [0.34, 0.24, 0.11, 0.21, 0.33]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-
-        print("--------------")
-        sequence = [0.34, 0.24, 0.11, 0.21]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-
-        print("--------------")
-        sequence = [0.34, 0.24, 0.11]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-
-
-    def test_percentile2(self):
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
         heap = SimulatePercentileHeap(50)
-        for itm in sequence:
+        
+        for itm in [0.24, 0.21, 0.34, 0.33, 0.11]:
             heap.call(itm)
         heap.close()
         self.assertTrue(heap.check(3, [0.33, 0.34]))
+        heap.clean()
         print("----------------")
 
-        sequence = [0.34, 0.24, 0.11, 0.21, 0.33]
-        heap = SimulatePercentileHeap(50)
-        for itm in sequence:
+        for itm in [0.34, 0.24, 0.11, 0.21, 0.33]:
             heap.call(itm)
         heap.close()
         self.assertTrue(heap.check(3, [0.33, 0.34]))
+        heap.clean()
         print("----------------")
 
-        sequence = [0.34, 0.24, 0.11, 0.21]
-        heap = SimulatePercentileHeap(50)
-        for itm in sequence:
+        for itm in [0.34, 0.24, 0.11, 0.21]:
             heap.call(itm)
         heap.close()
         self.assertTrue(heap.check(2, [0.33, 0.24]))
+        heap.clean()
         print("----------------")
 
-        sequence = [0.34, 0.24, 0.11]
-        heap = SimulatePercentileHeap(50)
-        for itm in sequence:
+        for itm in [0.34, 0.24, 0.11]:
             heap.call(itm)
         heap.close()
         self.assertTrue(heap.check(2, [0.34]))
+        heap.clean()
+
 
 
     def test_percentile3(self):
