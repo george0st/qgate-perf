@@ -170,6 +170,18 @@ class TestCasePercentile(unittest.TestCase):
         self.assertTrue(heap.check(1, [0.34]))
         heap.clean()
 
+    def test_percentile70(self):
+        pass
+
+    def test_percentile90(self):
+        pass
+
+    def test_percentile95(self):
+        pass
+
+    def test_percentile99(self):
+        pass
+
     def test_percentile3(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
                     0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
