@@ -1,6 +1,9 @@
 import heapq
 import math
 import unittest
+
+import numpy as np
+
 from qgate_perf.executor_helper import get_rng_generator
 
 
@@ -104,7 +107,18 @@ class SimulatePercentileHeap(PercentileHeap):
         else:
             print("DONE all (100p)")
 
-    def check(self, sequence: list,percentile_list_size: int, percentile_out_of_list: list):
+    def test(self, sequence: list, percentile_list_size: int, percentile_out_of_list: list) -> bool:
+        result = False
+
+        self.clean()
+        for itm in sequence:
+            self.call(itm)
+        self.close()
+        result = self._check(sequence, percentile_list_size, percentile_out_of_list)
+        print("----------------")
+        return result
+
+    def _check(self, sequence: list, percentile_list_size: int, percentile_out_of_list: list):
 
         print(f"=> Amount: {len(sequence)},",
               f"Percentile: {(len(sequence)+1)*self._percentile},",
@@ -194,34 +208,42 @@ class TestCasePercentile(unittest.TestCase):
     def test_percentile70(self):
         heap = SimulatePercentileHeap(70)
 
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 5, [0.33, 0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  6,
+                                  [0.34, 0.55]))
 
-        for itm in [0.24, 0.21, 0.34, 0.33, 0.11]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(4, [0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  5,
+                                  [0.33, 0.34]))
 
-        for itm in [0.34, 0.24, 0.11, 0.21, 0.33]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(4, [0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11],
+                                  4,
+                                  [0.34]))
 
-        for itm in [0.34, 0.24, 0.11, 0.33]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(3, [0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.11, 0.21, 0.24, 0.33, 0.34],
+                                  4,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21, 0.33],
+                                  4,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.33],
+                                  3,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11],
+                                  2,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24],
+                                  2,
+                                  []))
+
+        self.assertTrue(heap.test([0.34],
+                                  1,
+                                  []))
+
 
     def test_percentile90(self):
         pass
