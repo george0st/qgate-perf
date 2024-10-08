@@ -13,12 +13,12 @@ from qgate_perf.percentile_heap import PercentileHeap
 class PercentileItem:
 
     def __init__(self, percentile, count, total_duration, std, min, max):
-        self._percentile = percentile
-        self._count = count
-        self._total_duration = total_duration
-        self._min = min
-        self._min = max
-        self._std = std
+        self.percentile = percentile
+        self.count = count
+        self.total_duration = total_duration
+        self.min = min
+        self.max = max
+        self.std = std
 
     def __str__(self):
         pass
@@ -58,8 +58,16 @@ class ParallelProbe:
                 self.track_end = datetime(1970, 1, 1)
 
                 # for percentile calculation
-                self.heap = PercentileHeap(self._core_calc, self._core_close, 99, 100)
-                self.percentile_results = []
+                # TODO: add to the RunSetup percentile and heap_init_size
+                if run_setup["percentile"]:
+                    self.heap = PercentileHeap(self._core_calc,
+                                               self._core_close,
+                                               run_setup["percentile"],
+                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 100)
+                    self.percentile_results = []
+                else:
+                    # TODO: change point to relevant functions
+                    pass
 
     def start(self):
         """ Start measurement each test"""
