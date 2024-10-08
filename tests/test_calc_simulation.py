@@ -19,7 +19,7 @@ class SimulateProbe(ParallelProbe):
             self._core_calc(duration)
         self._core_close()
 
-class TestCaseSimulate(unittest.TestCase):
+class TestCaseCalcSimulate(unittest.TestCase):
     """Simulate performance input for calculation of call, min, max, avr, std, total."""
 
     OUTPUT_ADR = "../output/test_perf/"

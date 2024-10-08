@@ -108,7 +108,7 @@ class ParallelProbe:
         self.standard_deviation = self.stddev.std
 
         # Store all values for each percentile
-        self.percentile_results.add(PercentileItem(percentile,
+        self.percentile_results.append(PercentileItem(percentile,
                                               self.counter,
                                               self.total_duration,
                                               self.standard_deviation,
