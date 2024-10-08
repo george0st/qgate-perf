@@ -7,6 +7,7 @@ from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from math import nan
+from qgate_perf.percentile_heap import PercentileHeap
 
 
 class sss:
@@ -56,6 +57,9 @@ class ParallelProbe:
                 self.track_start = datetime.utcnow()
                 self.track_end = datetime(1970, 1, 1)
 
+                #self.heap = PercentileHeap(self._core_calc, self._core_close, 99, 100)
+
+
     def start(self):
         """ Start measurement each test"""
         self.start_time_one_shot = perf_counter()
@@ -68,10 +72,12 @@ class ParallelProbe:
         stop_time_one_shot = perf_counter()
 
         duration_one_shot = stop_time_one_shot - self.start_time_one_shot
+        #self.heap.call(duration_one_shot)
         self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
         if (time() - self.init_time) >= self.duration_second:
+            #self.heap.close()
             self._core_close()
             return True
         return False
@@ -93,7 +99,7 @@ class ParallelProbe:
         if duration_one_shot > self.max_duration:
             self.max_duration = duration_one_shot
 
-    def _core_close(self):
+    def _core_close(self, percentile = 1):
         # write time
         self.track_end = datetime.utcnow()
         # calc standard deviation
