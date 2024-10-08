@@ -10,7 +10,7 @@ from math import nan
 from qgate_perf.percentile_heap import PercentileHeap
 
 
-class sss:
+class PercentileItem:
 
     def __init__(self, percentile, count, total_duration, std, min, max):
         self._percentile = percentile
@@ -57,8 +57,9 @@ class ParallelProbe:
                 self.track_start = datetime.utcnow()
                 self.track_end = datetime(1970, 1, 1)
 
-                #self.heap = PercentileHeap(self._core_calc, self._core_close, 99, 100)
-
+                # for percentile calculation
+                self.heap = PercentileHeap(self._core_calc, self._core_close, 99, 100)
+                self.percentile_results = []
 
     def start(self):
         """ Start measurement each test"""
@@ -72,13 +73,13 @@ class ParallelProbe:
         stop_time_one_shot = perf_counter()
 
         duration_one_shot = stop_time_one_shot - self.start_time_one_shot
-        #self.heap.call(duration_one_shot)
-        self._core_calc(duration_one_shot)
+        self.heap.call(duration_one_shot)
+        #self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
         if (time() - self.init_time) >= self.duration_second:
-            #self.heap.close()
-            self._core_close()
+            self.heap.close()
+            #self._core_close()
             return True
         return False
 
@@ -100,12 +101,26 @@ class ParallelProbe:
             self.max_duration = duration_one_shot
 
     def _core_close(self, percentile = 1):
+
         # write time
         self.track_end = datetime.utcnow()
         # calc standard deviation
         self.standard_deviation = self.stddev.std
-        # release unused sources (we calculated standard deviation)
-        del self.stddev
+
+        # Store all values for each percentile
+        self.percentile_results.add(PercentileItem(percentile,
+                                              self.counter,
+                                              self.total_duration,
+                                              self.standard_deviation,
+                                              self.min_duration,
+                                              self.max_duration))
+        if percentile == 1:
+            # release unused sources
+            #   standard deviation calculation
+            del self.stddev
+            #   percentile heap
+            del self.heap
+
 
     @staticmethod
     def _wait_for_others(when_start, tolerance=0.1):
@@ -125,6 +140,7 @@ class ParallelProbe:
     def __str__(self):
         """ Provider view to return value """
 
+        # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
             return json.dumps({
                 FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
@@ -145,6 +161,7 @@ class ParallelProbe:
     def readable_str(self, compact_form = True):
         """Provide view to return value in readable and shorter form (for human check)"""
 
+        # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
             return json.dumps({
                 FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
