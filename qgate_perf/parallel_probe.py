@@ -59,8 +59,15 @@ class ParallelProbe:
 
                 # for percentile calculation
                 # TODO: add to the RunSetup percentile and heap_init_size
-                self.heap = PercentileHeap(self._core_calc, self._core_close, 99, 100)
-                self.percentile_results = []
+                if run_setup["percentile"]:
+                    self.heap = PercentileHeap(self._core_calc,
+                                               self._core_close,
+                                               run_setup["percentile"],
+                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 100)
+                    self.percentile_results = []
+                else:
+                    # TODO: change point to relevant functions
+                    pass
 
     def start(self):
         """ Start measurement each test"""

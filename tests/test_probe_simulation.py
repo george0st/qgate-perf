@@ -8,8 +8,12 @@ import numpy as np
 
 class SimulateProbe(ParallelProbe):
 
-    def __init__(self):
-        setup = RunSetup(0, 0, {})
+    def __init__(self, percentile, heap_init_size):
+        parameters={}
+        parameters["percentile"] = percentile
+        parameters["heap_init_size"] = heap_init_size
+
+        setup = RunSetup(0, 0, parameters)
         setup.set_start_time()
         super().__init__(setup)
 
@@ -51,6 +55,5 @@ class TestCaseProbeSimulate(unittest.TestCase):
     def test_basic1(self):
         sequence = [0.24, 0.21, 0.34, 0.33, -1]
 
-        simulate = SimulateProbe()
+        simulate = SimulateProbe(50, 10)
         simulate.run(sequence)
-        #self._check(simulate, sequence)
