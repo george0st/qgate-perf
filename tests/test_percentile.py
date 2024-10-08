@@ -1,6 +1,9 @@
 import heapq
 import math
 import unittest
+
+import numpy as np
+
 from qgate_perf.executor_helper import get_rng_generator
 
 
@@ -10,7 +13,7 @@ class PercentileHeap():
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
     # https://github.com/sengelha/streaming-percentiles
 
-    def __init__(self, call_fn, close_fn, percentile = 99, init_size = 2):
+    def __init__(self, call_fn, close_fn, percentile = 99, init_size = 10):
         """
         The keep in the heap values above requested percentile
 
@@ -40,8 +43,7 @@ class PercentileHeap():
 
         perc = (self._count + 1) * self._percentile
         if perc < self._count:
-            requested_size = self._count - perc
-            requested_size = 1 + math.ceil(requested_size)
+            requested_size = 1 + math.ceil(self._count - perc)
             if requested_size > len(self._sequence):
                 # extend heap and only push value
                 heapq.heappush(self._sequence, itm)
@@ -50,7 +52,7 @@ class PercentileHeap():
         # add item to heap
         if itm >= self._sequence[0]:
             old_itm = heapq.heapreplace(self._sequence, itm)
-            if old_itm >= 0:        # remove items with init value '-1'
+            if old_itm >= 0:                # remove items with init value '-1'
                 self._call_fn(old_itm)
         else:
             self._call_fn(itm)
@@ -61,8 +63,7 @@ class PercentileHeap():
         """
 
         # identification, how many values must be pop form 99p
-        perc = (self._count + 1) * self._percentile
-        requested_size = self._count - perc
+        requested_size = self._count - ((self._count + 1) * self._percentile)
         requested_size_max = math.ceil(requested_size)
         if requested_size_max >= 1:
             pop_operation = int(len(self._sequence) - requested_size)
@@ -80,7 +81,6 @@ class PercentileHeap():
             itm = heapq.heappop(self._sequence)
             if itm >= 0:
                 self._call_fn(itm)
-        print("DONE all (100p)")
         self._close_fn()
         self._clean()
 
@@ -99,11 +99,36 @@ class SimulatePercentileHeap(PercentileHeap):
         print("Call: ", itm)
 
     def _simulate_close_fn(self):
-        self._simulate_open = False
-        print("Requested percentile: ", self._percentile)
+        if self._simulate_open:
+            self._simulate_open = False
+            print("Requested percentile: ", self._percentile)
+        else:
+            print("DONE all (100p)")
 
-    def check(self, percentile_list_size: int, percentile_out_of_list: list):
-        # check size of final collection
+    def test(self, sequence: list, percentile_list_size: int, percentile_out_of_list: list) -> bool:
+        result = False
+
+        self.clean()
+        for itm in sequence:
+            self.call(itm)
+        self.close()
+        result = self._check(sequence, percentile_list_size, percentile_out_of_list)
+        print("----------------")
+        return result
+
+    def _check(self, sequence: list, percentile_list_size: int, percentile_out_of_list: list):
+
+        print(f"=> Amount: {len(sequence)},",
+              f"Percentile: {(len(sequence)+1)*self._percentile},",
+              f"Keep: {len(sequence) - math.floor((len(sequence)+1)*self._percentile)},",
+              f"Sequence: {sequence} <=")
+
+        # check size of complete/full collection
+        if len(self._simulate_buffer_full) != len(sequence):
+            print("Unexpected size of full collection")
+            return False
+
+        # check size of collection by percentile
         if len(self._simulate_buffer) != percentile_list_size:
             print("Unexpected size of collection")
             return False
@@ -113,7 +138,6 @@ class SimulatePercentileHeap(PercentileHeap):
             if itm in self._simulate_buffer:
                 print(f"Unexpected valie '{itm}' in collection")
                 return False
-
         return True
 
     def clean(self):
@@ -135,62 +159,182 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile50(self):
         heap = SimulatePercentileHeap(50)
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                   4,
+                                   [0.33, 0.34, 0.24]))
 
-        for itm in [0.24, 0.21, 0.34, 0.33, 0.11]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(3, [0.33, 0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11],
+                                   3,
+                                   [0.33, 0.34]))
 
-        for itm in [0.34, 0.24, 0.11, 0.21, 0.33]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(3, [0.33, 0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21, 0.33],
+                                   3,
+                                   [0.33, 0.34]))
 
-        for itm in [0.34, 0.24, 0.11, 0.21]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(2, [0.33, 0.24]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21],
+                                   2,
+                                   [0.33, 0.24]))
 
-        for itm in [0.34, 0.24, 0.11]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(2, [0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11],
+                                   2,
+                                   [0.34]))
 
-        for itm in [0.34, 0.24]:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(1, [0.34]))
-        heap.clean()
+        self.assertTrue(heap.test([0.34, 0.24],
+                                  1,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34],
+                                  1,
+                                  []))
 
     def test_percentile70(self):
-        pass
+        heap = SimulatePercentileHeap(70)
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  6,
+                                  [0.34, 0.55]))
+
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  5,
+                                  [0.33, 0.34]))
+
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11],
+                                  4,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.11, 0.21, 0.24, 0.33, 0.34],
+                                  4,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21, 0.33],
+                                  4,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.33],
+                                  3,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11],
+                                  2,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34, 0.24],
+                                  2,
+                                  []))
+
+        self.assertTrue(heap.test([0.34],
+                                  1,
+                                  []))
 
     def test_percentile90(self):
-        pass
+        heap = SimulatePercentileHeap(90)
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  9,
+                                  [0.55]))
+
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10],
+                                  9,
+                                  []))
+
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  8,
+                                  []))
+
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                  7,
+                                  []))
+
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11],
+                                  5,
+                                  []))
+
+        self.assertTrue(heap.test([0.11, 0.21, 0.24, 0.33, 0.34],
+                                  5,
+                                  []))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21, 0.33],
+                                  5,
+                                  []))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.33],
+                                  4,
+                                  []))
+
+        self.assertTrue(heap.test([0.34, 0.24, 0.11],
+                                  3,
+                                  []))
+
+        self.assertTrue(heap.test([0.34, 0.24],
+                                  2,
+                                  []))
+
+        self.assertTrue(heap.test([0.34],
+                                  1,
+                                  []))
 
     def test_percentile95(self):
-        pass
+        heap = SimulatePercentileHeap(95)
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.52, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  38,
+                                  [0.54, 0.55]))
+
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  29,
+                                  [0.55]))
+
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  19,
+                                  [0.55]))
+
+        self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  10,
+                                  []))
 
     def test_percentile99(self):
-        pass
+        heap = SimulatePercentileHeap(99)
+        self.assertTrue(heap.test([0.59, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.58, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.57, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.56, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.52, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.51, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.50, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.49, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  109,
+                                  [0.59]))
 
-    def test_percentile3(self):
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.56, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12]
+        self.assertTrue(heap.test([0.59, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.58, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.57, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.56, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.52, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.51, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.50, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  99,
+                                  [0.59]))
+
+        self.assertTrue(heap.test([0.59, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.58, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.57, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.56, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.52, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
+                                   0.51, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
+                                  90,
+                                  []))
+
+
 
