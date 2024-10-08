@@ -9,6 +9,19 @@ from qgate_perf.output_setup import OutputSetup
 from math import nan
 
 
+class sss:
+
+    def __init__(self, percentile, count, total_duration, std, min, max):
+        self._percentile = percentile
+        self._count = count
+        self._total_duration = total_duration
+        self._min = min
+        self._min = max
+        self._std = std
+
+    def __str__(self):
+        pass
+
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
 
