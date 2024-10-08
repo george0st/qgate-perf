@@ -158,52 +158,33 @@ class TestCasePercentile(unittest.TestCase):
     def test_percentile50(self):
         heap = SimulatePercentileHeap(50)
 
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence,4, [0.33, 0.34, 0.24]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
+                                   4,
+                                   [0.33, 0.34, 0.24]))
 
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 3, [0.33, 0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11],
+                                   3,
+                                   [0.33, 0.34]))
 
-        sequence = [0.34, 0.24, 0.11, 0.21, 0.33]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 3, [0.33, 0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21, 0.33],
+                                   3,
+                                   [0.33, 0.34]))
 
-        sequence = [0.34, 0.24, 0.11, 0.21]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 2, [0.33, 0.24]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11, 0.21],
+                                   2,
+                                   [0.33, 0.24]))
 
-        sequence = [0.34, 0.24, 0.11]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 2, [0.34]))
-        heap.clean()
-        print("----------------")
+        self.assertTrue(heap.test([0.34, 0.24, 0.11],
+                                   2,
+                                   [0.34]))
 
-        sequence = [0.34, 0.24]
-        for itm in sequence:
-            heap.call(itm)
-        heap.close()
-        self.assertTrue(heap.check(sequence, 1, [0.34]))
-        heap.clean()
+        self.assertTrue(heap.test([0.34, 0.24],
+                                  1,
+                                  [0.34]))
+
+        self.assertTrue(heap.test([0.34],
+                                  1,
+                                  []))
 
     def test_percentile70(self):
         heap = SimulatePercentileHeap(70)
