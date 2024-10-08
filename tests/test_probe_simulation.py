@@ -38,6 +38,9 @@ class SimulateProbe(ParallelProbe):
             self.start()
             self.stop(duration_one_shot)
 
+        # force the END
+        self.stop(-1)
+
         # TODO: add logic
 
 class TestCaseProbeSimulate(unittest.TestCase):
@@ -53,7 +56,7 @@ class TestCaseProbeSimulate(unittest.TestCase):
         pass
 
     def test_basic1(self):
-        sequence = [0.24, 0.21, 0.34, 0.33, -1]
+        sequence = [0.24, 0.21, 0.34, 0.33]
 
         simulate = SimulateProbe(50, 10)
         simulate.run(sequence)
