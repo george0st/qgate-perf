@@ -56,7 +56,9 @@ class TestCaseProbeSimulate(unittest.TestCase):
         pass
 
     def test_basic1(self):
-        sequence = [0.24, 0.21, 0.34, 0.33]
 
         simulate = SimulateProbe(50, 10)
-        simulate.run(sequence)
+        simulate.run([0.24, 0.21, 0.34, 0.33])
+
+        simulate = SimulateProbe(70, 10)
+        simulate.run([0.24, 0.21, 0.34, 0.33, 0.11, 0.25, 0.10])
