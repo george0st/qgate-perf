@@ -13,7 +13,7 @@ class PercentileHeap():
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
     # https://github.com/sengelha/streaming-percentiles
 
-    def __init__(self, call_fn, close_fn, percentile = 99, init_size = 2):
+    def __init__(self, call_fn, close_fn, percentile = 99, init_size = 10):
         """
         The keep in the heap values above requested percentile
 
@@ -43,8 +43,7 @@ class PercentileHeap():
 
         perc = (self._count + 1) * self._percentile
         if perc < self._count:
-            requested_size = self._count - perc
-            requested_size = 1 + math.ceil(requested_size)
+            requested_size = 1 + math.ceil(self._count - perc)
             if requested_size > len(self._sequence):
                 # extend heap and only push value
                 heapq.heappush(self._sequence, itm)
@@ -53,7 +52,7 @@ class PercentileHeap():
         # add item to heap
         if itm >= self._sequence[0]:
             old_itm = heapq.heapreplace(self._sequence, itm)
-            if old_itm >= 0:        # remove items with init value '-1'
+            if old_itm >= 0:                # remove items with init value '-1'
                 self._call_fn(old_itm)
         else:
             self._call_fn(itm)
@@ -64,8 +63,7 @@ class PercentileHeap():
         """
 
         # identification, how many values must be pop form 99p
-        perc = (self._count + 1) * self._percentile
-        requested_size = self._count - perc
+        requested_size = self._count - ((self._count + 1) * self._percentile)
         requested_size_max = math.ceil(requested_size)
         if requested_size_max >= 1:
             pop_operation = int(len(self._sequence) - requested_size)
@@ -140,7 +138,6 @@ class SimulatePercentileHeap(PercentileHeap):
             if itm in self._simulate_buffer:
                 print(f"Unexpected valie '{itm}' in collection")
                 return False
-
         return True
 
     def clean(self):
@@ -162,7 +159,6 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile50(self):
         heap = SimulatePercentileHeap(50)
-
         self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
                                    4,
                                    [0.33, 0.34, 0.24]))
@@ -193,7 +189,6 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile70(self):
         heap = SimulatePercentileHeap(70)
-
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
                                   6,
                                   [0.34, 0.55]))
@@ -232,7 +227,6 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile90(self):
         heap = SimulatePercentileHeap(90)
-
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
                                   9,
                                   [0.55]))
@@ -279,7 +273,6 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile95(self):
         heap = SimulatePercentileHeap(95)
-
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
@@ -304,7 +297,6 @@ class TestCasePercentile(unittest.TestCase):
 
     def test_percentile99(self):
         heap = SimulatePercentileHeap(99)
-
         self.assertTrue(heap.test([0.59, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.58, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.57, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
@@ -344,15 +336,5 @@ class TestCasePercentile(unittest.TestCase):
                                   90,
                                   []))
 
-    def test_percentile3(self):
-        sequence = [0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.56, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12,
-                    0.24, 0.21, 0.34, 0.33, 0.11, 0.22, 0.33, 0.23, 0.21, 0.12]
+
 
