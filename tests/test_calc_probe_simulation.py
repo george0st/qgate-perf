@@ -6,7 +6,7 @@ from qgate_perf.executor_helper import get_rng_generator
 import numpy as np
 
 
-class SimulateProbe(ParallelProbe):
+class CalcSimulateProbe(ParallelProbe):
 
     def __init__(self):
         setup = RunSetup(0, 0, {})
@@ -19,7 +19,7 @@ class SimulateProbe(ParallelProbe):
             self._core_calc(duration)
         self._core_close()
 
-class TestCaseCalcSimulate(unittest.TestCase):
+class TestCaseCalcProbeSimulate(unittest.TestCase):
     """Simulate performance input for calculation of call, min, max, avr, std, total."""
 
     OUTPUT_ADR = "../output/test_perf/"
@@ -54,21 +54,21 @@ class TestCaseCalcSimulate(unittest.TestCase):
     def test_basic_statistic1(self):
         sequence = [0.24, 0.21, 0.34, 0.33]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
     def test_basic_statistic2(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
     def test_basic_statistic3(self):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -76,7 +76,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33,
                     0.222, 0.2323, 0.456, 0.545, 0.332]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -84,7 +84,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
         sequence = [0.24, 0.21, 0.34, 0.33, 0.345, 0.11, 0.232435, 0.2344, 1.4, 2.455, 88, 99, 1995, 334, 222, 4.33,
                     0.222, 0.2323, 0.456, 0.545, 0.332, 7.334, 3.454, 7.3333, 0.3344, 0.576565, 0.8787]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -93,7 +93,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
                     0.222, 0.2323, 0.456, 0.545, 0.332, 7.334, 3.454, 7.3333, 0.3344, 0.576565, 0.8787, 1.1, 1.1, 1.4,
                     1.3, 1.5, 3.2, 0.44]
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -101,7 +101,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 100,10) / 100
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -109,7 +109,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 1000,50) / 100
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -117,7 +117,7 @@ class TestCaseCalcSimulate(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 10000,100) / 100
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
 
@@ -125,6 +125,6 @@ class TestCaseCalcSimulate(unittest.TestCase):
         generator = get_rng_generator()
         sequence = generator.integers(0, 100, 1000) / 100
 
-        simulate = SimulateProbe()
+        simulate = CalcSimulateProbe()
         simulate.run(sequence)
         self._check(simulate, sequence)
