@@ -17,11 +17,11 @@ class SimulatePercentileHeap(PercentileHeap):
         self._simulate_buffer_full.append(itm)
         print("Call: ", itm)
 
-    def _simulate_close_fn(self):
-        if self._simulate_open:
+    def _simulate_close_fn(self, percentile):
+        if percentile == self._percentile:
             self._simulate_open = False
             print("Requested percentile: ", self._percentile)
-        else:
+        elif percentile == 1:
             print("DONE all (100p)")
 
     def test(self, sequence: list, percentile_list_size: int, percentile_out_of_list: list) -> bool:
