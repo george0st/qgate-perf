@@ -8,18 +8,18 @@ class PercentileHeap():
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
     # https://github.com/sengelha/streaming-percentiles
 
-    def __init__(self, call_fn, close_fn, percentile = 99, heap_init_size = 100):
+    def __init__(self, call_fn, close_fn, percentile = 0.99, heap_init_size = 100):
         """
         The keep in the heap values above requested percentile
 
         :param call_fn:         function for standard processing value
         :param close_fn:        function for close processing
         :param percentile:      requested percentile (smaller value will affect bigger memory allocation),
-                                recommendation is to use 99 or 95 (99 is default)
+                                recommendation is to use 0.99 or 0.95 (0.99 is default). Max value is 1.
         :param heap_init_size:  init size for heap (default is 100)
         """
         self._init_size = heap_init_size
-        self._percentile = percentile / 100
+        self._percentile = percentile
         self._call_fn = call_fn
         self._close_fn = close_fn
         self._clean()
