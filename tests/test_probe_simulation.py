@@ -81,19 +81,30 @@ class SimulateProbe(ParallelProbe):
 
         items = []
         for i in range(len(percentiles)):
-            items.append(PercentileItem(percentiles[i],
-                           len(sequences[i]),
-                           sum(sequences[i]),
-                           std(sequences[i]),
-                           min(sequences[i]),
-                           max(sequences[i])))
+            if sequences[i]:
+                items.append(PercentileItem(percentiles[i],
+                               len(sequences[i]),
+                               sum(sequences[i]),
+                               std(sequences[i]),
+                               min(sequences[i]),
+                               max(sequences[i])))
+            else:
+                items.append(PercentileItem(percentiles[i],
+                                            0,
+                                            0,
+                                            0,
+                                            0,
+                                            0))
 
         return self._check(duration_second, items)
 
     def create_percentile_seq(self, sequence):
-        percentile_sequence = sequence.copy()
-        percentile_sequence.sort()
-        return percentile_sequence[0: int(math.floor((len(percentile_sequence) + 1) * self.percentile))]
+        expected_size = int(math.floor((len(sequence) + 1) * self.percentile))
+        if expected_size > 0:
+            percentile_sequence = sequence.copy()
+            percentile_sequence.sort()
+            return percentile_sequence[0: expected_size]
+        return None
 
 class TestCaseProbeSimulate(unittest.TestCase):
     """Simulate performance input for calculation of call, min, max, avr, std, total."""
@@ -106,6 +117,15 @@ class TestCaseProbeSimulate(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    def test_basic_10(self):
+        simulate = SimulateProbe(0.1, 10)
+        result = simulate.check([0.24, 0.21, 0.34, 0.33])
+        self.assertIsNone(result, result)
+
+        simulate = SimulateProbe(0.1, 10)
+        result = simulate.check([0.24, 0.21, 0.34, 0.33, 0.33, 0.221, 0.23, 0.21, 0.45, 0.76])
+        self.assertIsNone(result, result)
 
     def test_basic_50(self):
         simulate = SimulateProbe(0.5, 10)
