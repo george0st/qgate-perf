@@ -165,7 +165,7 @@ class ParallelProbe:
             data[FileFormat.PRF_DETAIL_PROCESSID] = self.pid                            # info
 
             for result in self.percentile_results:
-                suffix = f"_{result.percentile*100}" if result.percentile < 1 else ""
+                suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
                 data[FileFormat.PRF_DETAIL_CALLS + suffix] = result.count               # for perf graph
                 data[FileFormat.PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else result.total_duration / result.count
                 data[FileFormat.PRF_DETAIL_MIN + suffix] = result.min                   # info
@@ -202,7 +202,7 @@ class ParallelProbe:
         if self.exception is None:
             data = {}
             for result in self.percentile_results:
-                suffix = f"_{result.percentile*100}" if result.percentile < 1 else ""
+                suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
                 data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = result.count
                 data[FileFormat.HR_PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else round(result.total_duration / result.count, OutputSetup().human_precision)
                 data[FileFormat.PRF_DETAIL_MIN + suffix] = round(result.min, OutputSetup().human_precision)
