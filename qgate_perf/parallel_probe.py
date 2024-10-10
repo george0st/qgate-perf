@@ -63,7 +63,7 @@ class ParallelProbe:
                     self.heap = PercentileHeap(self._core_calc,
                                                self._core_close,
                                                run_setup["percentile"],
-                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 100)
+                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 127)
                     self.percentile_results = []
                 else:
                     # TODO: change point to relevant functions
@@ -128,7 +128,6 @@ class ParallelProbe:
             del self.stddev
             #   percentile heap
             del self.heap
-
 
     @staticmethod
     def _wait_for_others(when_start, tolerance=0.1):

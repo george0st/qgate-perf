@@ -8,7 +8,7 @@ class PercentileHeap():
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
     # https://github.com/sengelha/streaming-percentiles
 
-    def __init__(self, call_fn, close_fn, percentile = 0.99, heap_init_size = 100):
+    def __init__(self, call_fn, close_fn, percentile = 0.99, heap_init_size = 127):
         """
         The keep in the heap values above requested percentile
 
@@ -16,10 +16,10 @@ class PercentileHeap():
         :param close_fn:        function for close processing
         :param percentile:      requested percentile (smaller value will affect bigger memory allocation),
                                 recommendation is to use 0.99 or 0.95 (0.99 is default). Max value is 1.
-        :param heap_init_size:  init size for heap (default is 100)
+        :param heap_init_size:  init size for heap (default is 127)
         """
         self._init_size = heap_init_size
-        self._percentile = percentile
+        self._percentile = percentile if percentile > 0 and percentile < 1 else 0.99
         self._call_fn = call_fn
         self._close_fn = close_fn
         self._clean()
@@ -69,14 +69,14 @@ class PercentileHeap():
 
         for a in range(pop_operation):
             itm = heappop(self._sequence)
-            if itm >= 0:
+            if itm >= 0:                # ignore -1 (init) values
                 self._call_fn(itm)
         self._close_fn(self._percentile)
 
         # free rest of value for 100 percentile
         for b in range(len(self._sequence)):
             itm = heappop(self._sequence)
-            if itm >= 0:
+            if itm >= 0:                # ignore -1 (init) values
                 self._call_fn(itm)
         self._close_fn(1)
         self._clean()

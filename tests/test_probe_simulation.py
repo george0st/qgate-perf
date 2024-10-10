@@ -95,7 +95,6 @@ class SimulateProbe(ParallelProbe):
                                             0,
                                             0,
                                             0))
-
         return self._check(duration_second, items)
 
     def create_percentile_seq(self, sequence):
