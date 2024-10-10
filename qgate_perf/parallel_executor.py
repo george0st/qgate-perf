@@ -194,23 +194,23 @@ class ParallelExecutor:
                 for result in response.percentile_results:
                     if result.count > 0:
                         # sum of average time for one call
-                        if percentile_list.get(result.percentile, None):
-                            percentile_list[result.percentile] = PercentileSummary(result.percentile,
+                        if percentile_list.get(result.percentile, None) is None:
+                            percentile_list[str(result.percentile)] = PercentileSummary(result.percentile,
                                                                                    result.count,
                                                                                    0,
                                                                                    0,
-                                                                                   response.total_duration / response.count,
+                                                                                   result.total_duration / result.count,
                                                                                    result.std,
                                                                                    1)
                         else:
                             itm = percentile_list[result.percentile]
                             itm.count += result.count
-                            itm.avrg += result.total_duration / response.count
+                            itm.avrg += result.total_duration / result.count
                             itm.std += result.std
                             itm.executors += 1
 
         # final calculation
-        for percentile in percentile_list:
+        for percentile in percentile_list.values():
             if percentile.executors > 0:
                 # Calc clarification (for better understanding):
                 #   avrg / count     = average time for one executor (average is cross all calls and executors)
@@ -261,7 +261,7 @@ class ParallelExecutor:
             total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
 
         # new calculation
-        self._create_percentile_list(run_setup, return_dict)
+        percentile_list = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
         out = {
