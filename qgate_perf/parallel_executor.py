@@ -9,7 +9,7 @@ from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.bundle_helper import BundleHelper
 from qgate_perf.executor_helper import ExecutorHelper, GraphScope
-from qgate_perf.parallel_probe import ParallelProbe
+from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
 from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
@@ -181,6 +181,48 @@ class ParallelExecutor:
                 return False
         return True
 
+    def _create_percentile_list(self, run_setup: RunSetup, return_dict) -> dict[PercentileSummary]:
+
+        percentile_list = {}
+
+        # pre-calculation
+            # iteration cross executors results
+        for return_key in return_dict:
+            response = return_dict[return_key]
+            if response:
+                # iteration cross all percentiles
+                for result in response.percentile_results:
+                    if result.count > 0:
+                        # sum of average time for one call
+                        if percentile_list.get(result.percentile, None):
+                            percentile_list[result.percentile] = PercentileSummary(result.percentile,
+                                                                                   result.count,
+                                                                                   0,
+                                                                                   0,
+                                                                                   response.total_duration / response.count,
+                                                                                   result.std,
+                                                                                   1)
+                        else:
+                            itm = percentile_list[result.percentile]
+                            itm.count += result.count
+                            itm.avrg += result.total_duration / response.count
+                            itm.std += result.std
+                            itm.executors += 1
+
+        # final calculation
+        for percentile in percentile_list:
+            if percentile.executors > 0:
+                # Calc clarification (for better understanding):
+                #   avrg / count     = average time for one executor (average is cross all calls and executors)
+                #   1 / (avrg/count) = average amount of calls per one second (cross executors)
+                percentile.call_per_sec_raw  = 0 if (percentile.avrg / percentile.executors) == 0 else (1 / (percentile.avrg / percentile.executors)) * percentile.executors
+                percentile.call_per_sec = percentile.call_per_sec_raw * run_setup._bulk_row
+
+                percentile.avrg = 0 if percentile.executors == 0 else percentile.avrg / percentile.executors
+                percentile.std = 0 if percentile.executors == 0 else percentile.std / percentile.executors
+
+        return percentile_list
+
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
         """
         Print detail from executors
@@ -217,6 +259,9 @@ class ParallelExecutor:
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
             total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
             total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
+
+        # new calculation
+        self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
         out = {
