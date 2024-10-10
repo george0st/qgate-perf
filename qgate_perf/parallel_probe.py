@@ -151,19 +151,38 @@ class ParallelProbe:
 
         # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
-            return json.dumps({
-                FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
-                FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
-                FileFormat.PRF_DETAIL_CALLS: self.counter,                          # for perf graph
-                FileFormat.PRF_DETAIL_AVRG: nan if self.counter == 0 else self.total_duration / self.counter,
-                FileFormat.PRF_DETAIL_MIN: self.min_duration,                       # info
-                FileFormat.PRF_DETAIL_MAX: self.max_duration,                       # info
-                FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # for perf graph
-                FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # for perf graph
-                FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
-                FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
-                FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
-            }, separators = OutputSetup().json_separator)
+            data = {}
+            data[FileFormat.PRF_TYPE] = FileFormat.PRF_DETAIL_TYPE
+            data[FileFormat.PRF_DETAIL_PROCESSID] = self.pid                            # info
+
+            for result in self.percentile_results:
+                suffix = f"_{result.percentile*100}" if result.percentile < 1 else ""
+                data[FileFormat.PRF_DETAIL_CALLS + suffix] = result.count               # for perf graph
+                data[FileFormat.PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else result.total_duration / result.count
+                data[FileFormat.PRF_DETAIL_MIN + suffix] = result.min                   # info
+                data[FileFormat.PRF_DETAIL_MAX + suffix] = result.max                   # info
+                data[FileFormat.PRF_DETAIL_STDEV + suffix] = result.std                 # for perf graph
+                data[FileFormat.PRF_DETAIL_TOTAL + suffix] = result.total_duration      # for perf graph
+
+            data[FileFormat.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')      # for executor graph
+            data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')    # for executor graph
+            data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')        # for executor graph
+
+            return json.dumps(data, separators = OutputSetup().json_separator)
+            # return json.dumps({
+            #     FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
+            #     FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
+            #
+            #     FileFormat.PRF_DETAIL_CALLS: self.counter,                          # for perf graph
+            #     FileFormat.PRF_DETAIL_AVRG: nan if self.counter == 0 else self.total_duration / self.counter,
+            #     FileFormat.PRF_DETAIL_MIN: self.min_duration,                       # info
+            #     FileFormat.PRF_DETAIL_MAX: self.max_duration,                       # info
+            #     FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # for perf graph
+            #     FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # for perf graph
+            #     FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
+            #     FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
+            #     FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
+            # }, separators = OutputSetup().json_separator)
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
 
@@ -172,15 +191,33 @@ class ParallelProbe:
 
         # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
-            if self.s
-            return json.dumps({
-                FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
-                FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),
-                FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
-                FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
-                FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
-                FileFormat.HR_PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
-            }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
+            data = {}
+            # data[FileFormat.PRF_TYPE] = FileFormat.PRF_DETAIL_TYPE
+            # data[FileFormat.PRF_DETAIL_PROCESSID] = self.pid                              # info
+
+            for result in self.percentile_results:
+                suffix = f"_{result.percentile*100}" if result.percentile < 1 else ""
+                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = result.count                # for perf graph
+                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = nan if result.count == 0 else result.total_duration / result.count
+                data[FileFormat.PRF_DETAIL_MIN + suffix] = result.min                       # info
+                data[FileFormat.PRF_DETAIL_MAX + suffix] = result.max                       # info
+                data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = result.std                  # for perf graph
+                data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = result.total_duration       # for perf graph
+
+            # data[FileFormat.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')        # for executor graph
+            # data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')      # for executor graph
+            # data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')          # for executor graph
+
+            return json.dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
+
+            # return json.dumps({
+            #     FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
+            #     FileFormat.HR_PRF_DETAIL_CALLS: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),
+            #     FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
+            #     FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
+            #     FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
+            #     FileFormat.HR_PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
+            # }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
