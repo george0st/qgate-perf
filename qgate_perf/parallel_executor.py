@@ -195,7 +195,7 @@ class ParallelExecutor:
                     if result.count > 0:
                         # sum of average time for one call
                         if percentile_list.get(result.percentile, None) is None:
-                            percentile_list[str(result.percentile)] = PercentileSummary(result.percentile,
+                            percentile_list[result.percentile] = PercentileSummary(result.percentile,
                                                                                    result.count,
                                                                                    0,
                                                                                    0,
