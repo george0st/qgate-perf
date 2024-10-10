@@ -26,6 +26,8 @@ class PercentileItem:
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
 
+    MIN_DURATION = 1000000000
+
     def __init__(self, run_setup: RunSetup, exception=None):
         """
         Init for parallel run & procedure for executor synchronization
@@ -39,7 +41,7 @@ class ParallelProbe:
 
         if exception is None:
             self.total_duration = 0
-            self.min_duration = 1000000000
+            self.min_duration = ParallelProbe.MIN_DURATION
             self.max_duration = 0
             self.standard_deviation = 0
             self.track_init = datetime.utcnow()

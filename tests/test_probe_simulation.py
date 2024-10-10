@@ -93,7 +93,7 @@ class SimulateProbe(ParallelProbe):
                                             0,
                                             0,
                                             0,
-                                            0,
+                                            ParallelProbe.MIN_DURATION,
                                             0))
         return self._check(duration_second, items)
 
