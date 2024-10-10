@@ -201,22 +201,14 @@ class ParallelProbe:
         # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
             data = {}
-            # data[FileFormat.PRF_TYPE] = FileFormat.PRF_DETAIL_TYPE
-            # data[FileFormat.PRF_DETAIL_PROCESSID] = self.pid                              # info
-
             for result in self.percentile_results:
                 suffix = f"_{result.percentile*100}" if result.percentile < 1 else ""
-                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = result.count                # for perf graph
-                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = nan if result.count == 0 else result.total_duration / result.count
-                data[FileFormat.PRF_DETAIL_MIN + suffix] = result.min                       # info
-                data[FileFormat.PRF_DETAIL_MAX + suffix] = result.max                       # info
-                data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = result.std                  # for perf graph
-                data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = result.total_duration       # for perf graph
-
-            # data[FileFormat.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')        # for executor graph
-            # data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')      # for executor graph
-            # data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')          # for executor graph
-
+                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = result.count
+                data[FileFormat.HR_PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else round(result.total_duration / result.count, OutputSetup().human_precision)
+                data[FileFormat.PRF_DETAIL_MIN + suffix] = round(result.min, OutputSetup().human_precision)
+                data[FileFormat.PRF_DETAIL_MAX + suffix] = round(result.max, OutputSetup().human_precision)
+                data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = round(result.std, OutputSetup().human_precision)
+                data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = round(result.total_duration, OutputSetup().human_precision)
             return json.dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
 
             # return json.dumps({
