@@ -217,6 +217,7 @@ class ParallelExecutor:
             total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
             total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
 
+        # A2A form
         out = {
             FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
             FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
@@ -231,6 +232,7 @@ class ParallelExecutor:
             FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
         }
 
+        # human readable form
         if total_call_per_sec_raw == total_call_per_sec:
             total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}"
         else:
@@ -244,6 +246,8 @@ class ParallelExecutor:
             FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
             FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
         }
+
+        # final dump
         self._print(file,
                     f"  {json.dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
