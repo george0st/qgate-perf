@@ -23,7 +23,7 @@ class PercentileItem:
 
 class PercentileSummary:
     """Summary data from all executors, split based on percentile"""
-    def __init__(self, percentile, count, call_per_sec_raw, call_per_sec, avrg, std):
+    def __init__(self, percentile, count = 0, call_per_sec_raw = 0, call_per_sec = 0, avrg = 0, std = 0, executors = 0):
         self.percentile = percentile
 
         self.count = count
@@ -31,6 +31,7 @@ class PercentileSummary:
         self.call_per_sec = call_per_sec
         self.avrg = avrg
         self.std = std
+        self.executors = executors
 
 class ParallelProbe:
     """ Provider probe for parallel test tuning """

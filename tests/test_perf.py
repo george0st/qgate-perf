@@ -283,5 +283,19 @@ class TestCasePerf(unittest.TestCase):
         self.assertTrue(generator.run(2, 2, setup))
         OutputSetup().human_json_separator = OutputSetup.HUMAN_JSON_SEPARATOR
 
+    def test_run_percentiles(self):
+        generator = ParallelExecutor(prf_gil_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"),
+                                     init_each_bulk=True)
+
+
+        setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
+        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,10]],
+                                    executor_list=[[4,1]],
+                                    run_setup=setup))
+
+
 # if __name__ == '__main__':
 #     unittest.main()
