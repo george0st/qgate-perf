@@ -69,7 +69,6 @@ class ParallelProbe:
                     self.call_fn = self.heap.call
                     self.close_fn = self.heap.close
                 else:
-                    # TODO: change point to relevant functions
                     self.heap = None
                     self.call_fn = self._core_calc
                     self.close_fn = self._core_close
@@ -87,14 +86,10 @@ class ParallelProbe:
 
         duration_one_shot = stop_time_one_shot - self.start_time_one_shot
         self.call_fn(duration_one_shot)
-        #self.heap.call(duration_one_shot)
-        #self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
         if (time() - self.init_time) >= self.duration_second:
             self.close_fn()
-            #self.heap.close()
-            #self._core_close()
             return True
         return False
 
@@ -177,6 +172,7 @@ class ParallelProbe:
 
         # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
+            if self.s
             return json.dumps({
                 FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
                 FileFormat.HR_PRF_DETAIL_AVRG: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),

@@ -36,7 +36,6 @@ class PercentileHeap:
         self._count = 0
         self._sequence = [-1] * self._init_size
 
-
     def call(self, itm):
         """
         Function push value to the heap and also pop valid value for processing (via call_fn).
