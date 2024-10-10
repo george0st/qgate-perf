@@ -213,7 +213,7 @@ class ParallelExecutor:
 
         if (executors > 0):
             # Calc clarification (for better understanding):
-            #   sum_avrg_time / count = average time for one executor (average is cross all calls and executors)
+            #   sum_avrg_time / count     = average time for one executor (average is cross all calls and executors)
             #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
             total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
             total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
