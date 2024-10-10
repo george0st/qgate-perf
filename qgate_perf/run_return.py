@@ -2,9 +2,9 @@
 class RunReturn:
     """Wrapper for return data from executor"""
     def __init__(self, return_key, return_dict):
-        self._return_key=return_key
-        self._return_dict=return_dict
-        self.probe=None         # initial dictionar value
+        self._return_key = return_key
+        self._return_dict = return_dict
+        self.probe = None         # initial dictionary value
 
     @property
     def probe(self):
