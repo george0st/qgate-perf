@@ -29,7 +29,7 @@ class SimulateProbe(ParallelProbe):
         pass
 
     def stop(self, duration_one_shot):
-        if duration_one_shot >=0:
+        if duration_one_shot >= 0:
             self.heap.call(duration_one_shot)
 
         # Is it possible to end performance testing?
@@ -117,6 +117,13 @@ class TestCaseProbeSimulate(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
+    def test_basic_0_with_exception(self):
+        with self.assertRaises(Exception) as context:
+            simulate = SimulateProbe(0, 10)
+
+        with self.assertRaises(Exception) as context:
+            simulate = SimulateProbe(0, 10)
+
     def test_basic_10(self):
         simulate = SimulateProbe(0.1, 10)
         result = simulate.check([0.24, 0.21, 0.34, 0.33])
@@ -162,11 +169,18 @@ class TestCaseProbeSimulate(unittest.TestCase):
         result = simulate.check([0.24, 0.21, 0.34, 0.33, 0.33, 0.221, 0.23, 0.21, 0.45, 0.76])
         self.assertIsNone(result, result)
 
-    def test_basic_100(self):
-        simulate = SimulateProbe(1, 10)
+    def test_basic_999(self):
+        simulate = SimulateProbe(0.999, 10)
         result = simulate.check([0.24, 0.21, 0.34, 0.33])
         self.assertIsNone(result, result)
 
-        simulate = SimulateProbe(1, 10)
+        simulate = SimulateProbe(0.999, 10)
         result = simulate.check([0.24, 0.21, 0.34, 0.33, 0.33, 0.221, 0.23, 0.21, 0.45, 0.76])
         self.assertIsNone(result, result)
+
+    def test_basic_100_with_exception(self):
+        with self.assertRaises(Exception) as context:
+            simulate = SimulateProbe(1, 10)
+
+        with self.assertRaises(Exception) as context:
+            simulate = SimulateProbe(1, 10)

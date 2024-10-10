@@ -61,7 +61,7 @@ class ParallelProbe:
 
                 # for percentile calculation
                 self.percentile_results = []
-                if run_setup["percentile"]:
+                if run_setup.exist("percentile"):
                     self.heap = PercentileHeap(self._core_calc,
                                                self._core_close,
                                                run_setup["percentile"],
@@ -129,8 +129,8 @@ class ParallelProbe:
                                               self.standard_deviation,
                                               self.min_duration,
                                               self.max_duration))
-        if percentile == 1:
-            # release unused sources
+
+        if percentile == 1:  # clean sources
             #   standard deviation calculation
             del self.stddev
             #   percentile heap

@@ -2,11 +2,13 @@ from heapq import heappop, heappush, heapreplace
 import math
 
 
-class PercentileHeap():
+class PercentileHeap:
 
     # https://www.geeksforgeeks.org/max-heap-in-python/
     # https://www.datova-akademie.cz/slovnik-pojmu/percentil/
     # https://github.com/sengelha/streaming-percentiles
+
+    HEAP_INIT_SIZE = 127
 
     def __init__(self, call_fn, close_fn, percentile = 0.99, heap_init_size = 127):
         """
@@ -15,11 +17,16 @@ class PercentileHeap():
         :param call_fn:         function for standard processing value
         :param close_fn:        function for close processing
         :param percentile:      requested percentile (smaller value will affect bigger memory allocation),
-                                recommendation is to use 0.99 or 0.95 (0.99 is default). Max value is 1.
+                                recommendation is to use 0.99 or 0.95 (0.99 is default). Accepted values are
+                                higher then 0 and lower than 1.
         :param heap_init_size:  init size for heap (default is 127)
         """
         self._init_size = heap_init_size
-        self._percentile = percentile if percentile > 0 and percentile < 1 else 0.99
+        if percentile > 0 and percentile < 1:
+            self._percentile = percentile
+        else:
+            raise Exception(f"Invalid range for value 'percentile', requested value is '{percentile}', accepted values are "
+                            f"> 0 and < 1.")
         self._call_fn = call_fn
         self._close_fn = close_fn
         self._clean()
@@ -28,6 +35,7 @@ class PercentileHeap():
         """Clean heap to the init value"""
         self._count = 0
         self._sequence = [-1] * self._init_size
+
 
     def call(self, itm):
         """
@@ -79,4 +87,3 @@ class PercentileHeap():
             if itm >= 0:                # ignore -1 (init) values
                 self._call_fn(itm)
         self._close_fn(1)
-        self._clean()

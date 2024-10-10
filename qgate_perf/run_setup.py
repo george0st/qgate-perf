@@ -38,11 +38,18 @@ class RunSetup:
     def is_init(self):
         return self.param("__INIT__", False)
 
-    def param(self, key: str, default=None):
+    def param(self, key: str, default = None):
         """Return key parameter"""
         if self._parameters:
             return self._parameters.get(key, default)
         return default
+
+    def exist(self, key: str) -> bool:
+        """Return True if the key exist"""
+        if self._parameters:
+            if key in self._parameters.keys():
+                return True
+        return False
 
     def __getitem__(self, key):
         """Return key parameter, with default value None"""
