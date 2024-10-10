@@ -281,6 +281,7 @@ class TestCasePerf(unittest.TestCase):
         setup = RunSetup(duration_second=4, start_delay=4)
         OutputSetup().human_json_separator = (' - ', '::')
         self.assertTrue(generator.run(2, 2, setup))
+        OutputSetup().human_json_separator = OutputSetup.HUMAN_JSON_SEPARATOR
 
 # if __name__ == '__main__':
 #     unittest.main()
