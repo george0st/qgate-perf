@@ -77,7 +77,7 @@ class TestCasePercentile(unittest.TestCase):
         pass
 
     def test_percentile50(self):
-        heap = SimulatePercentileHeap(50)
+        heap = SimulatePercentileHeap(0.5)
         self.assertTrue(heap.test([0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
                                    4,
                                    [0.33, 0.34, 0.24]))
@@ -107,7 +107,7 @@ class TestCasePercentile(unittest.TestCase):
                                   []))
 
     def test_percentile70(self):
-        heap = SimulatePercentileHeap(70)
+        heap = SimulatePercentileHeap(0.7)
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21],
                                   6,
                                   [0.34, 0.55]))
@@ -145,7 +145,7 @@ class TestCasePercentile(unittest.TestCase):
                                   []))
 
     def test_percentile90(self):
-        heap = SimulatePercentileHeap(90)
+        heap = SimulatePercentileHeap(0.9)
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10],
                                   9,
                                   [0.55]))
@@ -191,7 +191,7 @@ class TestCasePercentile(unittest.TestCase):
                                   []))
 
     def test_percentile95(self):
-        heap = SimulatePercentileHeap(95)
+        heap = SimulatePercentileHeap(0.95)
         self.assertTrue(heap.test([0.55, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.54, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.53, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
@@ -215,7 +215,7 @@ class TestCasePercentile(unittest.TestCase):
                                   []))
 
     def test_percentile99(self):
-        heap = SimulatePercentileHeap(99)
+        heap = SimulatePercentileHeap(0.99)
         self.assertTrue(heap.test([0.59, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.58, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
                                    0.57, 0.24, 0.21, 0.34, 0.33, 0.11, 0.23, 0.21, 0.10, 0.10,
