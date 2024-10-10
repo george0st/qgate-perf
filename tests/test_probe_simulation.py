@@ -147,7 +147,7 @@ class TestCaseProbeSimulate(unittest.TestCase):
         result = simulate.check([0.24, 0.21, 0.34, 0.33])
         self.assertIsNone(result, result)
 
-        simulate = SimulateProbe(0.97, 10)
+        simulate = SimulateProbe(0.7, 10)
         result = simulate.check([0.24, 0.21, 0.34, 0.33, 0.33, 0.221, 0.23, 0.21, 0.45, 0.76])
         self.assertIsNone(result, result)
 
