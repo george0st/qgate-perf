@@ -19,7 +19,7 @@ class StandardDeviation:
 
     @property
     def variance(self):
-        return self.M2 / (self.n - self.ddof)
+        return self.M2 / (self.n - self.ddof) if self.n > 0 else 0
 
     @property
     def std(self):

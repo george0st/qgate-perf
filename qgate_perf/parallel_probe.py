@@ -26,6 +26,8 @@ class PercentileItem:
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
 
+    MIN_DURATION = 1000000000
+
     def __init__(self, run_setup: RunSetup, exception=None):
         """
         Init for parallel run & procedure for executor synchronization
@@ -39,13 +41,13 @@ class ParallelProbe:
 
         if exception is None:
             self.total_duration = 0
-            self.min_duration = 1000000000
+            self.min_duration = ParallelProbe.MIN_DURATION
             self.max_duration = 0
             self.standard_deviation = 0
             self.track_init = datetime.utcnow()
             if run_setup:
                 # init incremental calculation of standard deviation
-                self.stddev = StandardDeviation(ddof=0)
+                self.stddev = StandardDeviation(ddof = 0)
 
                 # wait for other executors
                 ParallelProbe._wait_for_others(run_setup.when_start)
@@ -58,16 +60,19 @@ class ParallelProbe:
                 self.track_end = datetime(1970, 1, 1)
 
                 # for percentile calculation
-                # TODO: add to the RunSetup percentile and heap_init_size
-                if run_setup["percentile"]:
+                self.percentile_results = []
+                if run_setup.exist("percentile"):
                     self.heap = PercentileHeap(self._core_calc,
                                                self._core_close,
                                                run_setup["percentile"],
-                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 100)
-                    self.percentile_results = []
+                                               run_setup["heap_init_size"] if run_setup["heap_init_size"] else 127)
+                    self.call_fn = self.heap.call
+                    self.close_fn = self.heap.close
                 else:
                     # TODO: change point to relevant functions
-                    pass
+                    self.heap = None
+                    self.call_fn = self._core_calc
+                    self.close_fn = self._core_close
 
     def start(self):
         """ Start measurement each test"""
@@ -81,12 +86,14 @@ class ParallelProbe:
         stop_time_one_shot = perf_counter()
 
         duration_one_shot = stop_time_one_shot - self.start_time_one_shot
-        self.heap.call(duration_one_shot)
+        self.call_fn(duration_one_shot)
+        #self.heap.call(duration_one_shot)
         #self._core_calc(duration_one_shot)
 
         # Is it possible to end performance testing?
         if (time() - self.init_time) >= self.duration_second:
-            self.heap.close()
+            self.close_fn()
+            #self.heap.close()
             #self._core_close()
             return True
         return False
@@ -122,13 +129,12 @@ class ParallelProbe:
                                               self.standard_deviation,
                                               self.min_duration,
                                               self.max_duration))
-        if percentile == 1:
-            # release unused sources
+
+        if percentile == 1:  # clean sources
             #   standard deviation calculation
             del self.stddev
             #   percentile heap
             del self.heap
-
 
     @staticmethod
     def _wait_for_others(when_start, tolerance=0.1):
