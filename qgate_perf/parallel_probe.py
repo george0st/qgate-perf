@@ -224,7 +224,7 @@ class ParallelProbe:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
     @staticmethod
-    def dump_error(exception, pid=0, counter=0):
+    def dump_error(exception, pid = 0, counter = 0):
         return json.dumps({
             FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
             FileFormat.PRF_DETAIL_PROCESSID: pid,
@@ -233,7 +233,7 @@ class ParallelProbe:
         }, separators = OutputSetup().json_separator)
 
     @staticmethod
-    def readable_dump_error(exception, pid=0, counter=0):
+    def readable_dump_error(exception, pid = 0, counter = 0):
         return json.dumps({
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)

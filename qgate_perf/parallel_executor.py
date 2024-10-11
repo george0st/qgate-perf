@@ -191,24 +191,28 @@ class ParallelExecutor:
         for return_key in return_dict:
             response = return_dict[return_key]
             if response:
-                # iteration cross all percentiles
-                for result in response.percentile_results:
-                    if result.count > 0:
-                        # sum of average time for one call
-                        if percentile_list.get(result.percentile, None) is None:
-                            percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                   result.count,
-                                                                                   0,
-                                                                                   0,
-                                                                                   result.total_duration / result.count,
-                                                                                   result.std,
-                                                                                   1)
-                        else:
-                            itm = percentile_list[result.percentile]
-                            itm.count += result.count
-                            itm.avrg += result.total_duration / result.count
-                            itm.std += result.std
-                            itm.executors += 1
+                if response.exception is None:
+                    # iteration cross all percentiles
+                    for result in response.percentile_results:
+                        if result.count > 0:
+                            # sum of average time for one call
+                            if percentile_list.get(result.percentile, None) is None:
+                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
+                                                                                       result.count,
+                                                                                       0,
+                                                                                       0,
+                                                                                       result.total_duration / result.count,
+                                                                                       result.std,
+                                                                                       1)
+                            else:
+                                itm = percentile_list[result.percentile]
+                                itm.count += result.count
+                                itm.avrg += result.total_duration / result.count
+                                itm.std += result.std
+                                itm.executors += 1
+                else:
+                    if percentile_list.get(1, None) is None:
+                        percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,0)
 
         # final calculation
         for percentile in percentile_list.values():
@@ -255,7 +259,7 @@ class ParallelExecutor:
         out[FileFormat.PRF_TYPE] =  FileFormat.PRF_CORE_TYPE
         out[FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL] =  processes * threads
         out[FileFormat.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileFormat.PRF_CORE_REAL_EXECUTOR] =  percentile_list[1].executors
+        out[FileFormat.PRF_CORE_REAL_EXECUTOR] = executors
         out[FileFormat.PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
@@ -269,7 +273,7 @@ class ParallelExecutor:
         # human readable form
         readable_out = {}
         readable_out[FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] =  percentile_list[1].executors
+        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] =  executors
         readable_out[FileFormat.HM_PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
