@@ -8,6 +8,7 @@ class FileFormat:
     PRF_HDR_LABEL = "label"
     PRF_HDR_BULK = "bulk"
     PRF_HDR_DURATION = "duration"
+    PRF_HDR_PERCENTILE = "percentile"
     PRF_HDR_AVIALABLE_CPU = "cpu"
     PRF_HDR_HOST = "host"
     PRF_HDR_MEMORY = "mem"
@@ -16,6 +17,7 @@ class FileFormat:
         # header for HUMAN
     HR_PRF_HDR_LABEL = "lbl"
     HR_PRF_HDR_MEMORY = "mem/free"
+    HR_PRF_HDR_PERCENTILE = "perc"
 
     # detail
     PRF_DETAIL_TYPE = "detail"

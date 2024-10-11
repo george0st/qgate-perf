@@ -92,24 +92,28 @@ class ParallelExecutor:
         self._start_tasks = datetime.utcnow()
         self._print(file, f"############### {self._start_tasks.isoformat(' ')} ###############")
         total, free = self._memory()
-        out = {
-            FileFormat.PRF_TYPE: FileFormat.PRF_HDR_TYPE,
-            FileFormat.PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
-            FileFormat.PRF_HDR_BULK: [run_setup._bulk_row, run_setup._bulk_col],
-            FileFormat.PRF_HDR_DURATION: run_setup._duration_second,
-            FileFormat.PRF_HDR_AVIALABLE_CPU: multiprocessing.cpu_count(),
-            FileFormat.PRF_HDR_MEMORY: total,
-            FileFormat.PRF_HDR_MEMORY_FREE: free,
-            FileFormat.PRF_HDR_HOST: self._host(),
-            FileFormat.PRF_HDR_NOW: self._start_tasks.isoformat(' ')
-        }
-        readable_out = {
-            FileFormat.HR_PRF_HDR_LABEL: self._label if self._label is not None else "Noname",
-            FileFormat.PRF_HDR_BULK: [run_setup._bulk_row, run_setup._bulk_col],
-            FileFormat.PRF_HDR_DURATION: run_setup._duration_second,
-            FileFormat.PRF_HDR_AVIALABLE_CPU: multiprocessing.cpu_count(),
-            FileFormat.HR_PRF_HDR_MEMORY: f"{total}/{free}"
-        }
+        out = {}
+        out[FileFormat.PRF_TYPE] = FileFormat.PRF_HDR_TYPE
+        out[FileFormat.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        if run_setup.exist('percentile'):
+            out[FileFormat.PRF_HDR_PERCENTILE] = run_setup['percentile']
+        out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        out[FileFormat.PRF_HDR_MEMORY] = total
+        out[FileFormat.PRF_HDR_MEMORY_FREE] = free
+        out[FileFormat.PRF_HDR_HOST] = self._host()
+        out[FileFormat.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
+
+        readable_out = {}
+        readable_out[FileFormat.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        readable_out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        readable_out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        if run_setup.exist('percentile'):
+            readable_out[FileFormat.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
+        readable_out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        readable_out[FileFormat.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
+
 
         self._print(file,
                     json.dumps(out, separators=OutputSetup().json_separator),
