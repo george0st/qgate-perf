@@ -184,6 +184,7 @@ class ParallelExecutor:
     def _create_percentile_list(self, run_setup: RunSetup, return_dict) -> dict[PercentileSummary]:
 
         percentile_list = {}
+        executors, call_per_sec_raw, call_per_sec = 0, 0, 0
 
         # pre-calculation
             # iteration cross executors results
@@ -220,8 +221,16 @@ class ParallelExecutor:
 
                 percentile.avrg = 0 if percentile.executors == 0 else percentile.avrg / percentile.executors
                 percentile.std = 0 if percentile.executors == 0 else percentile.std / percentile.executors
+            if percentile.percentile == 1:
+                executors = percentile.executors
+                call_per_sec_raw = percentile.call_per_sec_raw
+                call_per_sec = percentile.call_per_sec
 
-        return percentile_list
+        # executors = max(executors, percentile.executors)
+        # calls_sec_raw = max(calls_sec_raw, percentile.call_per_sec_raw)
+        # calls_sec = max(calls_sec, percentile.call_per_sec)
+
+        return percentile_list, executors, call_per_sec_raw, call_per_sec
 
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
         """
@@ -235,73 +244,109 @@ class ParallelExecutor:
         :param group:           Name of group
         :return:                Performance, total calls per one second
         """
-        sum_avrg_time, sum_deviation, sum_call, executors = 0, 0, 0, 0
-        total_call_per_sec_raw, total_call_per_sec = 0, 0
+        # sum_avrg_time, sum_deviation, sum_call, executors = 0, 0, 0, 0
+        # total_call_per_sec_raw, total_call_per_sec = 0, 0
 
         # iteration cross results from all executors
-        for return_key in return_dict:
-            parallel_ret = return_dict[return_key]
-            if parallel_ret:
-                if (parallel_ret.counter > 0):
-                    # sum of average time for one call
-                    sum_avrg_time = sum_avrg_time + (parallel_ret.total_duration / parallel_ret.counter)
-                    sum_deviation += parallel_ret.standard_deviation
-                    sum_call += parallel_ret.counter
-                    executors += 1
-            if (self._detail_output == True):
+        # for return_key in return_dict:
+        #     parallel_ret = return_dict[return_key]
+        #     if parallel_ret:
+        #         if (parallel_ret.counter > 0):
+        #             # sum of average time for one call
+        #             sum_avrg_time = sum_avrg_time + (parallel_ret.total_duration / parallel_ret.counter)
+        #             sum_deviation += parallel_ret.standard_deviation
+        #             sum_call += parallel_ret.counter
+        #             executors += 1
+        if self._detail_output == True:
+            for return_key in return_dict:
+                parallel_ret = return_dict[return_key]
                 self._print(file,
                             f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
                             f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
-
-        if (executors > 0):
-            # Calc clarification (for better understanding):
-            #   sum_avrg_time / count     = average time for one executor (average is cross all calls and executors)
-            #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
-            total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
-            total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
+        #
+        # if (executors > 0):
+        #     # Calc clarification (for better understanding):
+        #     #   sum_avrg_time / count     = average time for one executor (average is cross all calls and executors)
+        #     #   1 / (sum_avrg_time/count) = average amount of calls per one second (cross executors)
+        #     total_call_per_sec_raw = 0 if (sum_avrg_time / executors) == 0 else (1 / (sum_avrg_time / executors)) * executors
+        #     total_call_per_sec = total_call_per_sec_raw * run_setup._bulk_row
 
         # new calculation
-        percentile_list = self._create_percentile_list(run_setup, return_dict)
+        percentile_list, executors, call_per_sec_raw, call_per_sec = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
-        out = {
-            FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
-            FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
-            FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
-            FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
-            FileFormat.PRF_CORE_GROUP: group,
+        out = {}
+        out[FileFormat.PRF_TYPE] =  FileFormat.PRF_CORE_TYPE
+        out[FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL] =  processes * threads
+        out[FileFormat.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
+        out[FileFormat.PRF_CORE_REAL_EXECUTOR] =  percentile_list[1].executors
+        out[FileFormat.PRF_CORE_GROUP] = group
+        for result in percentile_list.values():
+            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
+            out[FileFormat.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
+            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
+            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
+            out[FileFormat.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
+            out[FileFormat.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
+        out[FileFormat.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
 
-            FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                                   # ok
-            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW: total_call_per_sec_raw,                         # ok
-            FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
-            FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
-            FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
 
-            FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
-        }
+        # out = {
+        #     FileFormat.PRF_TYPE: FileFormat.PRF_CORE_TYPE,
+        #     FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL: processes * threads,
+        #     FileFormat.PRF_CORE_PLAN_EXECUTOR: [processes, threads],
+        #     FileFormat.PRF_CORE_REAL_EXECUTOR: executors,
+        #     FileFormat.PRF_CORE_GROUP: group,
+        #
+        #     FileFormat.PRF_CORE_TOTAL_CALL: sum_call,                                                   # ok
+        #     FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW: total_call_per_sec_raw,                         # ok
+        #     FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC: total_call_per_sec,                                 # ok
+        #     FileFormat.PRF_CORE_AVRG_TIME: 0 if executors == 0 else sum_avrg_time / executors,          # ok
+        #     FileFormat.PRF_CORE_STD_DEVIATION: 0 if executors == 0 else sum_deviation / executors,      # ok
+        #
+        #     FileFormat.PRF_CORE_TIME_END: datetime.utcnow().isoformat(' ')
+        # }
 
         # human readable form
-        if total_call_per_sec_raw == total_call_per_sec:
-            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}"
-        else:
-            total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}/{round(total_call_per_sec, OutputSetup().human_precision)}"
-        readable_out = {
-            FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
-            FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
-            FileFormat.HM_PRF_CORE_GROUP: group,
-            
-            FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
-            FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: total_call_readable,
-            FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
-            FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
-        }
+        readable_out = {}
+        readable_out[FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
+        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] =  percentile_list[1].executors
+        readable_out[FileFormat.HM_PRF_CORE_GROUP] = group
+        for result in percentile_list.values():
+            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
+            #readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            if result.call_per_sec_raw == result.call_per_sec:
+                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
+            else:
+                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}/{round(result.call_per_sec, OutputSetup().human_precision)}"
+            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
+            readable_out[FileFormat.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
+            readable_out[FileFormat.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
+
+
+        # if total_call_per_sec_raw == total_call_per_sec:
+        #     total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}"
+        # else:
+        #     total_call_readable = f"{round(total_call_per_sec_raw, OutputSetup().human_precision)}/{round(total_call_per_sec, OutputSetup().human_precision)}"
+        # readable_out = {
+        #     FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL: f"{processes * threads} [{processes},{threads}]",
+        #     FileFormat.HM_PRF_CORE_REAL_EXECUTOR: executors,
+        #     FileFormat.HM_PRF_CORE_GROUP: group,
+        #
+        #     FileFormat.HM_PRF_CORE_TOTAL_CALL: sum_call,
+        #     FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC: total_call_readable,
+        #     FileFormat.HM_PRF_CORE_AVRG_TIME: 0 if executors == 0 else round(sum_avrg_time / executors, OutputSetup().human_precision),
+        #     FileFormat.HM_PRF_CORE_STD_DEVIATION: 0 if executors == 0 else round (sum_deviation / executors, OutputSetup().human_precision)
+        # }
 
         # final dump
         self._print(file,
                     f"  {json.dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return total_call_per_sec_raw, total_call_per_sec
+        return call_per_sec_raw, call_per_sec
+        #total_call_per_sec_raw, total_call_per_sec
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
