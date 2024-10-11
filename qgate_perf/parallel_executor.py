@@ -210,6 +210,9 @@ class ParallelExecutor:
                                 itm.avrg += result.total_duration / result.count
                                 itm.std += result.std
                                 itm.executors += 1
+                        else:
+                            if percentile_list.get(result.percentile, None) is None:
+                                percentile_list[result.percentile] = PercentileSummary(result.percentile, 0, 0, 0, 0, 0, 0)
                 else:
                     if percentile_list.get(1, None) is None:
                         percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,0)
