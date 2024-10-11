@@ -287,7 +287,7 @@ class TestCasePerf(unittest.TestCase):
         generator = ParallelExecutor(prf_gil_impact,
                                      label="GIL_impact",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"),
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_percentile.txt"),
                                      init_each_bulk=True)
 
 
