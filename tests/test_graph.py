@@ -174,3 +174,22 @@ class TestCaseGraph(unittest.TestCase):
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 2)
+
+    def test_graph_percentile(self):
+
+        generator = ParallelExecutor(prf_test,
+                                     label="test_percentile",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_percentile.txt"))
+
+        setup=RunSetup(duration_second=2, start_delay=2, parameters={"percentile": 0.95})
+        generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
+        generator.create_graph_perf(self.OUTPUT_ADR)
+
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+        # check relevant files
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "2 sec", today, f"PRF-test_percentile-*-bulk-*.png"))
+        self.assertTrue(len(file)==2)
+        print(file[0])
+
