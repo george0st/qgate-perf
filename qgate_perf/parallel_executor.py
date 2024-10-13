@@ -217,9 +217,15 @@ class ParallelExecutor:
                         else:
                             if percentile_list.get(result.percentile, None) is None:
                                 percentile_list[result.percentile] = PercentileSummary(result.percentile, 0, 0, 0, 0, 0, 0)
-                else:
-                    if percentile_list.get(1, None) is None:
-                        percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,0)
+
+        # if 100 percentile does not exist, create it
+        if percentile_list.get(1, None) is None:
+            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,0)
+
+        # if expected percentile does not exist, create it
+        if run_setup.exist("percentile"):
+            if percentile_list.get(run_setup["percentile"], None) is None:
+                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"],0,0, 0, 0,0,0)
 
         # final calculation
         for percentile in percentile_list.values():

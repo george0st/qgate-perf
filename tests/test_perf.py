@@ -310,5 +310,20 @@ class TestCasePerf(unittest.TestCase):
                                     executor_list=[[4,2]],
                                     run_setup=setup))
 
+    def test_run_percentiles_only_exceptions(self):
+        """Simulate percentile support with bundle execution and all exceptions"""
+        generator = ParallelExecutor(prf_gil_impact,
+                                     label="percentiles_only_exception",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_percentiles_only_exception.txt"),
+                                     init_each_bulk=True)
+
+        setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95, "generate_error": "yes"})
+        generator.run_bulk_executor(bulk_list=[[1,10]],
+                                    executor_list=[[1,1], [2,1], [4,2]],
+                                    run_setup=setup)
+        self.assertTrue(len(generator.create_graph_perf(self.OUTPUT_ADR)) == 1)
+
+
 # if __name__ == '__main__':
 #     unittest.main()
