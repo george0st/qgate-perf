@@ -14,6 +14,12 @@ class GraphScope(Flag):
     perf_txt = 16                       # generation of performance graph in RAW format
     perf_txt_raw = 32                   # generation of performance graph in RAW format
     exe = 64                            # generation of executor graph
+    all_no_raw = (perf | perf_csv |
+                  perf_txt | exe)       # generation of performance and executor graph (without raw)
+    all_raw = (perf_raw |
+               perf_csv_raw |
+               perf_txt_raw |
+               exe)                     # generation of performance and executor graph (with raw)
     all = (perf | perf_raw |
            perf_csv | perf_csv_raw |
            perf_txt | perf_txt_raw |

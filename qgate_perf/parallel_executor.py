@@ -585,7 +585,7 @@ class ParallelExecutor:
         return True
 
     @staticmethod
-    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
@@ -659,7 +659,7 @@ class ParallelExecutor:
 
         return output_file
 
-    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests.
         The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
