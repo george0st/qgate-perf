@@ -1,12 +1,12 @@
-import datetime
-import glob
-import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.executor_helper import GraphScope
-import time
 from os import path
+import datetime
+import glob
+import unittest
+import time
 import shutil
 import numpy
 
@@ -68,7 +68,7 @@ class TestCaseGraph(unittest.TestCase):
                                                     [[1, 2, 'Austria perf'], [2, 2, 'Austria perf'], [4, 2, 'Austria perf'],
                                                     [1, 4, 'Germany perf'], [2, 4, 'Germany perf'], [4, 4, 'Germany perf']],
                                                     setup))
-        generator.create_graph(self.OUTPUT_ADR)
+        generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_aus_ger-*-bulk-10x10.png"))
@@ -90,7 +90,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
         self.assertFalse(generator.run(1,1, setup))
-        generator.create_graph(self.OUTPUT_ADR)
+        generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_exception-*-bulk-1x1.png"))
@@ -108,7 +108,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
         self.assertFalse(generator.run_executor([[2,2]], setup))
-        generator.create_graph(self.OUTPUT_ADR)
+        generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "4 sec", today, f"PRF-test_exception2-*-bulk-1x1.png"))
@@ -131,7 +131,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
-        generator.create_graph(self.OUTPUT_ADR)
+        generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
 
@@ -162,6 +162,10 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(len(file) == 1)
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
+        self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
+        self.assertTrue(len(file) == 0) # without these file
 
         generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_raw)
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -169,6 +173,27 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(len(file) == 1)
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
         self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
+        self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
+        self.assertTrue(len(file) == 0) # without these file
+
+        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_txt)
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
+        self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
+        self.assertTrue(len(file) == 1) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
+        self.assertTrue(len(file) == 0) # without these file
+
+        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_csv)
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
+        self.assertTrue(len(file) == 0) # without these file
+        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
+        self.assertTrue(len(file) == 1) # without these file
+
 
         generator.create_graph(self.OUTPUT_ADR, GraphScope.exe)
         today = datetime.datetime.now().strftime("%Y-%m-%d")

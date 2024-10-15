@@ -585,7 +585,7 @@ class ParallelExecutor:
         return True
 
     @staticmethod
-    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
@@ -598,10 +598,11 @@ class ParallelExecutor:
         """
         output_file=[]
 
+        #  PERF
         if GraphScope.perf in scope:
             from qgate_graph.graph_performance import GraphPerformance
 
-            # raw format FALSE
+            # raw format False
             graph = GraphPerformance(picture_dpi, raw_format = False)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
@@ -609,11 +610,46 @@ class ParallelExecutor:
         if GraphScope.perf_raw in scope:
             from qgate_graph.graph_performance import GraphPerformance
 
-            # raw format TRUE
+            # raw format True
             graph = GraphPerformance(picture_dpi, raw_format = True)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
+        # PERF CSV
+        if GraphScope.perf_csv in scope:
+            from qgate_graph.graph_performance_csv import GraphPerformanceCsv
+
+            # raw format False
+            graph = GraphPerformanceCsv(raw_format = False)
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
+                output_file.append(file)
+
+        if GraphScope.perf_csv_raw in scope:
+            from qgate_graph.graph_performance_csv import GraphPerformanceCsv
+
+            # raw format True
+            graph = GraphPerformanceCsv(raw_format = True)
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
+                output_file.append(file)
+
+        # PERF TXT
+        if GraphScope.perf_txt in scope:
+            from qgate_graph.graph_performance_txt import GraphPerformanceTxt
+
+            # raw format False
+            graph = GraphPerformanceTxt(raw_format=False)
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir, "graph-perf"), suppress_error):
+                output_file.append(file)
+
+        if GraphScope.perf_txt_raw in scope:
+            from qgate_graph.graph_performance_txt import GraphPerformanceTxt
+
+            # raw format True
+            graph = GraphPerformanceTxt(raw_format=True)
+            for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir, "graph-perf"), suppress_error):
+                output_file.append(file)
+
+        # EXE
         if GraphScope.exe in scope:
             from qgate_graph.graph_executor import GraphExecutor
 
@@ -623,7 +659,7 @@ class ParallelExecutor:
 
         return output_file
 
-    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests.
         The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
