@@ -63,7 +63,7 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
 
-        setup = RunSetup(duration_second=4, start_delay=2, parameters=None)
+        setup = RunSetup(duration_second=4, start_delay=0, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[10, 10], [100, 10]],
                                                     [[1, 2, 'Austria perf'], [2, 2, 'Austria perf'], [4, 2, 'Austria perf'],
                                                     [1, 4, 'Germany perf'], [2, 4, 'Germany perf'], [4, 4, 'Germany perf']],
@@ -88,7 +88,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "yes"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         self.assertFalse(generator.run(1,1, setup))
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -106,7 +106,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "yes"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         self.assertFalse(generator.run_executor([[2,2]], setup))
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -129,7 +129,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "random"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -204,7 +204,7 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test_percentile.txt"))
 
-        setup=RunSetup(duration_second=2, start_delay=2, parameters={"percentile": 0.95})
+        setup=RunSetup(duration_second=2, start_delay=0, parameters={"percentile": 0.95})
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph_perf(self.OUTPUT_ADR)
 
