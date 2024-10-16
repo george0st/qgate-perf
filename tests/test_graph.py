@@ -63,7 +63,7 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test.txt"))
 
-        setup = RunSetup(duration_second=4, start_delay=2, parameters=None)
+        setup = RunSetup(duration_second=4, start_delay=0, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[10, 10], [100, 10]],
                                                     [[1, 2, 'Austria perf'], [2, 2, 'Austria perf'], [4, 2, 'Austria perf'],
                                                     [1, 4, 'Germany perf'], [2, 4, 'Germany perf'], [4, 4, 'Germany perf']],
@@ -88,7 +88,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "yes"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         self.assertFalse(generator.run(1,1, setup))
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -106,7 +106,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "yes"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         self.assertFalse(generator.run_executor([[2,2]], setup))
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -129,7 +129,7 @@ class TestCaseGraph(unittest.TestCase):
 
         setting = {"generate_error": "random"}
 
-        setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
+        setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
@@ -144,61 +144,58 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(len(file) == 2)
         print(file[0])
 
-    def test_graph_scope(self):
-        """Test scope with Perf, Perf_RAW and Exe"""
+    def _generic_scope(self, scope="perf", amount = 1, name_contain = ["PRF-"], name_not_contain = "RAW"):
         generator = ParallelExecutor(prf_test,
                                      label="test_graph_scope",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_graph_scope.txt"))
+                                     output_file=path.join(self.OUTPUT_ADR, f"perf_{scope.lower()}_graph_scope.txt"))
 
-        setup = RunSetup(duration_second=1, start_delay=2, parameters=None)
-        self.assertTrue(generator.run_bulk_executor([[10, 10]],
-                                                    [[1, 2, 'Austria perf'],
-                                                    [1, 4, 'Germany perf']],
+        setup = RunSetup(duration_second=1, start_delay=0, parameters=None)
+        self.assertTrue(generator.run_bulk_executor([[1, 1]],
+                                                    [[1, 1, 'Austria perf'], [2, 1, 'Austria perf']],
                                                     setup))
-        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf)
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"PRF-test_graph_scope-*-bulk-10x10.png"))
-        self.assertTrue(len(file) == 1)
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
-        self.assertTrue(len(file) == 0) # without these file
+        output_dir = path.join(self.OUTPUT_ADR, "scope", scope)
+        generator.create_graph(output_dir, GraphScope[scope.lower()])
 
-        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_raw)
         today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"PRF-test_graph_scope-RAW-*-bulk-10x10.png"))
-        self.assertTrue(len(file) == 1)
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
-        self.assertTrue(len(file) == 0) # without these file
+        if scope.lower() != "exe":
+            files=glob.glob(path.join(output_dir, "graph-perf", "1 sec", today, f"*.*"))
+        else:
+            files = glob.glob(path.join(output_dir, "graph-exec", "1 sec", today, f"*.*"))
+        self.assertTrue(len(files) == amount)
+        for file in files:
+            for itm in name_contain:
+                self.assertTrue(file.find(itm) != -1)
+            if name_not_contain:
+                self.assertTrue(file.find(name_not_contain) == -1)
 
-        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_txt)
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"TXT-test_graph_scope-*-bulk-10x10.txt"))
-        self.assertTrue(len(file) == 1) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
-        self.assertTrue(len(file) == 0) # without these file
+    def test_graph_scope_perf(self):
+        """Test scope with Perf"""
+        self._generic_scope("perf", 1, ["PRF-"], "RAW")
 
-        generator.create_graph(self.OUTPUT_ADR, GraphScope.perf_csv)
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
-        self.assertTrue(len(file) == 0) # without these file
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "1 sec", today, f"CSV-test_graph_scope-*-bulk-10x10.csv"))
-        self.assertTrue(len(file) == 1) # without these file
+    def test_graph_scope_perf_raw(self):
+        """Test scope with Perf raw"""
+        self._generic_scope("perf_raw", 1, ["PRF-", "RAW"], None)
 
+    def test_graph_scope_txt(self):
+        """Test scope with TXT"""
+        self._generic_scope("perf_txt", 1, ["TXT-"], "RAW")
 
-        generator.create_graph(self.OUTPUT_ADR, GraphScope.exe)
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-exec", "1 sec", today, f"EXE-test_graph_scope-*-bulk-10x10-*.png"))
-        self.assertTrue(len(file) == 2)
+    def test_graph_scope_txt_raw(self):
+        """Test scope with TXT raw"""
+        self._generic_scope("perf_txt_raw", 1, ["TXT-","RAW"], None)
+
+    def test_graph_scope_csv(self):
+        """Test scope with CSV"""
+        self._generic_scope("perf_csv", 1, ["CSV-"], "RAW")
+
+    def test_graph_scope_csv_raw(self):
+        """Test scope with CSV raw"""
+        self._generic_scope("perf_csv_raw", 1, ["CSV-", "RAW"], None)
+
+    def test_graph_scope_exe(self):
+        """Test scope with Exe"""
+        self._generic_scope("exe", 2, ["EXE-"], "RAW")
 
     def test_graph_percentile(self):
 
@@ -207,7 +204,7 @@ class TestCaseGraph(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_test_percentile.txt"))
 
-        setup=RunSetup(duration_second=2, start_delay=2, parameters={"percentile": 0.95})
+        setup=RunSetup(duration_second=2, start_delay=0, parameters={"percentile": 0.95})
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
         generator.create_graph_perf(self.OUTPUT_ADR)
 
