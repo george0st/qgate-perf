@@ -148,7 +148,7 @@ class TestCaseGraph(unittest.TestCase):
         generator = ParallelExecutor(prf_test,
                                      label="test_graph_scope",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_graph_scope.txt"))
+                                     output_file=path.join(self.OUTPUT_ADR, f"perf_{scope.lower()}_graph_scope.txt"))
 
         setup = RunSetup(duration_second=1, start_delay=0, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[1, 1]],
@@ -174,27 +174,27 @@ class TestCaseGraph(unittest.TestCase):
         self._generic_scope("perf", 1, ["PRF-"], "RAW")
 
     def test_graph_scope_perf_raw(self):
-        """Test scope with Perf"""
+        """Test scope with Perf raw"""
         self._generic_scope("perf_raw", 1, ["PRF-", "RAW"], None)
 
     def test_graph_scope_txt(self):
-        """Test scope with Perf"""
+        """Test scope with TXT"""
         self._generic_scope("perf_txt", 1, ["TXT-"], "RAW")
 
     def test_graph_scope_txt_raw(self):
-        """Test scope with Perf"""
+        """Test scope with TXT raw"""
         self._generic_scope("perf_txt_raw", 1, ["TXT-","RAW"], None)
 
     def test_graph_scope_csv(self):
-        """Test scope with Perf"""
+        """Test scope with CSV"""
         self._generic_scope("perf_csv", 1, ["CSV-"], "RAW")
 
     def test_graph_scope_csv_raw(self):
-        """Test scope with Perf"""
+        """Test scope with CSV raw"""
         self._generic_scope("perf_csv_raw", 1, ["CSV-", "RAW"], None)
 
     def test_graph_scope_exe(self):
-        """Test scope with Perf"""
+        """Test scope with Exe"""
         self._generic_scope("exe", 2, ["EXE-"], "RAW")
 
     def test_graph_percentile(self):
