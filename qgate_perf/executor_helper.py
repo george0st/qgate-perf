@@ -6,14 +6,14 @@ from numpy import random
 
 class GraphScope(Flag):
     """Define typy of graph for generation"""
-    off = 0                             # without graph generation
-    perf = 1                            # generation of performance graph
-    perf_raw = 2                        # generation of performance graph in RAW format
-    perf_csv = 4                        # generation of performance graph in RAW format
-    perf_csv_raw = 8                    # generation of performance graph in RAW format
-    perf_txt = 16                       # generation of performance graph in RAW format
-    perf_txt_raw = 32                   # generation of performance graph in RAW format
-    exe = 64                            # generation of executor graph
+    off = 1                             # without graph generation
+    perf = 2                            # generation of performance graph
+    perf_raw = 4                        # generation of performance graph in RAW format
+    perf_csv = 8                        # generation of performance graph in RAW format
+    perf_csv_raw = 16                   # generation of performance graph in RAW format
+    perf_txt = 32                       # generation of performance graph in RAW format
+    perf_txt_raw = 64                   # generation of performance graph in RAW format
+    exe = 128                           # generation of executor graph
     all_no_raw = (perf | perf_csv |
                   perf_txt | exe)       # generation of performance and executor graph (without raw)
     all_raw = (perf_raw |
