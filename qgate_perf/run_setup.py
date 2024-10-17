@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 
 
 class RunSetup:
@@ -69,7 +69,7 @@ class RunSetup:
 
     def set_start_time(self):
         """Define unique start time for all executors. The time has to be setup before executor start."""
-        self._when_start = datetime.datetime.now() + datetime.timedelta(seconds=self._start_delay)
+        self._when_start = datetime.now() + timedelta(seconds=self._start_delay)
 
     def set_bulk(self, bulk_row, bulk_column):
         self._bulk_row = bulk_row if bulk_row > 0 else 1

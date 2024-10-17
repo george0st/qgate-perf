@@ -1,5 +1,5 @@
 from heapq import heappop, heappush, heapreplace
-import math
+from math import ceil
 
 
 class PercentileHeap:
@@ -46,7 +46,7 @@ class PercentileHeap:
 
         perc = (self._count + 1) * self._percentile
         if perc < self._count:
-            requested_size = 1 + math.ceil(self._count - perc)
+            requested_size = 1 + ceil(self._count - perc)
             if requested_size > len(self._sequence):
                 # extend heap and only push value
                 heappush(self._sequence, itm)
@@ -68,7 +68,7 @@ class PercentileHeap:
         # free values till requested percentile
         # identification, how many values must be pop for requested percentile
         requested_size = self._count - ((self._count + 1) * self._percentile)
-        requested_size_max = math.ceil(requested_size)
+        requested_size_max = ceil(requested_size)
         if requested_size_max >= 1:
             pop_operation = int(len(self._sequence) - requested_size)
         else:

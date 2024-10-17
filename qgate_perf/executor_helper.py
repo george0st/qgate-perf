@@ -1,4 +1,4 @@
-import math
+from math import pow
 from enum import Flag
 from time import perf_counter, perf_counter_ns, sleep
 from numpy import random
@@ -98,7 +98,7 @@ class ExecutorHelper:
         """
         pattern = []
         for i in range(thread_pow_start, thread_pow_stop):
-            added = int(math.pow(2, i))
+            added = int(pow(2, i))
             label = f"{added}x thread" if label_thread else f"{process}x process"
             pattern.append([process, added, label])
         return pattern
@@ -117,7 +117,7 @@ class ExecutorHelper:
         """
         pattern = []
         for i in range(process_pow_start, process_pow_stop):
-            added = int(math.pow(2, i))
+            added = int(pow(2, i))
             label = f"{added}x process" if label_process else f"{thread}x thread"
             pattern.append([added, thread, label])
         return pattern
