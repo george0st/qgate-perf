@@ -1,4 +1,4 @@
-import math
+from math import sqrt
 
 
 class StandardDeviation:
@@ -24,4 +24,4 @@ class StandardDeviation:
     @property
     def std(self):
         """ Standard deviation """
-        return math.sqrt(self.variance)
+        return sqrt(self.variance)

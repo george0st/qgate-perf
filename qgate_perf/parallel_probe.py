@@ -1,5 +1,5 @@
 import os
-import json
+from json import dumps
 from time import time, sleep, perf_counter
 from datetime import datetime
 from qgate_perf.standard_deviation import StandardDeviation
@@ -178,7 +178,7 @@ class ParallelProbe:
             data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')    # for executor graph
             data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')        # for executor graph
 
-            return json.dumps(data, separators = OutputSetup().json_separator)
+            return dumps(data, separators = OutputSetup().json_separator)
             # return json.dumps({
             #     FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
             #     FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
@@ -210,7 +210,7 @@ class ParallelProbe:
                 data[FileFormat.PRF_DETAIL_MAX + suffix] = round(result.max, OutputSetup().human_precision)
                 data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = round(result.std, OutputSetup().human_precision)
                 data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = round(result.total_duration, OutputSetup().human_precision)
-            return json.dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
+            return dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
 
             # return json.dumps({
             #     FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
@@ -225,7 +225,7 @@ class ParallelProbe:
 
     @staticmethod
     def dump_error(exception, pid = 0, counter = 0):
-        return json.dumps({
+        return dumps({
             FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
             FileFormat.PRF_DETAIL_PROCESSID: pid,
             FileFormat.PRF_DETAIL_CALLS: counter,
@@ -234,7 +234,7 @@ class ParallelProbe:
 
     @staticmethod
     def readable_dump_error(exception, pid = 0, counter = 0):
-        return json.dumps({
+        return dumps({
             FileFormat.PRF_DETAIL_CALLS: counter,
             FileFormat.PRF_DETAIL_ERR: str(exception)
         }, separators = OutputSetup().human_json_separator)

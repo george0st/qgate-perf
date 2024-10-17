@@ -1,8 +1,8 @@
 import concurrent.futures
 import multiprocessing
 import os.path
-import json
 import gc
+from json import dumps
 from datetime import datetime
 from time import sleep
 from qgate_perf.file_format import FileFormat
@@ -116,8 +116,8 @@ class ParallelExecutor:
 
 
         self._print(file,
-                    json.dumps(out, separators=OutputSetup().json_separator),
-                    json.dumps(readable_out, separators = OutputSetup().human_json_separator))
+                    dumps(out, separators=OutputSetup().json_separator),
+                    dumps(readable_out, separators = OutputSetup().human_json_separator))
 
     def _memory(self):
 
@@ -302,8 +302,8 @@ class ParallelExecutor:
 
         # final dump
         self._print(file,
-                    f"  {json.dumps(out, separators = OutputSetup().json_separator)}",
-                    f"  {json.dumps(readable_out, separators = OutputSetup().human_json_separator)}")
+                    f"  {dumps(out, separators = OutputSetup().json_separator)}",
+                    f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
         return call_per_sec_raw, call_per_sec
 
