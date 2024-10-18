@@ -8,6 +8,7 @@ from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from math import nan
 from qgate_perf.percentile_heap import PercentileHeap
+from sys import float_info
 
 
 class PercentileItem:
@@ -23,7 +24,16 @@ class PercentileItem:
 
 class PercentileSummary:
     """Summary data from all executors, split based on percentile"""
-    def __init__(self, percentile, count = 0, call_per_sec_raw = 0, call_per_sec = 0, avrg = 0, std = 0, executors = 0):
+    def __init__(self,
+                 percentile,
+                 count = 0,
+                 call_per_sec_raw = 0,
+                 call_per_sec = 0,
+                 avrg = 0,
+                 std = 0,
+                 min = 0,
+                 max = 0,
+                 executors = 0):
         self.percentile = percentile
 
         self.count = count
@@ -31,12 +41,14 @@ class PercentileSummary:
         self.call_per_sec = call_per_sec
         self.avrg = avrg
         self.std = std
+        self.min = min
+        self.max = max
         self.executors = executors
 
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
 
-    MIN_DURATION = 1000000000
+    MIN_DURATION = float_info.max
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
