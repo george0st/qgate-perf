@@ -16,6 +16,7 @@ from packaging import version
 from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
 from qgate_perf.output_performance import OutputPerformance
+from sys import float_info
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -230,22 +231,15 @@ class ParallelExecutor:
                                                                                        0,
                                                                                        0)
 
-        # if 100 percentile does not exist, create it
+        # define percentile, if not exist
+            # if 100 percentile does not exist, create it
         if percentile_list.get(1, None) is None:
-            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,ParallelProbe.MIN_DURATION, 0,0)
+            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0, 0, 0,0)
 
-        # if expected percentile does not exist, create it
+            # if expected percentile does not exist, create it
         if run_setup.exist("percentile"):
             if percentile_list.get(run_setup["percentile"], None) is None:
-                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"],
-                                                                             0,
-                                                                             0,
-                                                                             0,
-                                                                             0,
-                                                                             0,
-                                                                             ParallelProbe.MIN_DURATION,
-                                                                             0,
-                                                                             0)
+                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
 
         # final calculation
         for percentile in percentile_list.values():
@@ -258,6 +252,9 @@ class ParallelExecutor:
 
                 percentile.avrg = 0 if percentile.executors == 0 else percentile.avrg / percentile.executors
                 percentile.std = 0 if percentile.executors == 0 else percentile.std / percentile.executors
+            else:
+                percentile.min = 0
+                percentile.max = 0
 
             if percentile.percentile == 1:
                 executors = percentile.executors

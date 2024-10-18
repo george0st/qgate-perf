@@ -8,6 +8,7 @@ from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from math import nan
 from qgate_perf.percentile_heap import PercentileHeap
+from sys import float_info
 
 
 class PercentileItem:
@@ -47,7 +48,7 @@ class PercentileSummary:
 class ParallelProbe:
     """ Provider probe for parallel test tuning """
 
-    MIN_DURATION = 1000000000
+    MIN_DURATION = float_info.max
 
     def __init__(self, run_setup: RunSetup, exception=None):
         """
