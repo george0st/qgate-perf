@@ -185,7 +185,7 @@ class ParallelExecutor:
                 return False
         return True
 
-    def _create_percentile_list(self, run_setup: RunSetup, return_dict) -> dict[PercentileSummary]:
+    def _create_percentile_list(self, run_setup: RunSetup, return_dict):
 
         percentile_list = {}
         executors, call_per_sec_raw, call_per_sec = 0, 0, 0
@@ -207,25 +207,45 @@ class ParallelExecutor:
                                                                                        0,
                                                                                        result.total_duration / result.count,
                                                                                        result.std,
+                                                                                       result.min,
+                                                                                       result.max,
                                                                                        1)
                             else:
                                 itm = percentile_list[result.percentile]
                                 itm.count += result.count
                                 itm.avrg += result.total_duration / result.count
                                 itm.std += result.std
+                                itm.min = min(result.min, itm.min)
+                                itm.max = max(result.max, itm.max)
                                 itm.executors += 1
                         else:
                             if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile, 0, 0, 0, 0, 0, 0)
+                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
+                                                                                       0,
+                                                                                       0,
+                                                                                       0,
+                                                                                       0,
+                                                                                       0,
+                                                                                       ParallelProbe.MIN_DURATION,
+                                                                                       0,
+                                                                                       0)
 
         # if 100 percentile does not exist, create it
         if percentile_list.get(1, None) is None:
-            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,0)
+            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0,ParallelProbe.MIN_DURATION, 0,0)
 
         # if expected percentile does not exist, create it
         if run_setup.exist("percentile"):
             if percentile_list.get(run_setup["percentile"], None) is None:
-                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"],0,0, 0, 0,0,0)
+                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"],
+                                                                             0,
+                                                                             0,
+                                                                             0,
+                                                                             0,
+                                                                             0,
+                                                                             ParallelProbe.MIN_DURATION,
+                                                                             0,
+                                                                             0)
 
         # final calculation
         for percentile in percentile_list.values():
@@ -238,6 +258,7 @@ class ParallelExecutor:
 
                 percentile.avrg = 0 if percentile.executors == 0 else percentile.avrg / percentile.executors
                 percentile.std = 0 if percentile.executors == 0 else percentile.std / percentile.executors
+
             if percentile.percentile == 1:
                 executors = percentile.executors
                 call_per_sec_raw = percentile.call_per_sec_raw
@@ -281,6 +302,8 @@ class ParallelExecutor:
             out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
             out[FileFormat.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
             out[FileFormat.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
+            out[FileFormat.PRF_CORE_MIN + suffix] = result.min                                  # ok
+            out[FileFormat.PRF_CORE_MAX + suffix] = result.max                                  # ok
         out[FileFormat.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
 
         # human readable form
@@ -299,6 +322,8 @@ class ParallelExecutor:
             readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
             readable_out[FileFormat.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
             readable_out[FileFormat.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
+            readable_out[FileFormat.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
+            readable_out[FileFormat.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
 
         # final dump
         self._print(file,

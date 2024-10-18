@@ -48,6 +48,8 @@ class FileFormat:
     PRF_CORE_TOTAL_CALL = "total_calls"
     PRF_CORE_AVRG_TIME = "avrg_time"
     PRF_CORE_STD_DEVIATION = "std_deviation"
+    PRF_CORE_MIN = "min"
+    PRF_CORE_MAX = "max"
     PRF_CORE_TOTAL_CALL_PER_SEC = "total_call_per_sec"              # total raw performance and multiply by rows in bundle
     PRF_CORE_TOTAL_CALL_PER_SEC_RAW = "total_call_per_sec_raw"      # total raw performance (calls per one second)
     PRF_CORE_TIME_END = "endexec"
