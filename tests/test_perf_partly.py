@@ -35,7 +35,7 @@ def prf_partly(run_setup: RunSetup) -> ParallelProbe:
         # partly STOP - partly measurement (part 1.)
         probe.partly_stop()
 
-        time.sleep(10)
+        time.sleep(2)
 
         # partly START - partly measurement (part 2.)
         probe.partly_start()
@@ -43,7 +43,7 @@ def prf_partly(run_setup: RunSetup) -> ParallelProbe:
         # partly STOP - partly measurement (part 2.)
         probe.partly_stop()
 
-        time.sleep(10)
+        time.sleep(2)
 
         # partly START - partly measurement (part 3.)
         probe.partly_start()
