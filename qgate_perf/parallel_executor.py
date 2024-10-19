@@ -189,7 +189,6 @@ class ParallelExecutor:
     def _create_percentile_list(self, run_setup: RunSetup, return_dict):
 
         percentile_list = {}
-        executors, call_per_sec_raw, call_per_sec = 0, 0, 0
 
         # pre-calculation
             # iteration cross executors results
@@ -256,12 +255,7 @@ class ParallelExecutor:
                 percentile.min = 0
                 percentile.max = 0
 
-            # if percentile.percentile == 1:
-            #     executors = percentile.executors
-            #     call_per_sec_raw = percentile.call_per_sec_raw
-            #     call_per_sec = percentile.call_per_sec
-
-        return percentile_list #, executors, call_per_sec_raw, call_per_sec
+        return percentile_list
 
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
         """
@@ -283,7 +277,6 @@ class ParallelExecutor:
                             f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         # new calculation
-        #percentile_list, executors, call_per_sec_raw, call_per_sec = self._create_percentile_list(run_setup, return_dict)
         percentile_list = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
@@ -328,7 +321,7 @@ class ParallelExecutor:
                     f"  {dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return percentile_list #call_per_sec_raw, call_per_sec
+        return percentile_list
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
@@ -447,7 +440,6 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-#                    calls_sec_raw, calls_sec = self._print_detail(file,
                     percentile_list = self._print_detail(file,
                                        run_setup,
                                        return_dict,
@@ -460,8 +452,6 @@ class ParallelExecutor:
                                                              executors[0],
                                                              executors[1],
                                                              percentile_list))
-                                                             # calls_sec_raw,
-                                                             # calls_sec))
                     if not self._final_state(return_dict):
                         final_state=False
 
@@ -510,7 +500,6 @@ class ParallelExecutor:
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
-                #calls_sec_raw, calls_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
                 percentile_list = self._print_detail(file, run_setup, return_dict, processes, threads)
                 if return_performance:
                     performance.append(OutputPerformance(run_setup.bulk_row,
@@ -518,8 +507,6 @@ class ParallelExecutor:
                                                          processes,
                                                          threads,
                                                          percentile_list))
-                                                         # calls_sec_raw,
-                                                         # calls_sec))
                 if not self._final_state(return_dict):
                     final_state = False
 
