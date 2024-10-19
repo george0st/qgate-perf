@@ -57,7 +57,7 @@ class TestCasePerf(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
-        self.assertFalse(generator.one_run())
+        self.assertFalse(generator.one_run().state)
 
     def test_one_run(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -65,7 +65,7 @@ class TestCasePerf(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
-        self.assertTrue(generator.one_run())
+        self.assertTrue(generator.one_run().state)
 
     def test_one_run_param(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -76,7 +76,7 @@ class TestCasePerf(unittest.TestCase):
         setting={"aa":10,
                "name": "Adam"}
 
-        self.assertTrue(generator.one_run(RunSetup(parameters=setting)))
+        self.assertTrue(generator.one_run(RunSetup(parameters=setting)).state)
 
     def test_init_run(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -128,7 +128,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=4)
-        self.assertTrue(generator.run(2, 2, setup))
+        self.assertTrue(generator.run(2, 2, setup).state)
 
     def test_run_exception(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -139,8 +139,7 @@ class TestCasePerf(unittest.TestCase):
         setting = {"generate_error": "yes"}
 
         setup=RunSetup(duration_second=4, start_delay=2, parameters=setting)
-        self.assertFalse(generator.run(2, 2, setup))
-
+        self.assertFalse(generator.run(2, 2, setup).state)
 
     def test_run_executor(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -149,7 +148,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=4, start_delay=2)
-        self.assertTrue(generator.run_executor([[1,1], [2,2]], setup))
+        self.assertTrue(generator.run_executor([[1,1], [2,2]], setup).state)
 
     def test_run_executor_exception(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -160,7 +159,7 @@ class TestCasePerf(unittest.TestCase):
         setting = {"generate_error": "yes"}
 
         setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
-        self.assertFalse(generator.run_executor([[1,1]], setup))
+        self.assertFalse(generator.run_executor([[1,1]], setup).state)
 
     def test_run_bulk_executor(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -172,7 +171,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
                                     executor_list=[[1,1], [2,2]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_bulk_executor_exception(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -185,7 +184,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=0, start_delay=0, parameters=setting)
         self.assertFalse(generator.run_bulk_executor(bulk_list=[[1,2]],
                                     executor_list=[[1,1]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_bulk_executor_helpers(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -196,7 +195,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=0, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
                                     executor_list=ExecutorHelper.PROCESS_1_8_THREAD_1,
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_bulk_executor_grow(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -207,11 +206,11 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2]],
                                     executor_list=ExecutorHelper.grow_thread(process=1, thread_pow_start=1, thread_pow_stop=3),
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
                                     executor_list=ExecutorHelper.grow_process(thread=1, process_pow_start=1, process_pow_stop=3),
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_bulk_executor_initcall(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -223,7 +222,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2], [1,10]],
                                     executor_list=[[1,1], [1,2], [2,2]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_stress_test(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -232,7 +231,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file=None)
 
         setup=RunSetup(duration_second=15, start_delay=0)
-        self.assertTrue(generator.run(4, 8, setup))
+        self.assertTrue(generator.run(4, 8, setup).state)
 
     def test_run_init_call(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -242,7 +241,7 @@ class TestCasePerf(unittest.TestCase):
                                      init_each_bulk=True)
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        self.assertTrue(generator.run(1, 2, setup))
+        self.assertTrue(generator.run(1, 2, setup).state)
 
     def test_general_exception(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -251,7 +250,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file="*&%$.txt")
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        self.assertFalse(generator.run(1, 2, setup))
+        self.assertFalse(generator.run(1, 2, setup).state)
 
     def test_general_exception2(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -260,7 +259,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file="*&%$.txt")
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        self.assertFalse(generator.run_executor([[1,1]], setup))
+        self.assertFalse(generator.run_executor([[1,1]], setup).state)
 
     def test_output_precision(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -270,7 +269,7 @@ class TestCasePerf(unittest.TestCase):
 
         setup=RunSetup(duration_second=4, start_delay=4)
         OutputSetup().human_precision = 7
-        self.assertTrue(generator.run(2, 2, setup))
+        self.assertTrue(generator.run(2, 2, setup).state)
         OutputSetup().human_precision = OutputSetup.HUMAN_PRECISION
 
     def test_output_json_separator(self):
@@ -281,7 +280,7 @@ class TestCasePerf(unittest.TestCase):
 
         setup = RunSetup(duration_second=4, start_delay=4)
         OutputSetup().human_json_separator = (' - ', '::')
-        self.assertTrue(generator.run(2, 2, setup))
+        self.assertTrue(generator.run(2, 2, setup).state)
         OutputSetup().human_json_separator = OutputSetup.HUMAN_JSON_SEPARATOR
 
     def test_run_percentiles(self):
@@ -295,7 +294,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[4,1]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_percentiles2(self):
         generator = ParallelExecutor(prf_gil_impact,
@@ -308,7 +307,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95})
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[4,2]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)
 
     def test_run_percentiles_only_exceptions(self):
         """Simulate percentile support with bundle execution and all exceptions"""
@@ -321,7 +320,7 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95, "generate_error": "yes"})
         generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[1,1], [2,1], [4,2]],
-                                    run_setup=setup)
+                                    run_setup=setup).state
         self.assertTrue(len(generator.create_graph_perf(self.OUTPUT_ADR)) == 1)
 
 

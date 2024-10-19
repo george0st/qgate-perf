@@ -171,12 +171,12 @@ class ParallelExecutor:
             str_duration.append(f"{seconds} sec")
         return ' '.join(str_duration)
 
-    def _final_state(self, return_dict):
+    def _check_state(self, return_dict):
         """
         Check, if the processing was fine based on check exception in each executor
 
         :param return_dict:     Outputs from executors
-        :return:                True - all is fine, Fals - some exception
+        :return:                True - all is fine, False - some exception
         """
         for return_key in return_dict:
             parallel_ret = return_dict[return_key]
@@ -368,20 +368,19 @@ class ParallelExecutor:
                           executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
-                          return_performance = False) -> tuple[bool, PerfResults]:
+                          performance_detail = False) -> PerfResults:
         """ Run cycle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
-        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
-                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details (default is False)
+        :return:                    return performance results with key information about the 'state'. The state
+                                    True - all executions was without exceptions, False - some exceptions.
         """
-        final_state = True
-        count = 0
         performance = PerfResults()
+        count = 0
 
         for bulk in bulk_list:
 
@@ -392,37 +391,30 @@ class ParallelExecutor:
 
             # execute
             run_setup.set_bulk(bulk[0], bulk[1])
-
-            if return_performance:
-                state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
-                if not state:
-                    final_state=False
-                #for bulk_perf in bulk_performance:
+            bulk_performance = self.run_executor(executor_list, run_setup, performance_detail)
+            if performance_detail:
                 performance.append(bulk_performance)
             else:
-                if not self.run_executor(executor_list, run_setup):
-                    final_state=False
+                performance.add_state(bulk_performance.state)
+
             # memory clean
             gc.collect()
 
-        if return_performance:
-            return final_state, performance
-        return final_state, None
+        return performance
 
     def run_executor(self, executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                      run_setup: RunSetup = None,
-                     return_performance = False) -> tuple[bool, PerfResults]:
+                     performance_detail = False) -> PerfResults:
         """ Run executor sequences
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
-        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
-                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details (default is False)
+        :return:                    return performance results with key information about the 'state'. The state
+                                    True - all executions was without exceptions, False - some exceptions.
         """
-        file = None
-        final_state = True
         performance = PerfResults()
+        file = None
 
         print('Execution...')
 
@@ -446,44 +438,45 @@ class ParallelExecutor:
                                        executors[0],
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
-                    if return_performance:
-                        performance.append(PerfResult(run_setup.bulk_row,
+
+                    # check state
+                    state = self._check_state(return_dict)
+                    if performance_detail:
+                        performance.append(PerfResult(state,
+                                                      run_setup.bulk_row,
                                                       run_setup.bulk_col,
                                                       executors[0],
                                                       executors[1],
                                                       percentile_list))
-                    if not self._final_state(return_dict):
-                        final_state=False
+                    else:
+                        performance.add_state(state)
 
                 # memory clean
                 gc.collect(generation = 1)
 
-            self._print_footer(file, final_state)
+            self._print_footer(file, performance.state)
 
         except Exception as ex:
             self._print(file,f"SYSTEM ERROR in 'run_executor': {type(ex).__name__} - '{str(ex) if ex is not None else '!! Noname exception !!'}'")
-            final_state = False
+            performance.add_state(False)
         finally:
             if file is not None:
                 file.close()
 
-        if return_performance:
-            return final_state, performance
-        return final_state, None
+        return performance
 
-    def run(self, processes = 2, threads = 2, run_setup: RunSetup = None, return_performance = False) -> tuple[bool, PerfResults]:
+    def run(self, processes = 2, threads = 2, run_setup: RunSetup = None, performance_detail = False) -> PerfResults:
         """ Run execution of parallel call
 
         :param processes:       how much processes will be used
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
-        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
-                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details (default is False)
+        :return:                    return performance results with key information about the 'state'. The state
+                                    True - all executions was without exceptions, False - some exceptions.
         """
-        file = None
-        final_state=True
         performance = PerfResults()
+        file = None
 
         print('Execution...')
 
@@ -501,36 +494,37 @@ class ParallelExecutor:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
                 percentile_list = self._print_detail(file, run_setup, return_dict, processes, threads)
-                if return_performance:
-                    performance.append(PerfResult(run_setup.bulk_row,
+
+                # check state
+                state = self._check_state(return_dict)
+                if performance_detail:
+                    performance.append(PerfResult(state,
+                                                  run_setup.bulk_row,
                                                   run_setup.bulk_col,
                                                   processes,
                                                   threads,
                                                   percentile_list))
-                if not self._final_state(return_dict):
-                    final_state = False
+                else:
+                    performance.add_state(state)
 
-            self._print_footer(file, final_state)
+            self._print_footer(file, performance.state)
 
         except Exception as e:
             self._print(file, f"SYSTEM ERROR in 'run': '{str(e) if e is not None else '!! Noname exception !!'}'")
-            final_state = False
+            performance.add_state(False)
         finally:
             if file is not None:
                 file.close()
 
-        if return_performance:
-            return final_state, performance
-        return final_state, None
+        return performance
 
-    def one_run(self, run_setup: RunSetup = None, return_performance = False) -> tuple[bool, PerfResults]:
+    def one_run(self, run_setup: RunSetup = None, performance_detail = False) -> PerfResults:
         """ Run test, only one call, execution in new process, with standard write outputs
 
         :param run_setup:       setting for run
-        :param parameters:      parameters for execution, application in case the run_setup is None
-        :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
-                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details (default is False)
+        :return:                    return performance results with key information about the 'state'. The state
+                                    True - all executions was without exceptions, False - some exceptions.
         """
 
         # setup minimalistic values
@@ -539,19 +533,17 @@ class ParallelExecutor:
             run_setup.set_bulk(1,1)
 
         # run
-        if return_performance:
-            state, perf = self.run(processes = 1,
-                            threads = 1,
-                            run_setup = run_setup,
-                            return_performance = return_performance)
-            return state, perf
-        return self.run(processes = 1, threads = 1, run_setup = run_setup)
+        return self.run(processes = 1,
+                        threads = 1,
+                        run_setup = run_setup,
+                        performance_detail = performance_detail)
 
     def init_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Init call in current process/thread (without ability to define parallel execution and without
          write standard outputs to file). One new parameter was added '__INIT__': True
 
-        :param parameters:      parameters for execution, application in case the run_setup is None
+        :param run_setup:       setting for run
+        :param print_output:    True - with print output, False - without print output
         :return:                return state, True - execution was without exception,
                                 False - an exception
         """
@@ -559,9 +551,9 @@ class ParallelExecutor:
         if run_setup:
             test_parameters = run_setup._parameters.copy() if run_setup._parameters else {}
         else:
-            test_parameters={}
+            test_parameters = {}
         test_parameters["__INIT__"] = True
-        test_run_setup=RunSetup(duration_second=0, start_delay=0,parameters=test_parameters)
+        test_run_setup=RunSetup(duration_second = 0, start_delay = 0, parameters = test_parameters)
         if run_setup:
             test_run_setup.set_bulk(run_setup.bulk_row, run_setup.bulk_col)
         else:
@@ -573,13 +565,13 @@ class ParallelExecutor:
          write standard outputs to file)
 
         :param run_setup:       setting for run
-        :param parameters:      parameters for execution, application in case the run_setup is None
+        :param print_output:    True - with print output, False - without print output
         :return:                return state, True - execution was without exception,
                                 False - an exception
         """
 
         # init
-        key="test-no-parallel"
+        key = "test-no-parallel"
         dictionary = {key: ""}
         run_return = RunReturn(key, dictionary)
 
@@ -591,7 +583,7 @@ class ParallelExecutor:
         self._func_wrapper(self._func, run_return, run_setup)
 
         # return output
-        ret=dictionary[key]
+        ret = dictionary[key]
         if ret:
             if print_output:
                 print(str(ret))

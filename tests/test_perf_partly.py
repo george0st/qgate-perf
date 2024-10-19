@@ -84,4 +84,4 @@ class TestCasePerfPartly(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[4,1]],
-                                    run_setup=setup))
+                                    run_setup=setup).state)

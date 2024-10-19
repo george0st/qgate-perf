@@ -67,7 +67,7 @@ class TestCaseGraph(unittest.TestCase):
         self.assertTrue(generator.run_bulk_executor([[10, 10], [100, 10]],
                                                     [[1, 2, 'Austria perf'], [2, 2, 'Austria perf'], [4, 2, 'Austria perf'],
                                                     [1, 4, 'Germany perf'], [2, 4, 'Germany perf'], [4, 4, 'Germany perf']],
-                                                    setup))
+                                                    setup).state)
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -89,7 +89,7 @@ class TestCaseGraph(unittest.TestCase):
         setting = {"generate_error": "yes"}
 
         setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
-        self.assertFalse(generator.run(1,1, setup))
+        self.assertFalse(generator.run(1,1, setup).state)
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -107,7 +107,7 @@ class TestCaseGraph(unittest.TestCase):
         setting = {"generate_error": "yes"}
 
         setup=RunSetup(duration_second=4, start_delay=0, parameters=setting)
-        self.assertFalse(generator.run_executor([[2,2]], setup))
+        self.assertFalse(generator.run_executor([[2,2]], setup).state)
         generator.create_graph(self.OUTPUT_ADR, scope = GraphScope.perf | GraphScope.perf_raw)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -153,7 +153,7 @@ class TestCaseGraph(unittest.TestCase):
         setup = RunSetup(duration_second=1, start_delay=0, parameters=None)
         self.assertTrue(generator.run_bulk_executor([[1, 1]],
                                                     [[1, 1, 'Austria perf'], [2, 1, 'Austria perf']],
-                                                    setup))
+                                                    setup).state)
         output_dir = path.join(self.OUTPUT_ADR, "scope", scope)
         generator.create_graph(output_dir, GraphScope[scope.lower()])
 
