@@ -29,6 +29,7 @@ class PerfResult:
         return len(self._percentile_list)
 
     def __str__(self):
+        # TODO: improve output
         return (f"bundle ({self.bundle_row}x{self.bundle_col}), executor ({self.executor_process}x{self.executor_thread})"
                 f" = {self.percentile[0].call_per_sec}")
 
@@ -54,5 +55,6 @@ class PerfResults(list):
         return len(self._results)
 
     def __str__(self):
+        # TODO: improve output
         pass
 
