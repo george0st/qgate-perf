@@ -115,6 +115,31 @@ class ParallelProbe:
             return True
         return False
 
+    #region PARTLY measurement
+    def partly_init(self):
+        self.total_partly_time = 0
+
+    def partly_start(self):
+        """ Start measurement each test"""
+        self.start_partly_time = perf_counter()
+
+    def partly_stop(self):
+        """ Start measurement each test"""
+        stop_partly_time = perf_counter()
+        self.total_partly_time += stop_partly_time - self.start_partly_time
+
+    def partly_finish(self) -> bool:
+        """ Start measurement each test"""
+        self.call_fn(self.total_partly_time)
+
+        # Is it possible to end performance testing?
+        if (time() - self.init_time) >= self.duration_second:
+            self.close_fn()
+            return True
+        return False
+
+    # endregion
+
     def _core_calc(self, duration_one_shot):
         """Core for calculation (and simulation)"""
 
