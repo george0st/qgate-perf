@@ -55,7 +55,7 @@ class SimulatePercentileHeap(PercentileHeap):
         # check missing values
         for itm in percentile_out_of_list:
             if itm in self._simulate_buffer:
-                print(f"Unexpected valie '{itm}' in collection")
+                print(f"Unexpected value '{itm}' in collection")
                 return False
         return True
 

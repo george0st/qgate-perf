@@ -15,7 +15,7 @@ from platform import python_version
 from packaging import version
 from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
-from qgate_perf.output_performance import OutputPerformance
+from qgate_perf.output_result import PerfResult, PerfResults
 from sys import float_info
 
 
@@ -189,7 +189,6 @@ class ParallelExecutor:
     def _create_percentile_list(self, run_setup: RunSetup, return_dict):
 
         percentile_list = {}
-        executors, call_per_sec_raw, call_per_sec = 0, 0, 0
 
         # pre-calculation
             # iteration cross executors results
@@ -256,12 +255,7 @@ class ParallelExecutor:
                 percentile.min = 0
                 percentile.max = 0
 
-            if percentile.percentile == 1:
-                executors = percentile.executors
-                call_per_sec_raw = percentile.call_per_sec_raw
-                call_per_sec = percentile.call_per_sec
-
-        return percentile_list, executors, call_per_sec_raw, call_per_sec
+        return percentile_list
 
     def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
         """
@@ -283,14 +277,14 @@ class ParallelExecutor:
                             f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         # new calculation
-        percentile_list, executors, call_per_sec_raw, call_per_sec = self._create_percentile_list(run_setup, return_dict)
+        percentile_list = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
         out = {}
         out[FileFormat.PRF_TYPE] =  FileFormat.PRF_CORE_TYPE
         out[FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL] =  processes * threads
         out[FileFormat.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileFormat.PRF_CORE_REAL_EXECUTOR] = executors
+        out[FileFormat.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
         out[FileFormat.PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
@@ -306,7 +300,7 @@ class ParallelExecutor:
         # human readable form
         readable_out = {}
         readable_out[FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] =  executors
+        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
         readable_out[FileFormat.HM_PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
@@ -327,7 +321,7 @@ class ParallelExecutor:
                     f"  {dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return call_per_sec_raw, call_per_sec
+        return percentile_list
 
     def _open_output(self):
         dirname = os.path.dirname(self._output_file)
@@ -382,12 +376,14 @@ class ParallelExecutor:
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return state, True - all executions was without exceptions,
-                                    False - some exceptions
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
+                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         final_state = True
         count = 0
-        performance = []
+        performance = PerfResults()
+
         for bulk in bulk_list:
 
             # sleep before other bulk
@@ -402,8 +398,8 @@ class ParallelExecutor:
                 state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
                 if not state:
                     final_state=False
-                for bulk_perf in bulk_performance:
-                    performance.append(bulk_perf)
+                #for bulk_perf in bulk_performance:
+                performance.append(bulk_performance)
             else:
                 if not self.run_executor(executor_list, run_setup):
                     final_state=False
@@ -422,12 +418,14 @@ class ParallelExecutor:
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return state, True - all executions was without exceptions,
-                                    False - some exceptions
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
+                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         file = None
         final_state = True
-        performance = []
+        performance = PerfResults()
+
         print('Execution...')
 
         try:
@@ -444,19 +442,18 @@ class ParallelExecutor:
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    calls_sec_raw, calls_sec = self._print_detail(file,
+                    percentile_list = self._print_detail(file,
                                        run_setup,
                                        return_dict,
                                        executors[0],
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
                     if return_performance:
-                        performance.append(OutputPerformance(run_setup.bulk_row,
-                                                             run_setup.bulk_col,
-                                                             executors[0],
-                                                             executors[1],
-                                                             calls_sec_raw,
-                                                             calls_sec))
+                        performance.append(PerfResult(run_setup.bulk_row,
+                                                      run_setup.bulk_col,
+                                                      executors[0],
+                                                      executors[1],
+                                                      percentile_list))
                     if not self._final_state(return_dict):
                         final_state=False
 
@@ -483,12 +480,14 @@ class ParallelExecutor:
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                return state, True - all executions was without exceptions,
-                                False - some exceptions
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
+                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         file = None
         final_state=True
-        performance = []
+        performance = PerfResults()
+
         print('Execution...')
 
         try:
@@ -504,14 +503,13 @@ class ParallelExecutor:
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
-                calls_sec_raw, calls_sec = self._print_detail(file, run_setup, return_dict, processes, threads)
+                percentile_list = self._print_detail(file, run_setup, return_dict, processes, threads)
                 if return_performance:
-                    performance.append(OutputPerformance(run_setup.bulk_row,
-                                                         run_setup.bulk_col,
-                                                         processes,
-                                                         threads,
-                                                         calls_sec_raw,
-                                                         calls_sec))
+                    performance.append(PerfResult(run_setup.bulk_row,
+                                                  run_setup.bulk_col,
+                                                  processes,
+                                                  threads,
+                                                  percentile_list))
                 if not self._final_state(return_dict):
                     final_state = False
 
@@ -534,8 +532,9 @@ class ParallelExecutor:
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                return state, True - all executions was without exceptions,
-                                False - some exceptions
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
+                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
 
         # setup minimalistic values

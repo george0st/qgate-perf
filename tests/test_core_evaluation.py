@@ -5,7 +5,9 @@ from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from time import sleep
+from qgate_perf.output_result import PerfResults, PerfResult
 import shutil
+
 
 def prf_calibration_100_ms(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
@@ -105,6 +107,17 @@ class TestCaseCoreEvaluation(unittest.TestCase):
     def tearDownClass(cls):
         OutputSetup().human_precision = OutputSetup().HUMAN_PRECISION
 
+    def check_result(self, state: bool, result: PerfResults, perf_min, perf_max):
+        # check the result
+        self.assertTrue(state)
+        self.assertTrue(result[0][1].call_per_sec >= perf_min and result[0][1].call_per_sec <= perf_max)
+
+    def check_raw_result(self, state, result, perf_min, perf_max):
+        # check the result
+        first_result = result[0].percentiles[1]
+        self.assertTrue(state)
+        self.assertTrue(first_result.call_per_sec_raw >= perf_min and first_result.call_per_sec_raw <= perf_max)
+
     def test_expected_output100ms_1(self):
 
         generator = ParallelExecutor(prf_calibration_100_ms,
@@ -118,8 +131,8 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[1,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9,10)
+
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -127,8 +140,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9, 10)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -136,8 +148,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9, 10)
 
     def test_expected_output100ms_2(self):
         generator = ParallelExecutor(prf_calibration_100_ms,
@@ -150,8 +161,8 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+
+        self.check_result(state, perf,19,20)
 
         # second
         setup=RunSetup(duration_second=2, start_delay=0)
@@ -159,8 +170,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+        self.check_result(state, perf,19,20)
 
         # third
         setup=RunSetup(duration_second=10, start_delay=0)
@@ -168,8 +178,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+        self.check_result(state, perf,19,20)
 
     def test_expected_output100ms_3(self):
         generator = ParallelExecutor(prf_calibration_100_ms,
@@ -183,8 +192,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[4,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 39 and perf[0].calls_sec <= 40)
+        self.check_result(state, perf, 39, 40)
 
         # second
         setup=RunSetup(duration_second=2, start_delay=0)
@@ -192,8 +200,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[4,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 39 and perf[0].calls_sec <= 40)
+        self.check_result(state, perf, 39, 40)
 
         # third
         setup=RunSetup(duration_second=10, start_delay=0)
@@ -201,8 +208,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[4,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 39 and perf[0].calls_sec <= 40)
+        self.check_result(state, perf, 39, 40)
 
     def test_expected_output010ms_1(self):
 
@@ -217,8 +223,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[1,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 90 and perf[0].calls_sec <= 100)
+        self.check_result(state, perf, 90, 100)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -226,8 +231,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 90 and perf[0].calls_sec <= 100)
+        self.check_result(state, perf, 90, 100)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -235,8 +239,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 90 and perf[0].calls_sec <= 100)
+        self.check_result(state, perf, 90, 100)
 
     def test_expected_output010ms_2(self):
 
@@ -251,8 +254,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[2,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 180 and perf[0].calls_sec <= 200)
+        self.check_result(state, perf, 180, 200)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -260,8 +262,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[2,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 180 and perf[0].calls_sec <= 200)
+        self.check_result(state, perf, 180, 200)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -269,8 +270,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[2,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 180 and perf[0].calls_sec <= 200)
+        self.check_result(state, perf, 180, 200)
 
     def test_expected_output010ms_3(self):
 
@@ -285,8 +285,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[4,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 360 and perf[0].calls_sec <= 400)
+        self.check_result(state, perf, 360, 400)
+
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].calls_sec >= 360 and perf[0].calls_sec <= 400)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -294,8 +296,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 360 and perf[0].calls_sec <= 400)
+        self.check_result(state, perf, 360, 400)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 5)
@@ -303,8 +304,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 360 and perf[0].calls_sec <= 400)
+        self.check_result(state, perf, 360, 400)
 
     def test_expected_output004ms_1(self):
 
@@ -319,8 +319,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[1,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 200 and perf[0].calls_sec <= 250)
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].calls_sec >= 200 and perf[0].calls_sec <= 250)
+        self.check_result(state, perf, 200, 250)
+
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -328,8 +330,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 200 and perf[0].calls_sec <= 250)
+        self.check_result(state, perf, 200, 250)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -337,8 +338,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 200 and perf[0].calls_sec <= 250)
+        self.check_result(state, perf, 200, 250)
 
     def test_expected_output004ms_2(self):
 
@@ -353,8 +353,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[2,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 400 and perf[0].calls_sec <= 500)
+        self.check_result(state, perf, 400, 500)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -362,8 +361,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[2,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 400 and perf[0].calls_sec <= 500)
+        self.check_result(state, perf, 400, 500)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -371,8 +369,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[2,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 400 and perf[0].calls_sec <= 500)
+        self.check_result(state, perf, 400, 500)
 
     def test_expected_output004ms_3(self):
 
@@ -387,8 +384,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[4,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
+        self.check_result(state, perf, 800, 1000)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -396,8 +392,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
+        self.check_result(state, perf, 800, 1000)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -405,8 +400,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 800 and perf[0].calls_sec <= 1000)
+        self.check_result(state, perf, 800, 1000)
 
     def test_expected_output004ms_bundle(self):
 
@@ -416,14 +410,13 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                      output_file = None)
 
         # first
-        setup=RunSetup(duration_second = 1, start_delay = 0)
+        setup = RunSetup(duration_second = 1, start_delay = 0)
         state, perf = generator.run_bulk_executor(bulk_list = [[2,1]],
                                                          executor_list = [[4,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec_raw >= 800 and perf[0].calls_sec_raw <= 1000)
-        self.assertTrue(perf[0].calls_sec >= 1600 and perf[0].calls_sec <= 2000)
+        self.check_result(state, perf, 1600, 2000)
+        self.check_raw_result(state, perf, 800, 1000)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -431,9 +424,8 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec_raw >= 800 and perf[0].calls_sec_raw <= 1000)
-        self.assertTrue(perf[0].calls_sec >= 2400 and perf[0].calls_sec <= 3000)
+        self.check_result(state, perf, 2400, 3000)
+        self.check_raw_result(state, perf, 800, 1000)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -441,6 +433,5 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec_raw >= 800 and perf[0].calls_sec_raw <= 1000)
-        self.assertTrue(perf[0].calls_sec >= 3200 and perf[0].calls_sec <= 4000)
+        self.check_result(state, perf, 3200, 4000)
+        self.check_raw_result(state, perf, 800, 1000)
