@@ -105,5 +105,11 @@ class TestCasePerfPartly(unittest.TestCase):
                                     performance_detail=True)
 
         self.assertTrue(perf.state)
+        self.assertTrue(perf[0].bundle_row == 1 and perf[0].bundle_col == 10)
+        self.assertTrue(perf[1].bundle_row == 1 and perf[1].bundle_col == 10)
+
+        self.assertTrue(perf[0].executor_process == 2 and perf[0].executor_thread == 1)
         self.assertTrue(perf[0][1].avrg < 1 and perf[0][0.9].avrg < 1)
+
+        self.assertTrue(perf[1].executor_process == 4 and perf[1].executor_thread == 1)
         self.assertTrue(perf[1][1].avrg < 1 and perf[1][0.9].avrg < 1)
