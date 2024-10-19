@@ -99,7 +99,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
 
     def test_random_statistic1(self):
         generator = get_rng_generator()
-        sequence = generator.integers(0, 100,10) / 100
+        sequence = generator.integers(0, 100, 10) / 100
 
         simulate = CalcSimulateProbe()
         simulate.run(sequence)
@@ -107,7 +107,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
 
     def test_random_statistic2(self):
         generator = get_rng_generator()
-        sequence = generator.integers(0, 1000,50) / 100
+        sequence = generator.integers(0, 1000, 50) / 100
 
         simulate = CalcSimulateProbe()
         simulate.run(sequence)
@@ -115,7 +115,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
 
     def test_random_statistic3(self):
         generator = get_rng_generator()
-        sequence = generator.integers(0, 10000,100) / 100
+        sequence = generator.integers(0, 10000, 100) / 100
 
         simulate = CalcSimulateProbe()
         simulate.run(sequence)

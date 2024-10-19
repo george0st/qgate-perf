@@ -16,7 +16,7 @@ import shutil
 
 def prf_partly(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing, where measurement is based on
-     the piece of code (partly code parts)"""
+     the piece of code (partly code part measurement)"""
 
     # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
