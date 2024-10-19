@@ -375,7 +375,7 @@ class ParallelExecutor:
                           executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
-                          return_performance = False):
+                          return_performance = False) -> bool | tuple[bool, list[OutputPerformance]]:
         """ Run cycle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
