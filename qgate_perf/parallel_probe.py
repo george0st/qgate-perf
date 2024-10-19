@@ -95,6 +95,8 @@ class ParallelProbe:
                     self.call_fn = self._core_calc
                     self.close_fn = self._core_close
 
+    # region MAIN measurement (start, stop)
+
     def start(self):
         """ Start measurement each test"""
         self.start_time_one_shot = perf_counter()
@@ -114,8 +116,10 @@ class ParallelProbe:
             self.close_fn()
             return True
         return False
+    # endregion
 
-    #region PARTLY measurement
+    #region PARTLY measurement (init, start, stop, finish)
+
     def partly_init(self):
         self.total_partly_time = 0
 
@@ -196,7 +200,6 @@ class ParallelProbe:
     def __str__(self):
         """ Provider view to return value """
 
-        # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
             data = {}
             data[FileFormat.PRF_TYPE] = FileFormat.PRF_DETAIL_TYPE
@@ -214,29 +217,13 @@ class ParallelProbe:
             data[FileFormat.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')      # for executor graph
             data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')    # for executor graph
             data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')        # for executor graph
-
             return dumps(data, separators = OutputSetup().json_separator)
-            # return json.dumps({
-            #     FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
-            #     FileFormat.PRF_DETAIL_PROCESSID: self.pid,                          # info
-            #
-            #     FileFormat.PRF_DETAIL_CALLS: self.counter,                          # for perf graph
-            #     FileFormat.PRF_DETAIL_AVRG: nan if self.counter == 0 else self.total_duration / self.counter,
-            #     FileFormat.PRF_DETAIL_MIN: self.min_duration,                       # info
-            #     FileFormat.PRF_DETAIL_MAX: self.max_duration,                       # info
-            #     FileFormat.PRF_DETAIL_STDEV: self.standard_deviation,               # for perf graph
-            #     FileFormat.PRF_DETAIL_TOTAL: self.total_duration,                   # for perf graph
-            #     FileFormat.PRF_DETAIL_TIME_INIT: self.track_init.isoformat(' '),    # for executor graph
-            #     FileFormat.PRF_DETAIL_TIME_START: self.track_start.isoformat(' '),  # for executor graph
-            #     FileFormat.PRF_DETAIL_TIME_END: self.track_end.isoformat(' ')       # for executor graph
-            # }, separators = OutputSetup().json_separator)
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
 
     def readable_str(self, compact_form = True):
         """Provide view to return value in readable and shorter form (for human check)"""
 
-        # TODO: return all percentile, not only 100 percentile
         if self.exception is None:
             data = {}
             for result in self.percentile_results:
@@ -248,15 +235,6 @@ class ParallelProbe:
                 data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = round(result.std, OutputSetup().human_precision)
                 data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = round(result.total_duration, OutputSetup().human_precision)
             return dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
-
-            # return json.dumps({
-            #     FileFormat.HR_PRF_DETAIL_CALLS: self.counter,
-            #     FileFormat.HR_PRF_DETAIL_CALLS: nan if self.counter == 0 else round(self.total_duration / self.counter, OutputSetup().human_precision),
-            #     FileFormat.PRF_DETAIL_MIN: round(self.min_duration, OutputSetup().human_precision),
-            #     FileFormat.PRF_DETAIL_MAX: round(self.max_duration, OutputSetup().human_precision),
-            #     FileFormat.HR_PRF_DETAIL_STDEV: round(self.standard_deviation, OutputSetup().human_precision),
-            #     FileFormat.HR_PRF_DETAIL_TOTAL: round(self.total_duration, OutputSetup().human_precision)
-            # }, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
 
