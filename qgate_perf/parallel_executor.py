@@ -15,7 +15,7 @@ from platform import python_version
 from packaging import version
 from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
-from qgate_perf.output_performance import OutputPerformance
+from qgate_perf.output_result import PerfResult, PerfResults
 from sys import float_info
 
 
@@ -376,13 +376,14 @@ class ParallelExecutor:
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of OutputPerformance instances,
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
                                     it is optional based on param 'return_performance'. The 'state' is True - all executions
                                     was without exceptions, False - some exceptions.
         """
         final_state = True
         count = 0
-        performance = []
+        performance = PerfResults()
+
         for bulk in bulk_list:
 
             # sleep before other bulk
@@ -397,8 +398,8 @@ class ParallelExecutor:
                 state, bulk_performance = self.run_executor(executor_list, run_setup, return_performance)
                 if not state:
                     final_state=False
-                for bulk_perf in bulk_performance:
-                    performance.append(bulk_perf)
+                #for bulk_perf in bulk_performance:
+                performance.append(bulk_performance)
             else:
                 if not self.run_executor(executor_list, run_setup):
                     final_state=False
@@ -417,13 +418,14 @@ class ParallelExecutor:
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of OutputPerformance instances,
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
                                     it is optional based on param 'return_performance'. The 'state' is True - all executions
                                     was without exceptions, False - some exceptions.
         """
         file = None
         final_state = True
-        performance = []
+        performance = PerfResults()
+
         print('Execution...')
 
         try:
@@ -447,11 +449,11 @@ class ParallelExecutor:
                                        executors[1],
                                        '' if len(executors) <= 2 else executors[2])
                     if return_performance:
-                        performance.append(OutputPerformance(run_setup.bulk_row,
-                                                             run_setup.bulk_col,
-                                                             executors[0],
-                                                             executors[1],
-                                                             percentile_list))
+                        performance.append(PerfResult(run_setup.bulk_row,
+                                                      run_setup.bulk_col,
+                                                      executors[0],
+                                                      executors[1],
+                                                      percentile_list))
                     if not self._final_state(return_dict):
                         final_state=False
 
@@ -478,13 +480,14 @@ class ParallelExecutor:
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of OutputPerformance instances,
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
                                     it is optional based on param 'return_performance'. The 'state' is True - all executions
                                     was without exceptions, False - some exceptions.
         """
         file = None
         final_state=True
-        performance = []
+        performance = PerfResults()
+
         print('Execution...')
 
         try:
@@ -502,11 +505,11 @@ class ParallelExecutor:
                 self._executeCore(run_setup, return_dict, processes, threads)
                 percentile_list = self._print_detail(file, run_setup, return_dict, processes, threads)
                 if return_performance:
-                    performance.append(OutputPerformance(run_setup.bulk_row,
-                                                         run_setup.bulk_col,
-                                                         processes,
-                                                         threads,
-                                                         percentile_list))
+                    performance.append(PerfResult(run_setup.bulk_row,
+                                                  run_setup.bulk_col,
+                                                  processes,
+                                                  threads,
+                                                  percentile_list))
                 if not self._final_state(return_dict):
                     final_state = False
 
@@ -529,7 +532,7 @@ class ParallelExecutor:
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of OutputPerformance instances,
+        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
                                     it is optional based on param 'return_performance'. The 'state' is True - all executions
                                     was without exceptions, False - some exceptions.
         """

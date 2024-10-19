@@ -5,7 +5,9 @@ from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from time import sleep
+from qgate_perf.output_result import PerfResults, PerfResult
 import shutil
+
 
 def prf_calibration_100_ms(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
@@ -105,11 +107,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
     def tearDownClass(cls):
         OutputSetup().human_precision = OutputSetup().HUMAN_PRECISION
 
-    def check_result(self, state, result, perf_min, perf_max):
+    def check_result(self, state: bool, result: PerfResults, perf_min, perf_max):
         # check the result
-        first_result = result[0].percentiles[1]
         self.assertTrue(state)
-        self.assertTrue(first_result.call_per_sec >= perf_min and first_result.call_per_sec <= perf_max)
+        self.assertTrue(result[0][1].call_per_sec >= perf_min and result[0][1].call_per_sec <= perf_max)
 
     def check_raw_result(self, state, result, perf_min, perf_max):
         # check the result
@@ -430,12 +431,11 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                      output_file = None)
 
         # first
-        setup=RunSetup(duration_second = 1, start_delay = 0)
+        setup = RunSetup(duration_second = 1, start_delay = 0)
         state, perf = generator.run_bulk_executor(bulk_list = [[2,1]],
                                                          executor_list = [[4,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-
         self.check_result(state, perf, 1600, 2000)
         self.check_raw_result(state, perf, 800, 1000)
 
