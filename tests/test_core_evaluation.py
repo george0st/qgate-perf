@@ -105,6 +105,12 @@ class TestCaseCoreEvaluation(unittest.TestCase):
     def tearDownClass(cls):
         OutputSetup().human_precision = OutputSetup().HUMAN_PRECISION
 
+    def check_result(self, state, result, perf_min, perf_max):
+        # check the result
+        first_result = result[0].percentiles[1]
+        self.assertTrue(state)
+        self.assertTrue(first_result.call_per_sec >= perf_min and first_result.call_per_sec <= perf_max)
+
     def test_expected_output100ms_1(self):
 
         generator = ParallelExecutor(prf_calibration_100_ms,
@@ -118,8 +124,9 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                          executor_list = [[1,1]],
                                                          run_setup = setup,
                                                          return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9,10)
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].percentiles[1].call_per_sec >= 9 and perf[0].percentiles[1].call_per_sec <= 10)
 
         # second
         setup=RunSetup(duration_second = 2, start_delay = 0)
@@ -127,8 +134,9 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9, 10)
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].percentiles[1].call_per_sec >= 9 and perf[0].percentiles[1].call_per_sec <= 10)
 
         # third
         setup=RunSetup(duration_second = 10, start_delay = 0)
@@ -136,8 +144,9 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list = [[1,1]],
                                                   run_setup = setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 9 and perf[0].calls_sec <= 10)
+        self.check_result(state, perf, 9, 10)
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].percentiles[1].call_per_sec >= 9 and perf[0].percentiles[1].call_per_sec <= 10)
 
     def test_expected_output100ms_2(self):
         generator = ParallelExecutor(prf_calibration_100_ms,
@@ -150,8 +159,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+
+        self.check_result(state, perf,19,20)
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
 
         # second
         setup=RunSetup(duration_second=2, start_delay=0)
@@ -159,8 +170,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+        self.check_result(state, perf,19,20)
+
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
 
         # third
         setup=RunSetup(duration_second=10, start_delay=0)
@@ -168,8 +181,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[2,1]],
                                                   run_setup=setup,
                                                   return_performance = True)
-        self.assertTrue(state)
-        self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
+        self.check_result(state, perf,19,20)
+
+        # self.assertTrue(state)
+        # self.assertTrue(perf[0].calls_sec >= 19 and perf[0].calls_sec <= 20)
 
     def test_expected_output100ms_3(self):
         generator = ParallelExecutor(prf_calibration_100_ms,
