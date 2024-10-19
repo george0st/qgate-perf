@@ -16,7 +16,7 @@ import shutil
 
 def prf_partly(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing, where measurement is based on
-     the piece of code (partly code parts)"""
+     the piece of code (partly code part measurement)"""
 
     # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
@@ -105,5 +105,11 @@ class TestCasePerfPartly(unittest.TestCase):
                                     performance_detail=True)
 
         self.assertTrue(perf.state)
+        self.assertTrue(perf[0].bundle_row == 1 and perf[0].bundle_col == 10)
+        self.assertTrue(perf[1].bundle_row == 1 and perf[1].bundle_col == 10)
+
+        self.assertTrue(perf[0].executor_process == 2 and perf[0].executor_thread == 1)
         self.assertTrue(perf[0][1].avrg < 1 and perf[0][0.9].avrg < 1)
+
+        self.assertTrue(perf[1].executor_process == 4 and perf[1].executor_thread == 1)
         self.assertTrue(perf[1][1].avrg < 1 and perf[1][0.9].avrg < 1)
