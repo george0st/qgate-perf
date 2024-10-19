@@ -73,7 +73,7 @@ class TestCasePerfPartly(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
-    def test_basic(self):
+    def test_basic1(self):
         generator = ParallelExecutor(prf_partly,
                                      label="prf_partly",
                                      detail_output=True,
@@ -81,7 +81,29 @@ class TestCasePerfPartly(unittest.TestCase):
                                      init_each_bulk=True)
 
 
-        setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
-        self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,10]],
+        setup = RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
+        perf = generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[4,1]],
-                                    run_setup=setup).state)
+                                    run_setup=setup,
+                                    performance_detail=True)
+
+        self.assertTrue(perf.state)
+        self.assertTrue(perf[0][1].avrg < 1 and perf[0][0.9].avrg < 1)
+
+    def test_basic2(self):
+        generator = ParallelExecutor(prf_partly,
+                                     label="prf_partly",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_partly.txt"),
+                                     init_each_bulk=True)
+
+
+        setup = RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.90})
+        perf = generator.run_bulk_executor(bulk_list=[[1,10]],
+                                    executor_list=[[2,1], [4,1]],
+                                    run_setup=setup,
+                                    performance_detail=True)
+
+        self.assertTrue(perf.state)
+        self.assertTrue(perf[0][1].avrg < 1 and perf[0][0.9].avrg < 1)
+        self.assertTrue(perf[1][1].avrg < 1 and perf[1][0.9].avrg < 1)

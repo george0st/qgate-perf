@@ -420,7 +420,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         perf = generator.run_bulk_executor(bulk_list = [[3,1]],
                                                   executor_list = [[4,1]],
                                                   run_setup = setup,
-                                                  performance_detail= True)
+                                                  performance_detail = True)
         self.check_result(perf, 2400, 3000)
         self.check_raw_result(perf, 800, 1000)
 
