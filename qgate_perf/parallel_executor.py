@@ -375,7 +375,7 @@ class ParallelExecutor:
                           executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
-                          return_performance = False) -> bool | tuple[bool, list[OutputPerformance]]:
+                          return_performance = False):
         """ Run cycle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
@@ -383,8 +383,9 @@ class ParallelExecutor:
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return state, True - all executions was without exceptions,
-                                    False - some exceptions
+        :return:                    return 'state' or 'state','performance'. The 'performance' is list of OutputPerformance instances,
+                                    it is optional based on param 'return_performance'). The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         final_state = True
         count = 0
@@ -423,8 +424,9 @@ class ParallelExecutor:
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return state, True - all executions was without exceptions,
-                                    False - some exceptions
+        :return:                    return 'state' or 'state','performance'. The 'performance' is list of OutputPerformance instances,
+                                    it is optional based on param 'return_performance'). The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         file = None
         final_state = True
@@ -486,8 +488,9 @@ class ParallelExecutor:
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                return state, True - all executions was without exceptions,
-                                False - some exceptions
+        :return:                    return 'state' or 'state','performance'. The 'performance' is list of OutputPerformance instances,
+                                    it is optional based on param 'return_performance'). The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
         file = None
         final_state=True
@@ -539,8 +542,9 @@ class ParallelExecutor:
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                return state, True - all executions was without exceptions,
-                                False - some exceptions
+        :return:                    return 'state' or 'state','performance'. The 'performance' is list of OutputPerformance instances,
+                                    it is optional based on param 'return_performance'). The 'state' is True - all executions
+                                    was without exceptions, False - some exceptions.
         """
 
         # setup minimalistic values
