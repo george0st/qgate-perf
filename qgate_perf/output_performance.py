@@ -4,7 +4,6 @@ from qgate_perf.parallel_probe import PercentileSummary
 class OutputPerformance:
     """Outputs from performance tests"""
 
-#    def __init__(self, row, col, process, thread, calls_sec_raw, calls_sec):
     def __init__(self, row, col, process, thread, percentile_list: dict[PercentileSummary]):
 
         self.bundle_row = row
@@ -14,10 +13,6 @@ class OutputPerformance:
         self.executor_thread = thread
 
         self.percentile_list = percentile_list
-
-        # self.calls_sec_raw = calls_sec_raw
-        # self.calls_sec = calls_sec
-
 
     @property
     def percentiles(self) -> dict[PercentileSummary]:
