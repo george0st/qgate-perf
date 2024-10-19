@@ -368,7 +368,7 @@ class ParallelExecutor:
                           executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
-                          return_performance = False):
+                          return_performance = False) -> tuple[bool, PerfResults]:
         """ Run cycle of bulks in cycle of sequences for function execution
 
         :param bulk_list:           list of bulks for execution in format [[rows, columns], ...]
@@ -376,9 +376,8 @@ class ParallelExecutor:
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
-                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
-                                    was without exceptions, False - some exceptions.
+        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
+                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
         """
         final_state = True
         count = 0
@@ -408,19 +407,18 @@ class ParallelExecutor:
 
         if return_performance:
             return final_state, performance
-        return final_state
+        return final_state, None
 
     def run_executor(self, executor_list = ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
                      run_setup: RunSetup = None,
-                     return_performance = False):
+                     return_performance = False) -> tuple[bool, PerfResults]:
         """ Run executor sequences
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
-                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
-                                    was without exceptions, False - some exceptions.
+        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
+                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
         """
         file = None
         final_state = True
@@ -471,18 +469,17 @@ class ParallelExecutor:
 
         if return_performance:
             return final_state, performance
-        return final_state
+        return final_state, None
 
-    def run(self, processes = 2, threads = 2, run_setup: RunSetup = None, return_performance = False):
+    def run(self, processes = 2, threads = 2, run_setup: RunSetup = None, return_performance = False) -> tuple[bool, PerfResults]:
         """ Run execution of parallel call
 
         :param processes:       how much processes will be used
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
-                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
-                                    was without exceptions, False - some exceptions.
+        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
+                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
         """
         file = None
         final_state=True
@@ -524,17 +521,16 @@ class ParallelExecutor:
 
         if return_performance:
             return final_state, performance
-        return final_state
+        return final_state, None
 
-    def one_run(self, run_setup: RunSetup = None, return_performance = False):
+    def one_run(self, run_setup: RunSetup = None, return_performance = False) -> tuple[bool, PerfResults]:
         """ Run test, only one call, execution in new process, with standard write outputs
 
         :param run_setup:       setting for run
         :param parameters:      parameters for execution, application in case the run_setup is None
         :param return_performance:  add to the return also performance, return will be state and performance (default is False)
-        :return:                    return 'state' or 'state', 'performance'. The 'performance' is list of PerfResult instances,
-                                    it is optional based on param 'return_performance'. The 'state' is True - all executions
-                                    was without exceptions, False - some exceptions.
+        :return:                    return 'state', 'performance' (optional based on param 'return_performance').
+                                    The 'state' is True - all executions was without exceptions, False - some exceptions.
         """
 
         # setup minimalistic values
@@ -549,9 +545,7 @@ class ParallelExecutor:
                             run_setup = run_setup,
                             return_performance = return_performance)
             return state, perf
-        return self.run(processes = 1,
-                 threads = 1,
-                 run_setup = run_setup)
+        return self.run(processes = 1, threads = 1, run_setup = run_setup)
 
     def init_run(self, run_setup: RunSetup=None, print_output=False) -> bool:
         """ Init call in current process/thread (without ability to define parallel execution and without

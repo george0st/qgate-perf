@@ -112,11 +112,10 @@ class TestCaseCoreEvaluation(unittest.TestCase):
         self.assertTrue(state)
         self.assertTrue(result[0][1].call_per_sec >= perf_min and result[0][1].call_per_sec <= perf_max)
 
-    def check_raw_result(self, state, result, perf_min, perf_max):
-        # check the result
-        first_result = result[0].percentiles[1]
+    def check_raw_result(self, state: bool, result: PerfResults, perf_min, perf_max):
+        # check the result for raw value
         self.assertTrue(state)
-        self.assertTrue(first_result.call_per_sec_raw >= perf_min and first_result.call_per_sec_raw <= perf_max)
+        self.assertTrue(result[0][1].call_per_sec_raw >= perf_min and result[0][1].call_per_sec_raw <= perf_max)
 
     def test_expected_output100ms_1(self):
 
