@@ -5,7 +5,7 @@ import gc
 from json import dumps
 from datetime import datetime
 from time import sleep
-from qgate_perf.file_format import FileFormat
+from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper
 from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
@@ -93,26 +93,26 @@ class ParallelExecutor:
         self._print(file, f"############### {self._start_tasks.isoformat(' ')} ###############")
         total, free = self._memory()
         out = {}
-        out[FileFormat.PRF_TYPE] = FileFormat.PRF_HDR_TYPE
-        out[FileFormat.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        out[FileMarker.PRF_TYPE] = FileMarker.PRF_HDR_TYPE
+        out[FileMarker.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
         if run_setup.exist('percentile'):
-            out[FileFormat.PRF_HDR_PERCENTILE] = run_setup['percentile']
-        out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        out[FileFormat.PRF_HDR_MEMORY] = total
-        out[FileFormat.PRF_HDR_MEMORY_FREE] = free
-        out[FileFormat.PRF_HDR_HOST] = self._host()
-        out[FileFormat.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
+            out[FileMarker.PRF_HDR_PERCENTILE] = run_setup['percentile']
+        out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        out[FileMarker.PRF_HDR_MEMORY] = total
+        out[FileMarker.PRF_HDR_MEMORY_FREE] = free
+        out[FileMarker.PRF_HDR_HOST] = self._host()
+        out[FileMarker.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
 
         readable_out = {}
-        readable_out[FileFormat.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        readable_out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        readable_out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        readable_out[FileMarker.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        readable_out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        readable_out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
         if run_setup.exist('percentile'):
-            readable_out[FileFormat.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
-        readable_out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        readable_out[FileFormat.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
+            readable_out[FileMarker.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
+        readable_out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        readable_out[FileMarker.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
 
 
         self._print(file,
@@ -280,40 +280,40 @@ class ParallelExecutor:
 
         # A2A form
         out = {}
-        out[FileFormat.PRF_TYPE] =  FileFormat.PRF_CORE_TYPE
-        out[FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL] =  processes * threads
-        out[FileFormat.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileFormat.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
-        out[FileFormat.PRF_CORE_GROUP] = group
+        out[FileMarker.PRF_TYPE] =  FileMarker.PRF_CORE_TYPE
+        out[FileMarker.PRF_CORE_PLAN_EXECUTOR_ALL] = processes * threads
+        out[FileMarker.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
+        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
+        out[FileMarker.PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            out[FileFormat.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
-            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
-            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
-            out[FileFormat.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
-            out[FileFormat.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
-            out[FileFormat.PRF_CORE_MIN + suffix] = result.min                                  # ok
-            out[FileFormat.PRF_CORE_MAX + suffix] = result.max                                  # ok
-        out[FileFormat.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
+            out[FileMarker.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
+            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
+            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
+            out[FileMarker.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
+            out[FileMarker.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
+            out[FileMarker.PRF_CORE_MIN + suffix] = result.min                                  # ok
+            out[FileMarker.PRF_CORE_MAX + suffix] = result.max                                  # ok
+        out[FileMarker.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
 
         # human readable form
         readable_out = {}
-        readable_out[FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
-        readable_out[FileFormat.HM_PRF_CORE_GROUP] = group
+        readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
+        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
+        readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            #readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
-            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            #readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             if result.call_per_sec_raw == result.call_per_sec:
                 call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
             else:
                 call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}/{round(result.call_per_sec, OutputSetup().human_precision)}"
-            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
-            readable_out[FileFormat.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
-            readable_out[FileFormat.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
-            readable_out[FileFormat.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
-            readable_out[FileFormat.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
+            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
+            readable_out[FileMarker.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
+            readable_out[FileMarker.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
+            readable_out[FileMarker.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
+            readable_out[FileMarker.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
 
         # final dump
         self._print(file,

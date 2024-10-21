@@ -3,7 +3,7 @@ from json import dumps
 from time import time, sleep, perf_counter
 from datetime import datetime
 from qgate_perf.standard_deviation import StandardDeviation
-from qgate_perf.file_format import FileFormat
+from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from math import nan
@@ -202,21 +202,21 @@ class ParallelProbe:
 
         if self.exception is None:
             data = {}
-            data[FileFormat.PRF_TYPE] = FileFormat.PRF_DETAIL_TYPE
-            data[FileFormat.PRF_DETAIL_PROCESSID] = self.pid                            # info
+            data[FileMarker.PRF_TYPE] = FileMarker.PRF_DETAIL_TYPE
+            data[FileMarker.PRF_DETAIL_PROCESSID] = self.pid                            # info
 
             for result in self.percentile_results:
                 suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-                data[FileFormat.PRF_DETAIL_CALLS + suffix] = result.count               # for perf graph
-                data[FileFormat.PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else result.total_duration / result.count
-                data[FileFormat.PRF_DETAIL_MIN + suffix] = result.min                   # info
-                data[FileFormat.PRF_DETAIL_MAX + suffix] = result.max                   # info
-                data[FileFormat.PRF_DETAIL_STDEV + suffix] = result.std                 # for perf graph
-                data[FileFormat.PRF_DETAIL_TOTAL + suffix] = result.total_duration      # for perf graph
+                data[FileMarker.PRF_DETAIL_CALLS + suffix] = result.count               # for perf graph
+                data[FileMarker.PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else result.total_duration / result.count
+                data[FileMarker.PRF_DETAIL_MIN + suffix] = result.min                   # info
+                data[FileMarker.PRF_DETAIL_MAX + suffix] = result.max                   # info
+                data[FileMarker.PRF_DETAIL_STDEV + suffix] = result.std                 # for perf graph
+                data[FileMarker.PRF_DETAIL_TOTAL + suffix] = result.total_duration      # for perf graph
 
-            data[FileFormat.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')      # for executor graph
-            data[FileFormat.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')    # for executor graph
-            data[FileFormat.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')        # for executor graph
+            data[FileMarker.PRF_DETAIL_TIME_INIT] = self.track_init.isoformat(' ')      # for executor graph
+            data[FileMarker.PRF_DETAIL_TIME_START] = self.track_start.isoformat(' ')    # for executor graph
+            data[FileMarker.PRF_DETAIL_TIME_END] = self.track_end.isoformat(' ')        # for executor graph
             return dumps(data, separators = OutputSetup().json_separator)
         else:
             return ParallelProbe.dump_error(self.exception, self.pid, self.counter)
@@ -228,12 +228,12 @@ class ParallelProbe:
             data = {}
             for result in self.percentile_results:
                 suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-                data[FileFormat.HR_PRF_DETAIL_CALLS + suffix] = result.count
-                data[FileFormat.HR_PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else round(result.total_duration / result.count, OutputSetup().human_precision)
-                data[FileFormat.PRF_DETAIL_MIN + suffix] = round(result.min, OutputSetup().human_precision)
-                data[FileFormat.PRF_DETAIL_MAX + suffix] = round(result.max, OutputSetup().human_precision)
-                data[FileFormat.HR_PRF_DETAIL_STDEV + suffix] = round(result.std, OutputSetup().human_precision)
-                data[FileFormat.HR_PRF_DETAIL_TOTAL + suffix] = round(result.total_duration, OutputSetup().human_precision)
+                data[FileMarker.HR_PRF_DETAIL_CALLS + suffix] = result.count
+                data[FileMarker.HR_PRF_DETAIL_AVRG + suffix] = nan if result.count == 0 else round(result.total_duration / result.count, OutputSetup().human_precision)
+                data[FileMarker.PRF_DETAIL_MIN + suffix] = round(result.min, OutputSetup().human_precision)
+                data[FileMarker.PRF_DETAIL_MAX + suffix] = round(result.max, OutputSetup().human_precision)
+                data[FileMarker.HR_PRF_DETAIL_STDEV + suffix] = round(result.std, OutputSetup().human_precision)
+                data[FileMarker.HR_PRF_DETAIL_TOTAL + suffix] = round(result.total_duration, OutputSetup().human_precision)
             return dumps(data, separators = OutputSetup().human_json_separator if compact_form else (', ', ': '))
         else:
             return ParallelProbe.readable_dump_error(self.exception, self.pid, self.counter)
@@ -241,15 +241,15 @@ class ParallelProbe:
     @staticmethod
     def dump_error(exception, pid = 0, counter = 0):
         return dumps({
-            FileFormat.PRF_TYPE: FileFormat.PRF_DETAIL_TYPE,
-            FileFormat.PRF_DETAIL_PROCESSID: pid,
-            FileFormat.PRF_DETAIL_CALLS: counter,
-            FileFormat.PRF_DETAIL_ERR: str(exception)
+            FileMarker.PRF_TYPE: FileMarker.PRF_DETAIL_TYPE,
+            FileMarker.PRF_DETAIL_PROCESSID: pid,
+            FileMarker.PRF_DETAIL_CALLS: counter,
+            FileMarker.PRF_DETAIL_ERR: str(exception)
         }, separators = OutputSetup().json_separator)
 
     @staticmethod
     def readable_dump_error(exception, pid = 0, counter = 0):
         return dumps({
-            FileFormat.PRF_DETAIL_CALLS: counter,
-            FileFormat.PRF_DETAIL_ERR: str(exception)
+            FileMarker.PRF_DETAIL_CALLS: counter,
+            FileMarker.PRF_DETAIL_ERR: str(exception)
         }, separators = OutputSetup().human_json_separator)
