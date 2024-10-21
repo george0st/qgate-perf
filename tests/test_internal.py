@@ -4,7 +4,7 @@ import logging
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import ExecutorHelper
+from qgate_perf.helper import ExecutorHelper, get_readable_duration
 from qgate_perf.run_return import RunReturn
 from qgate_perf.standard_deviation import StandardDeviation
 from pympler import asizeof
@@ -73,9 +73,9 @@ class TestCaseInternal(unittest.TestCase):
     def test_readable_time(self):
         exec = ParallelExecutor(None)
 
-        print(exec._readable_duration(100))
-        print(exec._readable_duration(100.45))
-        print(exec._readable_duration(5004.45))
+        print(get_readable_duration(100))
+        print(get_readable_duration(100.45))
+        print(get_readable_duration(5004.45))
 
     def test_precison(self):
         text_format="{:<05}"
