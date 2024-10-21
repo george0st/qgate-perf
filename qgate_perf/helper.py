@@ -2,6 +2,7 @@ from math import pow
 from enum import Flag
 from time import perf_counter, perf_counter_ns, sleep
 from numpy import random
+from contextlib import suppress
 
 
 class GraphScope(Flag):
@@ -167,3 +168,47 @@ def get_rng_generator(complex_init = True) -> random._generator.Generator:
         return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
     else:
         return random.default_rng([int(now), int(now_ms), ns_start])
+
+def get_memory():
+
+    mem_total, mem_free = "", ""
+    with suppress(Exception):
+        import psutil
+
+        values=psutil.virtual_memory()
+        mem_total=f"{round(values.total/(1073741824),1)} GB"
+        mem_free=f"{round(values.free/(1073741824),1)} GB"
+    return mem_total, mem_free
+
+def get_host():
+    """ Return information about the host in format (host_name/ip addr)"""
+
+    host = ""
+    with suppress(Exception):
+        import socket
+
+        host_name=socket.gethostname()
+        ip=socket.gethostbyname(host_name)
+        host=f"{host_name}/{ip}"
+    return host
+
+def get_readable_duration(duration_seconds):
+    """Return duration in human-readable form"""
+
+    if duration_seconds < 0:
+        return "n/a"
+
+    str_duration = []
+    days = int(duration_seconds // 86400)
+    if days > 0:
+        str_duration.append(f"{days} day")
+    hours = int(duration_seconds // 3600 % 24)
+    if hours > 0:
+        str_duration.append(f"{hours} hour")
+    minutes = int(duration_seconds // 60 % 60)
+    if minutes > 0:
+        str_duration.append(f"{minutes} min")
+    seconds = int(duration_seconds % 60)
+    if seconds > 0:
+        str_duration.append(f"{seconds} sec")
+    return ' '.join(str_duration)
