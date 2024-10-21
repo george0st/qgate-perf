@@ -2,7 +2,7 @@ import unittest
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
-from qgate_perf.executor_helper import get_rng_generator
+from qgate_perf.helper import get_rng_generator
 import numpy as np
 
 

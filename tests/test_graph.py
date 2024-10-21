@@ -1,7 +1,7 @@
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.executor_helper import GraphScope
+from qgate_perf.helper import GraphScope
 from os import path
 import datetime
 import glob

@@ -7,8 +7,7 @@ from datetime import datetime
 from time import sleep
 from qgate_perf.file_format import FileFormat
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.bundle_helper import BundleHelper
-from qgate_perf.executor_helper import ExecutorHelper, GraphScope
+from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper
 from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
 from qgate_perf.run_return import RunReturn
 from platform import python_version
