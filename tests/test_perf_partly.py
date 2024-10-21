@@ -106,3 +106,27 @@ class TestCasePerfPartly(unittest.TestCase):
 
         self.assertTrue(perf[1].executor_process == 4 and perf[1].executor_thread == 1)
         self.assertTrue(perf[1][1].avrg < 1 and perf[1][0.9].avrg < 1)
+
+    def test_basic3(self):
+        generator = ParallelExecutor(prf_partly,
+                                     label="prf_partly",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_partly.txt"),
+                                     init_each_bulk=True)
+
+
+        setup = RunSetup(duration_second=0, start_delay=0, parameters={"percentile": 0.50})
+        perf = generator.run_bulk_executor(bulk_list=[[1,10]],
+                                    executor_list=[[2,1], [4,1]],
+                                    run_setup=setup,
+                                    performance_detail=True)
+
+        self.assertTrue(perf.state)
+        self.assertTrue(perf[0].bundle_row == 1 and perf[0].bundle_col == 10)
+        self.assertTrue(perf[1].bundle_row == 1 and perf[1].bundle_col == 10)
+
+        self.assertTrue(perf[0].executor_process == 2 and perf[0].executor_thread == 1)
+        self.assertTrue(perf[0][1].avrg < 1 and perf[0][0.5].avrg < 1)
+
+        self.assertTrue(perf[1].executor_process == 4 and perf[1].executor_thread == 1)
+        self.assertTrue(perf[1][1].avrg < 1 and perf[1][0.5].avrg < 1)
