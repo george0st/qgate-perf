@@ -5,18 +5,15 @@ import gc
 from json import dumps
 from datetime import datetime
 from time import sleep
-from qgate_perf.file_format import FileFormat
+from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.bundle_helper import BundleHelper
-from qgate_perf.executor_helper import ExecutorHelper, GraphScope
+from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper, get_host, get_memory, get_readable_duration
 from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
 from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
-from contextlib import suppress
 from qgate_perf.output_setup import OutputSetup
 from qgate_perf.output_result import PerfResult, PerfResults
-from sys import float_info
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -66,6 +63,8 @@ class ParallelExecutor:
         #   in python < 3.7 Terminate() as hard closing (the Close method does not exist in python lower versions)
         self._process_close=True if version.parse(python_version()) >= version.parse("3.7") else False
 
+    # region CORE
+
     def _coreThreadClassPool(self, threads, return_key, return_dict, run_setup: RunSetup):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -80,6 +79,49 @@ class ParallelExecutor:
         except Exception as ex:
             print(f"SYSTEM ERROR in '_coreThreadClassPool': {type(ex).__name__} - '{str(ex)}'")
 
+    def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
+
+        proc = []
+        # define synch time for run of all executors
+        run_setup.set_start_time()
+
+        try:
+            if threads == 1:
+                for process_key in range(processes):
+                    run_return = RunReturn(process_key, return_dict)
+                    p = multiprocessing.Process(target=self._func_wrapper,
+                                args=(self._func, run_return, run_setup))
+                    proc.append(p)
+            else:
+                for process_key in range(processes):
+                    p = multiprocessing.Process(target=self._coreThreadClassPool,
+                                args=(threads, process_key, return_dict, run_setup))
+                    proc.append(p)
+
+            # start
+            for p in proc:
+                p.start()
+
+            # wait for finish
+            for p in proc:
+                p.join()
+                if self._process_close:
+                    p.close()       # soft close
+                else:
+                    p.terminate()   # hard close
+        except Exception as ex:
+            print(f"SYSTEM ERROR in '_executeCore': '{str(ex)}'")
+
+    # endregion CORE
+
+    # region PRINT OUTPUT
+    def _open_output(self):
+        dirname = os.path.dirname(self._output_file)
+        if dirname:
+            if not os.path.exists(dirname):
+                os.makedirs(dirname, mode=0o777)
+        return open(self._output_file, 'a')
+
     def _print(self, file, out: str, readable_out: str = None):
 
         # print to the file 'out'
@@ -92,84 +134,108 @@ class ParallelExecutor:
     def _print_header(self, file, run_setup: RunSetup=None):
         self._start_tasks = datetime.utcnow()
         self._print(file, f"############### {self._start_tasks.isoformat(' ')} ###############")
-        total, free = self._memory()
+        total, free = get_memory()
         out = {}
-        out[FileFormat.PRF_TYPE] = FileFormat.PRF_HDR_TYPE
-        out[FileFormat.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        out[FileMarker.PRF_TYPE] = FileMarker.PRF_HDR_TYPE
+        out[FileMarker.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
         if run_setup.exist('percentile'):
-            out[FileFormat.PRF_HDR_PERCENTILE] = run_setup['percentile']
-        out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        out[FileFormat.PRF_HDR_MEMORY] = total
-        out[FileFormat.PRF_HDR_MEMORY_FREE] = free
-        out[FileFormat.PRF_HDR_HOST] = self._host()
-        out[FileFormat.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
+            out[FileMarker.PRF_HDR_PERCENTILE] = run_setup['percentile']
+        out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        out[FileMarker.PRF_HDR_MEMORY] = total
+        out[FileMarker.PRF_HDR_MEMORY_FREE] = free
+        out[FileMarker.PRF_HDR_HOST] = get_host()
+        out[FileMarker.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
 
         readable_out = {}
-        readable_out[FileFormat.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        readable_out[FileFormat.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        readable_out[FileFormat.PRF_HDR_DURATION] = run_setup._duration_second
+        readable_out[FileMarker.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
+        readable_out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
+        readable_out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
         if run_setup.exist('percentile'):
-            readable_out[FileFormat.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
-        readable_out[FileFormat.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        readable_out[FileFormat.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
+            readable_out[FileMarker.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
+        readable_out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
+        readable_out[FileMarker.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
 
 
         self._print(file,
                     dumps(out, separators=OutputSetup().json_separator),
                     dumps(readable_out, separators = OutputSetup().human_json_separator))
 
-    def _memory(self):
-
-        mem_total, mem_free = "", ""
-        with suppress(Exception):
-            import psutil
-
-            values=psutil.virtual_memory()
-            mem_total=f"{round(values.total/(1073741824),1)} GB"
-            mem_free=f"{round(values.free/(1073741824),1)} GB"
-        return mem_total, mem_free
-
-    def _host(self):
-        """ Return information about the host in format (host_name/ip addr)"""
-
-        host = ""
-        with suppress(Exception):
-            import socket
-
-            host_name=socket.gethostname()
-            ip=socket.gethostbyname(host_name)
-            host=f"{host_name}/{ip}"
-        return host
-
     def _print_footer(self, file, final_state):
         seconds = round((datetime.utcnow() - self._start_tasks).total_seconds(), 1)
         self._print(file,
                     f"############### State: {'OK' if final_state else 'Error'}, "
-                    f" Duration: {self._readable_duration(seconds)} ({seconds}"
+                    f" Duration: {get_readable_duration(seconds)} ({seconds}"
                     f" seconds) ###############")
 
-    def _readable_duration(self, duration_seconds):
-        """Return duration in human-readable form"""
+    def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
+        """
+        Print detail from executors
 
-        if duration_seconds < 0:
-            return "n/a"
+        :param file:            Output stream for print
+        :param run_setup:       Setting for executors
+        :param return_dict:     Return values from executors
+        :param processes:       Number of processes
+        :param threads:         Number of threads
+        :param group:           Name of group
+        :return:                Performance, total calls per one second
+        """
+        if self._detail_output == True:
+            for return_key in return_dict:
+                parallel_ret = return_dict[return_key]
+                self._print(file,
+                            f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
+                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
-        str_duration = []
-        days = int(duration_seconds // 86400)
-        if days > 0:
-            str_duration.append(f"{days} day")
-        hours = int(duration_seconds // 3600 % 24)
-        if hours > 0:
-            str_duration.append(f"{hours} hour")
-        minutes = int(duration_seconds // 60 % 60)
-        if minutes > 0:
-            str_duration.append(f"{minutes} min")
-        seconds = int(duration_seconds % 60)
-        if seconds > 0:
-            str_duration.append(f"{seconds} sec")
-        return ' '.join(str_duration)
+        # new calculation
+        percentile_list = self._create_percentile_list(run_setup, return_dict)
+
+        # A2A form
+        out = {}
+        out[FileMarker.PRF_TYPE] =  FileMarker.PRF_CORE_TYPE
+        out[FileMarker.PRF_CORE_PLAN_EXECUTOR_ALL] = processes * threads
+        out[FileMarker.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
+        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
+        out[FileMarker.PRF_CORE_GROUP] = group
+        for result in percentile_list.values():
+            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
+            out[FileMarker.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
+            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
+            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
+            out[FileMarker.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
+            out[FileMarker.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
+            out[FileMarker.PRF_CORE_MIN + suffix] = result.min                                  # ok
+            out[FileMarker.PRF_CORE_MAX + suffix] = result.max                                  # ok
+        out[FileMarker.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
+
+        # human readable form
+        readable_out = {}
+        readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
+        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
+        readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
+        for result in percentile_list.values():
+            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
+            #readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
+            if result.call_per_sec_raw == result.call_per_sec:
+                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
+            else:
+                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}/{round(result.call_per_sec, OutputSetup().human_precision)}"
+            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
+            readable_out[FileMarker.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
+            readable_out[FileMarker.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
+            readable_out[FileMarker.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
+            readable_out[FileMarker.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
+
+        # final dump
+        self._print(file,
+                    f"  {dumps(out, separators = OutputSetup().json_separator)}",
+                    f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
+
+        return percentile_list
+
+    # endregion PRINT OUTPUT
 
     def _check_state(self, return_dict):
         """
@@ -257,111 +323,8 @@ class ParallelExecutor:
 
         return percentile_list
 
-    def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
-        """
-        Print detail from executors
 
-        :param file:            Output stream for print
-        :param run_setup:       Setting for executors
-        :param return_dict:     Return values from executors
-        :param processes:       Number of processes
-        :param threads:         Number of threads
-        :param group:           Name of group
-        :return:                Performance, total calls per one second
-        """
-        if self._detail_output == True:
-            for return_key in return_dict:
-                parallel_ret = return_dict[return_key]
-                self._print(file,
-                            f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
-                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
-
-        # new calculation
-        percentile_list = self._create_percentile_list(run_setup, return_dict)
-
-        # A2A form
-        out = {}
-        out[FileFormat.PRF_TYPE] =  FileFormat.PRF_CORE_TYPE
-        out[FileFormat.PRF_CORE_PLAN_EXECUTOR_ALL] =  processes * threads
-        out[FileFormat.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileFormat.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
-        out[FileFormat.PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
-            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            out[FileFormat.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
-            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
-            out[FileFormat.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
-            out[FileFormat.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
-            out[FileFormat.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
-            out[FileFormat.PRF_CORE_MIN + suffix] = result.min                                  # ok
-            out[FileFormat.PRF_CORE_MAX + suffix] = result.max                                  # ok
-        out[FileFormat.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
-
-        # human readable form
-        readable_out = {}
-        readable_out[FileFormat.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileFormat.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
-        readable_out[FileFormat.HM_PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
-            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            #readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
-            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
-            if result.call_per_sec_raw == result.call_per_sec:
-                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
-            else:
-                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}/{round(result.call_per_sec, OutputSetup().human_precision)}"
-            readable_out[FileFormat.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
-            readable_out[FileFormat.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
-            readable_out[FileFormat.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
-            readable_out[FileFormat.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
-            readable_out[FileFormat.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
-
-        # final dump
-        self._print(file,
-                    f"  {dumps(out, separators = OutputSetup().json_separator)}",
-                    f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
-
-        return percentile_list
-
-    def _open_output(self):
-        dirname = os.path.dirname(self._output_file)
-        if dirname:
-            if not os.path.exists(dirname):
-                os.makedirs(dirname, mode=0o777)
-        return open(self._output_file, 'a')
-
-    def _executeCore(self, run_setup: RunSetup, return_dict, processes=2, threads=2):
-
-        proc = []
-        # define synch time for run of all executors
-        run_setup.set_start_time()
-
-        try:
-            if threads == 1:
-                for process_key in range(processes):
-                    run_return = RunReturn(process_key, return_dict)
-                    p = multiprocessing.Process(target=self._func_wrapper,
-                                args=(self._func, run_return, run_setup))
-                    proc.append(p)
-            else:
-                for process_key in range(processes):
-                    p = multiprocessing.Process(target=self._coreThreadClassPool,
-                                args=(threads, process_key, return_dict, run_setup))
-                    proc.append(p)
-
-            # start
-            for p in proc:
-                p.start()
-
-            # wait for finish
-            for p in proc:
-                p.join()
-                if self._process_close:
-                    p.close()       # soft close
-                else:
-                    p.terminate()   # hard close
-        except Exception as ex:
-            print(f"SYSTEM ERROR in '_executeCore': '{str(ex)}'")
+    # region RUN's
 
     def run_bulk_executor(self,
                           bulk_list = BundleHelper.ROW_1_COL_10_100,
@@ -591,6 +554,10 @@ class ParallelExecutor:
                 return False
         return True
 
+    # endregion RUN
+
+    # region GRAPH's
+
     @staticmethod
     def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
         """
@@ -714,3 +681,5 @@ class ParallelExecutor:
                                       GraphScope.exe,
                                       picture_dpi,
                                       suppress_error)
+
+    # endregion GRAPHS

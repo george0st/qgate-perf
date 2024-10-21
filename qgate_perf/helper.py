@@ -2,6 +2,7 @@ from math import pow
 from enum import Flag
 from time import perf_counter, perf_counter_ns, sleep
 from numpy import random
+from contextlib import suppress
 
 
 class GraphScope(Flag):
@@ -29,6 +30,22 @@ class GraphScope(Flag):
            perf_csv | perf_csv_raw |
            perf_txt | perf_txt_raw |
            exe)                         # generation of performance and executor graph
+
+class BundleHelper:
+    """ Predefines values for setting of bundle lists with pattern [[rows, columns], ..] """
+
+    ROW_1_COL_10_100 = [[1, 10], [1, 50], [1, 100]]
+    ROW_1_COL_10_1k = [[1, 10], [1, 50], [1, 100], [1, 1000]]
+    ROW_1_COL_10_10k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000]]
+    ROW_1_COL_10_100k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000], [1, 100000]]
+
+    ROW_1_10k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10]]
+    ROW_1_10k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50]]
+    ROW_1_10k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100]]
+
+    ROW_1_100k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10], [100000, 10]]
+    ROW_1_100k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50], [100000, 50]]
+    ROW_1_100k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100], [10000, 100]]
 
 class ExecutorHelper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
@@ -127,6 +144,12 @@ class ExecutorHelper:
             pattern.append([added, thread, label])
         return pattern
 
+class Singleton (type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 def get_rng_generator(complex_init = True) -> random._generator.Generator:
     """Create generator of random values with initiation"""
@@ -145,3 +168,47 @@ def get_rng_generator(complex_init = True) -> random._generator.Generator:
         return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
     else:
         return random.default_rng([int(now), int(now_ms), ns_start])
+
+def get_memory():
+
+    mem_total, mem_free = "", ""
+    with suppress(Exception):
+        import psutil
+
+        values=psutil.virtual_memory()
+        mem_total=f"{round(values.total/(1073741824),1)} GB"
+        mem_free=f"{round(values.free/(1073741824),1)} GB"
+    return mem_total, mem_free
+
+def get_host():
+    """ Return information about the host in format (host_name/ip addr)"""
+
+    host = ""
+    with suppress(Exception):
+        import socket
+
+        host_name=socket.gethostname()
+        ip=socket.gethostbyname(host_name)
+        host=f"{host_name}/{ip}"
+    return host
+
+def get_readable_duration(duration_seconds):
+    """Return duration in human-readable form"""
+
+    if duration_seconds < 0:
+        return "n/a"
+
+    str_duration = []
+    days = int(duration_seconds // 86400)
+    if days > 0:
+        str_duration.append(f"{days} day")
+    hours = int(duration_seconds // 3600 % 24)
+    if hours > 0:
+        str_duration.append(f"{hours} hour")
+    minutes = int(duration_seconds // 60 % 60)
+    if minutes > 0:
+        str_duration.append(f"{minutes} min")
+    seconds = int(duration_seconds % 60)
+    if seconds > 0:
+        str_duration.append(f"{seconds} sec")
+    return ' '.join(str_duration)

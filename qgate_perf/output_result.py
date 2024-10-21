@@ -2,7 +2,7 @@ from qgate_perf.parallel_probe import PercentileSummary
 
 
 class PerfResult:
-    """Outputs from performance tests"""
+    """Output from one performance test"""
 
     def __init__(self, state, row, col, process, thread, percentile_list: dict[PercentileSummary]):
 
@@ -37,6 +37,7 @@ class PerfResult:
 
 
 class PerfResults(list):
+    """Output from all performance tests"""
 
     def __init__(self):
         self._results = []

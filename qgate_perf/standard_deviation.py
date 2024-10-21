@@ -7,7 +7,6 @@ class StandardDeviation:
 
     NOTE: You can see the same outputs as in functions 'STDEVPA' and 'STDEV.P' in Microsoft Excel
     """
-
     def __init__(self, ddof = 1):
         self.ddof, self.n, self.mean, self.M2 = ddof, 0, 0.0, 0.0
 

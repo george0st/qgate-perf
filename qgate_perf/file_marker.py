@@ -1,5 +1,5 @@
 
-class FileFormat:
+class FileMarker:
 
     PRF_TYPE = "type"
 
