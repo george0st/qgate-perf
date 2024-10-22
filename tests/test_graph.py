@@ -206,28 +206,22 @@ class TestCaseGraph(unittest.TestCase):
 
         setup=RunSetup(duration_second=2, start_delay=0, parameters={"percentile": 0.95})
         generator.run_bulk_executor([[1,1], [1,5]], [[4,4],[8,4],[16,4]], setup)
-        generator.create_graph_perf(self.OUTPUT_ADR)
-
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-
-        # check relevant files
-        file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "2 sec", today, f"PRF-test_percentile-*-bulk-*.png"))
-        self.assertTrue(len(file)==2)
-        print(file[0])
+        output=generator.create_graph_perf(self.OUTPUT_ADR)
+        self.assertTrue(len(output)==2)
 
     def test_graph_onlynew(self):
 
         generator = ParallelExecutor(prf_test,
                                      label="test_percentile",
                                      detail_output=True,
-                                     output_file=path.join(self.OUTPUT_ADR, "only_new", "perf_test_percentile.txt"))
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_test_only_new.txt"))
 
         setup=RunSetup(duration_second=2, start_delay=0, parameters={"percentile": 0.95})
         generator.run_bulk_executor([[1,1]], [[1,1]], setup)
 
-        output=generator.create_graph_perf(self.OUTPUT_ADR, only_new = True)
+        output=generator.create_graph_perf(path.join(self.OUTPUT_ADR, "only_new"), only_new = True)
         self.assertTrue(len(output) == 1)
 
-        output=generator.create_graph_perf(self.OUTPUT_ADR, only_new = True)
+        output=generator.create_graph_perf(path.join(self.OUTPUT_ADR, "only_new"), only_new = True)
         self.assertTrue(len(output) == 0)
 
