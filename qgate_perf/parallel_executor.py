@@ -571,7 +571,7 @@ class ParallelExecutor:
 
         :param input_file:          source file with detail of outputs from performance tests
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
-        :param scope:               definition of scope generation (default ExecutorGraph.all)
+        :param scope:               definition of scope generation (default ExecutorGraph.all_no_raw)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
         :param only_new:            generate only new outputs (default is False, regenerate all)
@@ -653,7 +653,7 @@ class ParallelExecutor:
         The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
-        :param scope:               definition of scope generation (default ExecutorGraph.all)
+        :param scope:               definition of scope generation (default ExecutorGraph.all_no_raw)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
         :param only_new:            generate only new outputs (default is False, regenerate all)
@@ -666,7 +666,11 @@ class ParallelExecutor:
                                                     suppress_error,
                                                     only_new)
 
-    def create_graph_perf(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_perf(self,
+                          output_graph_dir = "output",
+                          picture_dpi = 100,
+                          suppress_error = False,
+                          only_new = False) -> list[str]:
         """
         Generate performance graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-perf'.
@@ -674,16 +678,21 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
                                                     output_graph_dir,
                                                     GraphScope.perf,
                                                     picture_dpi,
-                                      suppress_error,
+                                                    suppress_error,
                                                     only_new)
 
-    def create_graph_exec(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_exec(self,
+                          output_graph_dir = "output",
+                          picture_dpi = 100,
+                          suppress_error = False,
+                          only_new = False) -> list[str]:
         """
         Generate executors graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-exec'.
@@ -691,12 +700,14 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
-                                      output_graph_dir,
-                                      GraphScope.exe,
-                                      picture_dpi,
-                                      suppress_error)
+                                                    output_graph_dir,
+                                                    GraphScope.exe,
+                                                    picture_dpi,
+                                                    suppress_error,
+                                                    only_new)
 
     # endregion GRAPHS
