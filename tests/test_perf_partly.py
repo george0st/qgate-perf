@@ -56,6 +56,7 @@ def prf_partly(run_setup: RunSetup) -> ParallelProbe:
 
 
 class TestCasePerfPartly(unittest.TestCase):
+    """Performance measurement in more code segments (not in one block START and STOP) """
 
     OUTPUT_ADR = "../output/test_perf/"
     @classmethod

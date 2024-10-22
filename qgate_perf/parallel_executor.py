@@ -361,7 +361,7 @@ class ParallelExecutor:
                 performance.add_state(bulk_performance.state)
 
             # memory clean
-            gc.collect()
+            gc.collect(generation = 2)
 
         return performance
 
@@ -415,7 +415,7 @@ class ParallelExecutor:
                         performance.add_state(state)
 
                 # memory clean
-                gc.collect(generation = 1)
+                gc.collect(generation = 2)
 
             self._print_footer(file, performance.state)
 
@@ -470,6 +470,7 @@ class ParallelExecutor:
                 else:
                     performance.add_state(state)
 
+            gc.collect(generation = 2)
             self._print_footer(file, performance.state)
 
         except Exception as e:
@@ -559,15 +560,21 @@ class ParallelExecutor:
     # region GRAPH's
 
     @staticmethod
-    def create_graph_static(input_file, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_static(input_file,
+                            output_graph_dir = "output",
+                            scope: GraphScope = GraphScope.all_no_raw,
+                            picture_dpi = 100,
+                            suppress_error = False,
+                            only_new = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests
 
         :param input_file:          source file with detail of outputs from performance tests
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
-        :param scope:               definition of scope generation (default ExecutorGraph.all)
+        :param scope:               definition of scope generation (default ExecutorGraph.all_no_raw)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         output_file=[]
@@ -577,7 +584,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance import GraphPerformance
 
             # raw format False
-            graph = GraphPerformance(picture_dpi, raw_format = False)
+            graph = GraphPerformance(picture_dpi, raw_format = False, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -585,7 +592,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance import GraphPerformance
 
             # raw format True
-            graph = GraphPerformance(picture_dpi, raw_format = True)
+            graph = GraphPerformance(picture_dpi, raw_format = True, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -594,7 +601,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance_csv import GraphPerformanceCsv
 
             # raw format False
-            graph = GraphPerformanceCsv(raw_format = False)
+            graph = GraphPerformanceCsv(raw_format = False, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -602,7 +609,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance_csv import GraphPerformanceCsv
 
             # raw format True
-            graph = GraphPerformanceCsv(raw_format = True)
+            graph = GraphPerformanceCsv(raw_format = True, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -611,7 +618,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance_txt import GraphPerformanceTxt
 
             # raw format False
-            graph = GraphPerformanceTxt(raw_format=False)
+            graph = GraphPerformanceTxt(raw_format=False, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir, "graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -619,7 +626,7 @@ class ParallelExecutor:
             from qgate_graph.graph_performance_txt import GraphPerformanceTxt
 
             # raw format True
-            graph = GraphPerformanceTxt(raw_format=True)
+            graph = GraphPerformanceTxt(raw_format=True, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir, "graph-perf"), suppress_error):
                 output_file.append(file)
 
@@ -627,30 +634,43 @@ class ParallelExecutor:
         if GraphScope.exe in scope:
             from qgate_graph.graph_executor import GraphExecutor
 
-            graph = GraphExecutor(picture_dpi)
+            graph = GraphExecutor(picture_dpi, only_new = only_new)
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
                 output_file.append(file)
 
+        # clean GC
+        gc.collect(generation = 2)
         return output_file
 
-    def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph(self,
+                     output_graph_dir = "output",
+                     scope: GraphScope = GraphScope.all_no_raw,
+                     picture_dpi = 100,
+                     suppress_error = False,
+                     only_new = False) -> list[str]:
         """
         Generate graph(s) based on output from performance tests.
         The outputs will be in subdirectories 'graph-perf' and 'graph-exec'.
 
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf' and 'graph-exec')
-        :param scope:               definition of scope generation (default ExecutorGraph.all)
+        :param scope:               definition of scope generation (default ExecutorGraph.all_no_raw)
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
-                                      output_graph_dir,
-                                      scope,
-                                      picture_dpi,
-                                      suppress_error)
+                                                    output_graph_dir,
+                                                    scope,
+                                                    picture_dpi,
+                                                    suppress_error,
+                                                    only_new)
 
-    def create_graph_perf(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_perf(self,
+                          output_graph_dir = "output",
+                          picture_dpi = 100,
+                          suppress_error = False,
+                          only_new = False) -> list[str]:
         """
         Generate performance graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-perf'.
@@ -658,15 +678,21 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-perf')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
-                                      output_graph_dir,
-                                      GraphScope.perf,
-                                      picture_dpi,
-                                      suppress_error)
+                                                    output_graph_dir,
+                                                    GraphScope.perf,
+                                                    picture_dpi,
+                                                    suppress_error,
+                                                    only_new)
 
-    def create_graph_exec(self, output_graph_dir = "output", picture_dpi = 100, suppress_error = False) -> list[str]:
+    def create_graph_exec(self,
+                          output_graph_dir = "output",
+                          picture_dpi = 100,
+                          suppress_error = False,
+                          only_new = False) -> list[str]:
         """
         Generate executors graph(s) based on output from performance tests.
         The outputs will be in subdirectory 'graph-exec'.
@@ -674,12 +700,14 @@ class ParallelExecutor:
         :param output_graph_dir:    directory for graph outputs (with subdirectory 'graph-exec')
         :param picture_dpi:         quality of picture (default is 100 DPI)
         :param suppress_error:      suppress error (default is False)
+        :param only_new:            generate only new outputs (default is False, regenerate all)
         :return:                    list of generated files
         """
         return ParallelExecutor.create_graph_static(self._output_file,
-                                      output_graph_dir,
-                                      GraphScope.exe,
-                                      picture_dpi,
-                                      suppress_error)
+                                                    output_graph_dir,
+                                                    GraphScope.exe,
+                                                    picture_dpi,
+                                                    suppress_error,
+                                                    only_new)
 
     # endregion GRAPHS
