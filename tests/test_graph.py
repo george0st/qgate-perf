@@ -16,7 +16,7 @@ def prf_test(run_setup: RunSetup) -> ParallelProbe:
 
     generator = numpy.random.default_rng()
 
-    # init (contain executor synchonization, if needed)
+    # init (contain executor synchronization, if needed)
     probe = ParallelProbe(run_setup)
 
     if run_setup.is_init:
@@ -214,4 +214,20 @@ class TestCaseGraph(unittest.TestCase):
         file=glob.glob(path.join(self.OUTPUT_ADR, "graph-perf", "2 sec", today, f"PRF-test_percentile-*-bulk-*.png"))
         self.assertTrue(len(file)==2)
         print(file[0])
+
+    def test_graph_onlynew(self):
+
+        generator = ParallelExecutor(prf_test,
+                                     label="test_percentile",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "only_new", "perf_test_percentile.txt"))
+
+        setup=RunSetup(duration_second=2, start_delay=0, parameters={"percentile": 0.95})
+        generator.run_bulk_executor([[1,1]], [[1,1]], setup)
+
+        output=generator.create_graph_perf(self.OUTPUT_ADR, only_new = True)
+        self.assertTrue(len(output) == 1)
+
+        output=generator.create_graph_perf(self.OUTPUT_ADR, only_new = True)
+        self.assertTrue(len(output) == 0)
 
