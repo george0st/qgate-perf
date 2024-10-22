@@ -361,7 +361,7 @@ class ParallelExecutor:
                 performance.add_state(bulk_performance.state)
 
             # memory clean
-            gc.collect()
+            gc.collect(generation = 2)
 
         return performance
 
@@ -415,7 +415,7 @@ class ParallelExecutor:
                         performance.add_state(state)
 
                 # memory clean
-                gc.collect(generation = 1)
+                gc.collect(generation = 2)
 
             self._print_footer(file, performance.state)
 
@@ -470,6 +470,7 @@ class ParallelExecutor:
                 else:
                     performance.add_state(state)
 
+            gc.collect(generation = 2)
             self._print_footer(file, performance.state)
 
         except Exception as e:
@@ -631,6 +632,8 @@ class ParallelExecutor:
             for file in graph.generate_from_file(input_file, os.path.join(output_graph_dir,"graph-exec"), suppress_error):
                 output_file.append(file)
 
+        # clean GC
+        gc.collect(generation = 2)
         return output_file
 
     def create_graph(self, output_graph_dir = "output", scope: GraphScope = GraphScope.all_no_raw, picture_dpi = 100, suppress_error = False) -> list[str]:
