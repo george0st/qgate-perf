@@ -78,7 +78,7 @@ class PerfResults(list):
         # TODO: improve output
         pass
 
-class OutputResults:
+class Output:
 
     def __init__(self, label = None, detail_output = True, output_file = None):
         self._label = label

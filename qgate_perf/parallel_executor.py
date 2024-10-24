@@ -4,12 +4,12 @@ import os.path
 import gc
 from time import sleep
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper #, get_host, get_memory, get_readable_duration
-from qgate_perf.parallel_probe import ParallelProbe #, PercentileSummary
+from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper
+from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
-from qgate_perf.output_result import PerfResult, PerfResults, OutputResults
+from qgate_perf.output_result import PerfResult, PerfResults, Output
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -186,7 +186,7 @@ class ParallelExecutor:
             if self._init_each_bulk:
                 self.init_run(run_setup)
 
-            output = OutputResults(self._label, self._detail_output, self._output_file)
+            output = Output(self._label, self._detail_output, self._output_file)
             output.open()
             output.print_header(run_setup)
 
@@ -248,7 +248,7 @@ class ParallelExecutor:
             # if self._output_file is not None:
             #     file = self._open_output()
 
-            output = OutputResults(self._label, self._detail_output, self._output_file)
+            output = Output(self._label, self._detail_output, self._output_file)
             output.open()
             output.print_header(run_setup)
 
