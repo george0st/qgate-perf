@@ -39,6 +39,7 @@ class ParallelOutput:
         self._output_file = output_file
         self._file = None
 
+    def open(self):
         if self._output_file is not None:
             self._file = self._open_output()
 
@@ -394,6 +395,7 @@ class ParallelExecutor:
                 self.init_run(run_setup)
 
             output = ParallelOutput(self._label, self._detail_output, self._output_file)
+            output.open()
             output.print_header(run_setup)
 
             for executors in executor_list:
@@ -455,6 +457,7 @@ class ParallelExecutor:
             #     file = self._open_output()
 
             output = ParallelOutput(self._label, self._detail_output, self._output_file)
+            output.open()
             output.print_header(run_setup)
 
             # Execution
