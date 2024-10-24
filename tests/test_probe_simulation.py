@@ -3,9 +3,6 @@ import unittest
 from qgate_perf.parallel_probe import ParallelProbe, PercentileItem
 from qgate_perf.run_setup import RunSetup
 from numpy import std, sum, min, max
-from qgate_perf.output_setup import OutputSetup
-from qgate_perf.helper import get_rng_generator
-import numpy as np
 
 
 class SimulateProbe(ParallelProbe):
