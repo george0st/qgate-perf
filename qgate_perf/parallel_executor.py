@@ -39,7 +39,6 @@ class ParallelOutput:
         self._output_file = output_file
         self._file = None
 
-    def open(self):
         if self._output_file is not None:
             self._file = self._open_output()
 
@@ -386,8 +385,7 @@ class ParallelExecutor:
                                     True - all executions was without exceptions, False - some exceptions.
         """
         performance = PerfResults()
-        #file = None
-        output = ParallelOutput(self._label, self._detail_output, self._output_file)
+        output = None
 
         print('Execution...')
 
@@ -395,11 +393,8 @@ class ParallelExecutor:
             if self._init_each_bulk:
                 self.init_run(run_setup)
 
-            # if self._output_file is not None:
-            #     file=self._open_output()
-            output.open()
+            output = ParallelOutput(self._label, self._detail_output, self._output_file)
             output.print_header(run_setup)
-            #self._print_header(file, run_setup)
 
             for executors in executor_list:
                 # execution
@@ -448,8 +443,7 @@ class ParallelExecutor:
                                     True - all executions was without exceptions, False - some exceptions.
         """
         performance = PerfResults()
-        output = ParallelOutput(self._label, self._detail_output, self._output_file)
-        #file = None
+        output = None
 
         print('Execution...')
 
@@ -460,7 +454,7 @@ class ParallelExecutor:
             # if self._output_file is not None:
             #     file = self._open_output()
 
-            output.open()
+            output = ParallelOutput(self._label, self._detail_output, self._output_file)
             output.print_header(run_setup)
 
             # Execution
