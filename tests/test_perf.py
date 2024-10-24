@@ -6,7 +6,7 @@ from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.helper import ExecutorHelper
 from qgate_perf.run_return import RunReturn
-from qgate_perf.helper import ExecutorHelper, BundleHelper
+#from qgate_perf.helper import ExecutorHelper#, BundleHelper
 from qgate_perf.output_setup import OutputSetup
 import time
 from os import path
@@ -192,7 +192,7 @@ class TestCasePerf(unittest.TestCase):
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
         setup=RunSetup(duration_second=0, start_delay=0)
-        self.assertTrue(generator.run_bulk_executor(bulk_list= BundleHelper.ROW_1_COL_10_100,
+        self.assertTrue(generator.run_bulk_executor(bulk_list= [[1, 10], [1, 50], [1, 100]],
                                     executor_list=ExecutorHelper.PROCESS_1_8_THREAD_1,
                                     run_setup=setup).state)
 

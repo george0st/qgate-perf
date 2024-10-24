@@ -31,80 +31,80 @@ class GraphScope(Flag):
            perf_txt | perf_txt_raw |
            exe)                         # generation of performance and executor graph
 
-class BundleHelper:
-    """ Predefines values for setting of bundle lists with pattern [[rows, columns], ..] """
-
-    ROW_1_COL_10_100 = [[1, 10], [1, 50], [1, 100]]
-    ROW_1_COL_10_1k = [[1, 10], [1, 50], [1, 100], [1, 1000]]
-    ROW_1_COL_10_10k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000]]
-    ROW_1_COL_10_100k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000], [1, 100000]]
-
-    ROW_1_10k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10]]
-    ROW_1_10k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50]]
-    ROW_1_10k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100]]
-
-    ROW_1_100k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10], [100000, 10]]
-    ROW_1_100k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50], [100000, 50]]
-    ROW_1_100k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100], [10000, 100]]
+# class BundleHelper:
+#     """ Predefines values for setting of bundle lists with pattern [[rows, columns], ..] """
+#
+#     ROW_1_COL_10_100 = [[1, 10], [1, 50], [1, 100]]
+#     ROW_1_COL_10_1k = [[1, 10], [1, 50], [1, 100], [1, 1000]]
+#     ROW_1_COL_10_10k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000]]
+#     ROW_1_COL_10_100k = [[1, 10], [1, 50], [1, 100], [1, 1000], [1, 10000], [1, 100000]]
+#
+#     ROW_1_10k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10]]
+#     ROW_1_10k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50]]
+#     ROW_1_10k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100]]
+#
+#     ROW_1_100k_COL_10 = [[1, 10], [100, 10], [1000, 10], [10000, 10], [100000, 10]]
+#     ROW_1_100k_COL_50 = [[1, 50], [100, 50], [1000, 50], [10000, 50], [100000, 50]]
+#     ROW_1_100k_COL_100 = [[1, 100], [100, 100], [1000, 100], [10000, 100], [10000, 100]]
 
 class ExecutorHelper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
 
-    PROCESS_8_32_THREAD_2_4 = [[8, 2, '2x thread'], [16, 2, '2x thread'], [32, 2, '2x thread'],
-                               [8, 4, '4x thread'], [16, 4, '4x thread'], [32, 4, '4x thread']]
-
-    PROCESS_2_8_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
-                              [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
-                              [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']]
-
-    PROCESS_2_8_THREAD_1_4_SHORT = [[2, 1, '1x thread'], [2, 2, '2x thread'],
-                                                         [4, 2, '2x thread'], [4, 4, '4x thread'],
-                                                                              [8, 4, '4x thread']]
-
-    PROCESS_2_16_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'], [16, 1, '1x thread'],
-                               [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'], [16, 2, '2x thread'],
-                               [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'], [16, 4, '4x thread']]
-
-    PROCESS_1_8_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread']]
-    PROCESS_1_8_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread']]
-    PROCESS_1_8_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']]
-    PROCESS_1_8_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread']]
-
-    PROCESS_1_16_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
-                             [16, 1, '1x thread']]
-    PROCESS_1_16_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
-                             [16, 2, '2x thread']]
-    PROCESS_1_16_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
-                             [16, 4, '4x thread']]
-    PROCESS_1_16_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
-                             [16, 8, '8x thread']]
-
-    PROCESS_1_32_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
-                             [16, 1, '1x thread'], [32, 1, '1x thread']]
-    PROCESS_1_32_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
-                             [16, 2, '2x thread'], [32, 2, '2x thread']]
-    PROCESS_1_32_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
-                             [16, 4, '4x thread'], [32, 4, '4x thread']]
-    PROCESS_1_32_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
-                             [16, 8, '8x thread'], [32, 8, '8x thread']]
-
-    PROCESS_1_64_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
-                             [16, 1, '1x thread'], [32, 1, '1x thread'], [64, 1, '1x thread']]
-    PROCESS_1_64_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
-                             [16, 2, '2x thread'], [32, 2, '2x thread'], [64, 2, '2x thread']]
-    PROCESS_1_64_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
-                             [16, 4, '4x thread'], [32, 4, '4x thread'], [64, 4, '4x thread']]
-    PROCESS_1_64_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
-                             [16, 8, '8x thread'], [32, 8, '8x thread'], [64, 8, '8x thread']]
-
-    PROCESS_1_128_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
-                              [16, 1, '1x thread'], [32, 1, '1x thread'], [64, 1, '1x thread'], [128, 1, '1x thread']]
-    PROCESS_1_128_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
-                              [16, 2, '2x thread'], [32, 2, '2x thread'], [64, 2, '2x thread'], [128, 2, '2x thread']]
-    PROCESS_1_128_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
-                              [16, 4, '4x thread'], [32, 4, '4x thread'], [64, 4, '4x thread'], [128, 4, '4x thread']]
-    PROCESS_1_128_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
-                              [16, 8, '8x thread'], [32, 8, '8x thread'], [64, 8, '8x thread'], [128, 8, '8x thread']]
+    # PROCESS_8_32_THREAD_2_4 = [[8, 2, '2x thread'], [16, 2, '2x thread'], [32, 2, '2x thread'],
+    #                            [8, 4, '4x thread'], [16, 4, '4x thread'], [32, 4, '4x thread']]
+    #
+    # PROCESS_2_8_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
+    #                           [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
+    #                           [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']]
+    #
+    # PROCESS_2_8_THREAD_1_4_SHORT = [[2, 1, '1x thread'], [2, 2, '2x thread'],
+    #                                                      [4, 2, '2x thread'], [4, 4, '4x thread'],
+    #                                                                           [8, 4, '4x thread']]
+    #
+    # PROCESS_2_16_THREAD_1_4 = [[2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'], [16, 1, '1x thread'],
+    #                            [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'], [16, 2, '2x thread'],
+    #                            [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'], [16, 4, '4x thread']]
+    #
+    # PROCESS_1_8_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread']]
+    # PROCESS_1_8_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread']]
+    # PROCESS_1_8_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']]
+    # PROCESS_1_8_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread']]
+    #
+    # PROCESS_1_16_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
+    #                          [16, 1, '1x thread']]
+    # PROCESS_1_16_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
+    #                          [16, 2, '2x thread']]
+    # PROCESS_1_16_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
+    #                          [16, 4, '4x thread']]
+    # PROCESS_1_16_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
+    #                          [16, 8, '8x thread']]
+    #
+    # PROCESS_1_32_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
+    #                          [16, 1, '1x thread'], [32, 1, '1x thread']]
+    # PROCESS_1_32_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
+    #                          [16, 2, '2x thread'], [32, 2, '2x thread']]
+    # PROCESS_1_32_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
+    #                          [16, 4, '4x thread'], [32, 4, '4x thread']]
+    # PROCESS_1_32_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
+    #                          [16, 8, '8x thread'], [32, 8, '8x thread']]
+    #
+    # PROCESS_1_64_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
+    #                          [16, 1, '1x thread'], [32, 1, '1x thread'], [64, 1, '1x thread']]
+    # PROCESS_1_64_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
+    #                          [16, 2, '2x thread'], [32, 2, '2x thread'], [64, 2, '2x thread']]
+    # PROCESS_1_64_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
+    #                          [16, 4, '4x thread'], [32, 4, '4x thread'], [64, 4, '4x thread']]
+    # PROCESS_1_64_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
+    #                          [16, 8, '8x thread'], [32, 8, '8x thread'], [64, 8, '8x thread']]
+    #
+    # PROCESS_1_128_THREAD_1 = [[1, 1, '1x thread'], [2, 1, '1x thread'], [4, 1, '1x thread'], [8, 1, '1x thread'],
+    #                           [16, 1, '1x thread'], [32, 1, '1x thread'], [64, 1, '1x thread'], [128, 1, '1x thread']]
+    # PROCESS_1_128_THREAD_2 = [[1, 2, '2x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [8, 2, '2x thread'],
+    #                           [16, 2, '2x thread'], [32, 2, '2x thread'], [64, 2, '2x thread'], [128, 2, '2x thread']]
+    # PROCESS_1_128_THREAD_4 = [[1, 4, '4x thread'], [2, 4, '4x thread'], [4, 4, '4x thread'], [8, 4, '4x thread'],
+    #                           [16, 4, '4x thread'], [32, 4, '4x thread'], [64, 4, '4x thread'], [128, 4, '4x thread']]
+    # PROCESS_1_128_THREAD_8 = [[1, 8, '8x thread'], [2, 8, '8x thread'], [4, 8, '8x thread'], [8, 8, '8x thread'],
+    #                           [16, 8, '8x thread'], [32, 8, '8x thread'], [64, 8, '8x thread'], [128, 8, '8x thread']]
 
     def grow_thread(label_thread=True, process=2, thread_pow_start=1, thread_pow_stop=6):
         """
