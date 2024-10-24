@@ -2,18 +2,14 @@ import concurrent.futures
 import multiprocessing
 import os.path
 import gc
-from json import dumps
-from datetime import datetime
 from time import sleep
-from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper, get_host, get_memory, get_readable_duration
-from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
+from qgate_perf.helper import ExecutorHelper, GraphScope, BundleHelper
+from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 from platform import python_version
 from packaging import version
-from qgate_perf.output_setup import OutputSetup
-from qgate_perf.output_result import PerfResult, PerfResults
+from qgate_perf.output_result import PerfResult, PerfResults, Output
 
 
 def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
@@ -30,7 +26,6 @@ def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
         run_return.probe=func(run_setup)
     except Exception as ex:
         run_return.probe=ParallelProbe(None, f"{type(ex).__name__}: {str(ex)}")
-
 
 class ParallelExecutor:
     """ Helper for parallel execution of defined function (via start new process with aim to avoid GIL) """
@@ -53,10 +48,11 @@ class ParallelExecutor:
         """
         self._func = func
         self._func_wrapper = _executor_wrapper
-        self._detail_output = detail_output
-        self._label = label
-        self._output_file = output_file
         self._init_each_bulk = init_each_bulk
+
+        self._label = label
+        self._detail_output = detail_output
+        self._output_file = output_file
 
         # Technical point, how to close Process
         #   in python >= 3.7 Close() as soft closing
@@ -114,130 +110,7 @@ class ParallelExecutor:
 
     # endregion CORE
 
-    # region PRINT OUTPUT
-    def _open_output(self):
-        dirname = os.path.dirname(self._output_file)
-        if dirname:
-            if not os.path.exists(dirname):
-                os.makedirs(dirname, mode=0o777)
-        return open(self._output_file, 'a')
-
-    def _print(self, file, out: str, readable_out: str = None):
-
-        # print to the file 'out'
-        if file is not None:
-            file.write(out + "\n")
-
-        # print to the console 'readable_out' or 'out'
-        print(readable_out if readable_out else out)
-
-    def _print_header(self, file, run_setup: RunSetup=None):
-        self._start_tasks = datetime.utcnow()
-        self._print(file, f"############### {self._start_tasks.isoformat(' ')} ###############")
-        total, free = get_memory()
-        out = {}
-        out[FileMarker.PRF_TYPE] = FileMarker.PRF_HDR_TYPE
-        out[FileMarker.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
-        if run_setup.exist('percentile'):
-            out[FileMarker.PRF_HDR_PERCENTILE] = run_setup['percentile']
-        out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        out[FileMarker.PRF_HDR_MEMORY] = total
-        out[FileMarker.PRF_HDR_MEMORY_FREE] = free
-        out[FileMarker.PRF_HDR_HOST] = get_host()
-        out[FileMarker.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
-
-        readable_out = {}
-        readable_out[FileMarker.HR_PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
-        readable_out[FileMarker.PRF_HDR_BULK] = [run_setup._bulk_row, run_setup._bulk_col]
-        readable_out[FileMarker.PRF_HDR_DURATION] = run_setup._duration_second
-        if run_setup.exist('percentile'):
-            readable_out[FileMarker.HR_PRF_HDR_PERCENTILE] = run_setup['percentile']
-        readable_out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
-        readable_out[FileMarker.HR_PRF_HDR_MEMORY] = f"{total}/{free}"
-
-
-        self._print(file,
-                    dumps(out, separators=OutputSetup().json_separator),
-                    dumps(readable_out, separators = OutputSetup().human_json_separator))
-
-    def _print_footer(self, file, final_state):
-        seconds = round((datetime.utcnow() - self._start_tasks).total_seconds(), 1)
-        self._print(file,
-                    f"############### State: {'OK' if final_state else 'Error'}, "
-                    f" Duration: {get_readable_duration(seconds)} ({seconds}"
-                    f" seconds) ###############")
-
-    def _print_detail(self, file, run_setup: RunSetup, return_dict, processes, threads, group=''):
-        """
-        Print detail from executors
-
-        :param file:            Output stream for print
-        :param run_setup:       Setting for executors
-        :param return_dict:     Return values from executors
-        :param processes:       Number of processes
-        :param threads:         Number of threads
-        :param group:           Name of group
-        :return:                Performance, total calls per one second
-        """
-        if self._detail_output == True:
-            for return_key in return_dict:
-                parallel_ret = return_dict[return_key]
-                self._print(file,
-                            f"    {str(parallel_ret) if parallel_ret else ParallelProbe.dump_error('SYSTEM overloaded')}",
-                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
-
-        # new calculation
-        percentile_list = self._create_percentile_list(run_setup, return_dict)
-
-        # A2A form
-        out = {}
-        out[FileMarker.PRF_TYPE] =  FileMarker.PRF_CORE_TYPE
-        out[FileMarker.PRF_CORE_PLAN_EXECUTOR_ALL] = processes * threads
-        out[FileMarker.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
-        out[FileMarker.PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
-            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            out[FileMarker.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
-            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
-            out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = result.call_per_sec          # ok
-            out[FileMarker.PRF_CORE_AVRG_TIME + suffix] = result.avrg                           # ok
-            out[FileMarker.PRF_CORE_STD_DEVIATION + suffix] = result.std                        # ok
-            out[FileMarker.PRF_CORE_MIN + suffix] = result.min                                  # ok
-            out[FileMarker.PRF_CORE_MAX + suffix] = result.max                                  # ok
-        out[FileMarker.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
-
-        # human readable form
-        readable_out = {}
-        readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
-        readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
-            suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            #readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
-            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
-            if result.call_per_sec_raw == result.call_per_sec:
-                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
-            else:
-                call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}/{round(result.call_per_sec, OutputSetup().human_precision)}"
-            readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL_PER_SEC + suffix] = call_readable
-            readable_out[FileMarker.HM_PRF_CORE_AVRG_TIME + suffix] =  round(result.avrg, OutputSetup().human_precision)
-            readable_out[FileMarker.HM_PRF_CORE_STD_DEVIATION + suffix] = round(result.std, OutputSetup().human_precision)
-            readable_out[FileMarker.PRF_CORE_MIN + suffix] = round(result.min, OutputSetup().human_precision)
-            readable_out[FileMarker.PRF_CORE_MAX + suffix] = round(result.max, OutputSetup().human_precision)
-
-        # final dump
-        self._print(file,
-                    f"  {dumps(out, separators = OutputSetup().json_separator)}",
-                    f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
-
-        return percentile_list
-
-    # endregion PRINT OUTPUT
-
-    def _check_state(self, return_dict):
+    def _get_summary_state(self, return_dict):
         """
         Check, if the processing was fine based on check exception in each executor
 
@@ -251,78 +124,6 @@ class ParallelExecutor:
             elif parallel_ret.exception is not None:
                 return False
         return True
-
-    def _create_percentile_list(self, run_setup: RunSetup, return_dict):
-
-        percentile_list = {}
-
-        # pre-calculation
-            # iteration cross executors results
-        for return_key in return_dict:
-            response = return_dict[return_key]
-            if response:
-                if response.exception is None:
-                    # iteration cross all percentiles
-                    for result in response.percentile_results:
-                        if result.count > 0:
-                            # sum of average time for one call
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       result.count,
-                                                                                       0,
-                                                                                       0,
-                                                                                       result.total_duration / result.count,
-                                                                                       result.std,
-                                                                                       result.min,
-                                                                                       result.max,
-                                                                                       1)
-                            else:
-                                itm = percentile_list[result.percentile]
-                                itm.count += result.count
-                                itm.avrg += result.total_duration / result.count
-                                itm.std += result.std
-                                itm.min = min(result.min, itm.min)
-                                itm.max = max(result.max, itm.max)
-                                itm.executors += 1
-                        else:
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       ParallelProbe.MIN_DURATION,
-                                                                                       0,
-                                                                                       0)
-
-        # define percentile, if not exist
-            # if 100 percentile does not exist, create it
-        if percentile_list.get(1, None) is None:
-            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0, 0, 0,0)
-
-            # if expected percentile does not exist, create it
-        if run_setup.exist("percentile"):
-            if percentile_list.get(run_setup["percentile"], None) is None:
-                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
-
-        # final calculation
-        for percentile in percentile_list.values():
-            if percentile.executors > 0:
-                # Calc clarification (for better understanding):
-                #   avrg / count     = average time for one executor (average is cross all calls and executors)
-                #   1 / (avrg/count) = average amount of calls per one second (cross executors)
-                percentile.call_per_sec_raw  = 0 if (percentile.avrg / percentile.executors) == 0 else (1 / (percentile.avrg / percentile.executors)) * percentile.executors
-                percentile.call_per_sec = percentile.call_per_sec_raw * run_setup._bulk_row
-
-                percentile.avrg = 0 if percentile.executors == 0 else percentile.avrg / percentile.executors
-                percentile.std = 0 if percentile.executors == 0 else percentile.std / percentile.executors
-            else:
-                percentile.min = 0
-                percentile.max = 0
-
-        return percentile_list
-
 
     # region RUN's
 
@@ -377,7 +178,7 @@ class ParallelExecutor:
                                     True - all executions was without exceptions, False - some exceptions.
         """
         performance = PerfResults()
-        file = None
+        output = None
 
         print('Execution...')
 
@@ -385,25 +186,23 @@ class ParallelExecutor:
             if self._init_each_bulk:
                 self.init_run(run_setup)
 
-            if self._output_file is not None:
-                file=self._open_output()
-
-            self._print_header(file, run_setup)
+            output = Output(self._label, self._detail_output, self._output_file)
+            output.open()
+            output.print_header(run_setup)
 
             for executors in executor_list:
                 # execution
                 with multiprocessing.Manager() as manager:
                     return_dict = manager.dict()
                     self._executeCore(run_setup, return_dict, executors[0], executors[1])
-                    percentile_list = self._print_detail(file,
-                                       run_setup,
-                                       return_dict,
-                                       executors[0],
-                                       executors[1],
-                                       '' if len(executors) <= 2 else executors[2])
+                    percentile_list = output.print_detail(run_setup,
+                                                          return_dict,
+                                                          executors[0],
+                                                          executors[1],
+                                                          '' if len(executors) <= 2 else executors[2])
 
                     # check state
-                    state = self._check_state(return_dict)
+                    state = self._get_summary_state(return_dict)
                     if performance_detail:
                         performance.append(PerfResult(state,
                                                       run_setup.bulk_row,
@@ -417,14 +216,13 @@ class ParallelExecutor:
                 # memory clean
                 gc.collect(generation = 2)
 
-            self._print_footer(file, performance.state)
+            output.print_footer(performance.state)
 
         except Exception as ex:
-            self._print(file,f"SYSTEM ERROR in 'run_executor': {type(ex).__name__} - '{str(ex) if ex is not None else '!! Noname exception !!'}'")
+            output.print(f"SYSTEM ERROR in 'run_executor': {type(ex).__name__} - '{str(ex) if ex is not None else '!! Noname exception !!'}'")
             performance.add_state(False)
         finally:
-            if file is not None:
-                file.close()
+            output.close()
 
         return performance
 
@@ -439,7 +237,7 @@ class ParallelExecutor:
                                     True - all executions was without exceptions, False - some exceptions.
         """
         performance = PerfResults()
-        file = None
+        output = None
 
         print('Execution...')
 
@@ -447,19 +245,21 @@ class ParallelExecutor:
             if self._init_each_bulk:
                 self.init_run(run_setup)
 
-            if self._output_file is not None:
-                file = self._open_output()
+            # if self._output_file is not None:
+            #     file = self._open_output()
 
-            self._print_header(file, run_setup)
+            output = Output(self._label, self._detail_output, self._output_file)
+            output.open()
+            output.print_header(run_setup)
 
             # Execution
             with multiprocessing.Manager() as manager:
                 return_dict = manager.dict()
                 self._executeCore(run_setup, return_dict, processes, threads)
-                percentile_list = self._print_detail(file, run_setup, return_dict, processes, threads)
+                percentile_list = output.print_detail(run_setup, return_dict, processes, threads)
 
                 # check state
-                state = self._check_state(return_dict)
+                state = self._get_summary_state(return_dict)
                 if performance_detail:
                     performance.append(PerfResult(state,
                                                   run_setup.bulk_row,
@@ -471,14 +271,13 @@ class ParallelExecutor:
                     performance.add_state(state)
 
             gc.collect(generation = 2)
-            self._print_footer(file, performance.state)
+            output.print_footer(performance.state)
 
         except Exception as e:
-            self._print(file, f"SYSTEM ERROR in 'run': '{str(e) if e is not None else '!! Noname exception !!'}'")
+            output.print(f"SYSTEM ERROR in 'run': '{str(e) if e is not None else '!! Noname exception !!'}'")
             performance.add_state(False)
         finally:
-            if file is not None:
-                file.close()
+            output.close()
 
         return performance
 
