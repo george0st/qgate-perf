@@ -1,16 +1,11 @@
-import os
 import unittest
-import logging
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import get_readable_duration #ExecutorHelper, get_readable_duration
+from qgate_perf.helper import get_readable_duration
 from qgate_perf.run_return import RunReturn
 from qgate_perf.standard_deviation import StandardDeviation
 from pympler import asizeof
-import time
-from os import path
-import shutil
 
 
 class TestCaseInternal(unittest.TestCase):

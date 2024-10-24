@@ -4,7 +4,7 @@ import os.path
 import gc
 from time import sleep
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import ExecutorHelper, GraphScope #, BundleHelper
+from qgate_perf.helper import GraphScope
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_return import RunReturn
 from platform import python_version
@@ -129,7 +129,7 @@ class ParallelExecutor:
 
     def run_bulk_executor(self,
                           bulk_list = [[1, 10], [1, 50], [1, 100]], #BundleHelper.ROW_1_COL_10_100,
-                          executor_list = [[2, 1, '1x thread'], [2, 2, '2x thread'],[4, 2, '2x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']], #ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
+                          executor_list = [[2, 1, '1x thread'], [2, 2, '2x thread'],[4, 2, '2x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']],
                           run_setup: RunSetup = None,
                           sleep_between_bulks = 0,
                           performance_detail = False) -> PerfResults:
@@ -166,7 +166,7 @@ class ParallelExecutor:
 
         return performance
 
-    def run_executor(self, executor_list = [[2, 1, '1x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']], #ExecutorHelper.PROCESS_2_8_THREAD_1_4_SHORT,
+    def run_executor(self, executor_list = [[2, 1, '1x thread'], [2, 2, '2x thread'], [4, 2, '2x thread'], [4, 4, '4x thread'], [8, 4, '4x thread']],
                      run_setup: RunSetup = None,
                      performance_detail = False) -> PerfResults:
         """ Run executor sequences
