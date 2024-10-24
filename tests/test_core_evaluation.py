@@ -1,11 +1,10 @@
-import time
 import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
 from time import sleep
-from qgate_perf.output_result import PerfResults, PerfResult
+from qgate_perf.output_result import PerfResults
 import shutil
 
 
