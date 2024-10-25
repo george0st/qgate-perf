@@ -38,9 +38,10 @@ class PerfResult:
         return len(self._percentile_list)
 
     def __str__(self):
-        # TODO: improve output
-        return (f"bundle ({self.bundle_row}x{self.bundle_col}), executor ({self.executor_process}x{self.executor_thread})"
-                f" = {self.percentiles[0].call_per_sec}")
+        info = f"bundle ({self.bundle_row}x{self.bundle_col}), executor ({self.executor_process}x{self.executor_thread}) = "
+        for percentile in self._percentile_list.keys():
+            info += f"{self._percentile_list[percentile].call_per_sec} [{int(percentile*100)}ph], "
+        return info[:-2]
 
 class PerfResults(list):
     """Output from all performance tests"""
@@ -75,8 +76,10 @@ class PerfResults(list):
         return len(self._results)
 
     def __str__(self):
-        # TODO: improve output
-        pass
+        info = ""
+        for i in range(len(self._results)):
+            info += f"str(self._results[i])\n"
+        return info
 
 class Output:
 
