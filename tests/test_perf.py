@@ -327,13 +327,23 @@ class TestCasePerf(unittest.TestCase):
 
 
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95})
-        detail = generator.run_bulk_executor(bulk_list=[[1,10]],
-                                    executor_list=[[4,2]],
+        detail = generator.run_bulk_executor(bulk_list=[[1,10], [1,15]],
+                                    executor_list=[[1,1], [4,2]],
                                     run_setup=setup,
                                     performance_detail=True)
 
         self.assertTrue(detail.state)
-        print(detail)
+        self.assertTrue(detail[0][1].call_per_sec > 0)
+        self.assertTrue(detail[1][1].call_per_sec > 0)
+        self.assertTrue(detail[2][1].call_per_sec > 0)
+        self.assertTrue(detail[3][1].call_per_sec > 0)
+        self.assertTrue(detail[0][0.95].call_per_sec > 0)
+        self.assertTrue(detail[1][0.95].call_per_sec > 0)
+        self.assertTrue(detail[2][0.95].call_per_sec > 0)
+        self.assertTrue(detail[3][0.95].call_per_sec > 0)
+        self.assertTrue(len(str(detail))>0)
+
+        print(str(detail))
 
 # if __name__ == '__main__':
 #     unittest.main()

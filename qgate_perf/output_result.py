@@ -38,7 +38,6 @@ class PerfResult:
         return len(self._percentile_list)
 
     def __str__(self):
-        # TODO: improve output
         info = f"bundle ({self.bundle_row}x{self.bundle_col}), executor ({self.executor_process}x{self.executor_thread}) = "
         for percentile in self._percentile_list.keys():
             info += f"{self._percentile_list[percentile].call_per_sec} [{int(percentile*100)}ph], "
@@ -79,7 +78,7 @@ class PerfResults(list):
     def __str__(self):
         info = ""
         for i in range(len(self._results)):
-            info += str(self._results[i])+"\n"
+            info += f"str(self._results[i])\n"
         return info
 
 class Output:
