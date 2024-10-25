@@ -315,9 +315,25 @@ class TestCasePerf(unittest.TestCase):
         setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95, "generate_error": "yes"})
         generator.run_bulk_executor(bulk_list=[[1,10]],
                                     executor_list=[[1,1], [2,1], [4,2]],
-                                    run_setup=setup).state
+                                    run_setup=setup)
         self.assertTrue(len(generator.create_graph_perf(self.OUTPUT_ADR)) == 1)
 
+    def test_run_performance_detail(self):
+        generator = ParallelExecutor(prf_gil_impact,
+                                     label="GIL_impact",
+                                     detail_output=True,
+                                     output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_percentile.txt"),
+                                     init_each_bulk=True)
+
+
+        setup=RunSetup(duration_second=1, start_delay=0, parameters={"percentile": 0.95})
+        detail = generator.run_bulk_executor(bulk_list=[[1,10]],
+                                    executor_list=[[4,2]],
+                                    run_setup=setup,
+                                    performance_detail=True)
+
+        self.assertTrue(detail.state)
+        print(detail)
 
 # if __name__ == '__main__':
 #     unittest.main()
