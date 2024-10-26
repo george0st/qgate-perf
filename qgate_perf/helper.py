@@ -31,7 +31,7 @@ class GraphScope(Flag):
            perf_txt | perf_txt_raw |
            exe)                         # generation of performance and executor graph
 
-class ExecutorHelper:
+class Helper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
 
     def grow_thread(label_thread=True, process=2, thread_pow_start=1, thread_pow_stop=6):
@@ -48,9 +48,9 @@ class ExecutorHelper:
         """
         pattern = []
         for i in range(thread_pow_start, thread_pow_stop):
-            added = int(pow(2, i))
-            label = f"{added}x thread" if label_thread else f"{process}x process"
-            pattern.append([process, added, label])
+            sequence = int(pow(2, i))
+            label = f"{sequence}x thread" if label_thread else f"{process}x process"
+            pattern.append([process, sequence, label])
         return pattern
 
     def grow_process(label_process=True, thread=2, process_pow_start=1, process_pow_stop=6):
@@ -67,9 +67,9 @@ class ExecutorHelper:
         """
         pattern = []
         for i in range(process_pow_start, process_pow_stop):
-            added = int(pow(2, i))
-            label = f"{added}x process" if label_process else f"{thread}x thread"
-            pattern.append([added, thread, label])
+            sequence = int(pow(2, i))
+            label = f"{sequence}x process" if label_process else f"{thread}x thread"
+            pattern.append([sequence, thread, label])
         return pattern
 
 class Singleton (type):
