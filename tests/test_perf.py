@@ -2,7 +2,7 @@ import unittest
 from qgate_perf.parallel_executor import ParallelExecutor
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import ExecutorHelper
+from qgate_perf.helper import Helper
 from qgate_perf.output_setup import OutputSetup
 import time
 from os import path
@@ -200,12 +200,12 @@ class TestCasePerf(unittest.TestCase):
 
         setup=RunSetup(duration_second=1, start_delay=0)
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,2]],
-                                    executor_list=ExecutorHelper.grow_thread(process=1, thread_pow_start=1, thread_pow_stop=3),
-                                    run_setup=setup).state)
+                                                    executor_list=Helper.grow_thread(process=1, thread_pow_start=1, thread_pow_stop=3),
+                                                    run_setup=setup).state)
 
         self.assertTrue(generator.run_bulk_executor(bulk_list=[[1,1]],
-                                    executor_list=ExecutorHelper.grow_process(thread=1, process_pow_start=1, process_pow_stop=3),
-                                    run_setup=setup).state)
+                                                    executor_list=Helper.grow_process(thread=1, process_pow_start=1, process_pow_stop=3),
+                                                    run_setup=setup).state)
 
     def test_run_bulk_executor_initcall(self):
         generator = ParallelExecutor(prf_gil_impact,
