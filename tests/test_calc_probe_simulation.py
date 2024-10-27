@@ -2,7 +2,7 @@ import unittest
 from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.output_setup import OutputSetup
-from qgate_perf.helper import get_rng_generator
+from qgate_perf.helper import Helper
 import numpy as np
 
 
@@ -98,7 +98,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
         self._check(simulate, sequence)
 
     def test_random_statistic1(self):
-        generator = get_rng_generator()
+        generator = Helper.get_rnd_generator()
         sequence = generator.integers(0, 100, 10) / 100
 
         simulate = CalcSimulateProbe()
@@ -106,7 +106,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
         self._check(simulate, sequence)
 
     def test_random_statistic2(self):
-        generator = get_rng_generator()
+        generator = Helper.get_rnd_generator()
         sequence = generator.integers(0, 1000, 50) / 100
 
         simulate = CalcSimulateProbe()
@@ -114,7 +114,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
         self._check(simulate, sequence)
 
     def test_random_statistic3(self):
-        generator = get_rng_generator()
+        generator = Helper.get_rnd_generator()
         sequence = generator.integers(0, 10000, 100) / 100
 
         simulate = CalcSimulateProbe()
@@ -122,7 +122,7 @@ class TestCaseCalcProbeSimulate(unittest.TestCase):
         self._check(simulate, sequence)
 
     def test_random_statistic4(self):
-        generator = get_rng_generator()
+        generator = Helper.get_rnd_generator()
         sequence = generator.integers(0, 100, 1000) / 100
 
         simulate = CalcSimulateProbe()

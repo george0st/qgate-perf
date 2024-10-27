@@ -72,6 +72,25 @@ class Helper:
             pattern.append([sequence, thread, label])
         return pattern
 
+    def get_rnd_generator(complex_init = True) -> random._generator.Generator:
+        """Create generator of random values with initiation"""
+
+        # now and now_ms (as detail about milliseconds)
+        now = perf_counter()
+        now_ms = (now - int(now)) * 1000000000
+
+        # calc based on CPU speed
+        ns_start = perf_counter_ns()
+        if complex_init:
+            sleep(0.001)
+            ns_stop = perf_counter_ns()
+
+            # create generator with more random seed (now, now_ms, cpu speed)
+            return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
+        else:
+            return random.default_rng([int(now), int(now_ms), ns_start])
+
+
 class Singleton (type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
@@ -79,23 +98,6 @@ class Singleton (type):
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-def get_rng_generator(complex_init = True) -> random._generator.Generator:
-    """Create generator of random values with initiation"""
-
-    # now and now_ms (as detail about milliseconds)
-    now = perf_counter()
-    now_ms = (now - int(now)) * 1000000000
-
-    # calc based on CPU speed
-    ns_start = perf_counter_ns()
-    if complex_init:
-        sleep(0.001)
-        ns_stop = perf_counter_ns()
-
-        # create generator with more random seed (now, now_ms, cpu speed)
-        return random.default_rng([int(now), int(now_ms), ns_stop - ns_start, ns_stop])
-    else:
-        return random.default_rng([int(now), int(now_ms), ns_start])
 
 def get_memory():
 
