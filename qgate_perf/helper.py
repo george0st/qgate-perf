@@ -34,6 +34,7 @@ class GraphScope(Flag):
 class Helper:
     """ Predefines values for setting of executor lists with pattern [[processes, threads, label], ...] """
 
+    @staticmethod
     def grow_thread(label_thread=True, process=2, thread_pow_start=1, thread_pow_stop=6):
         """
         Generate sequence of executors, number of processes are stable, and
@@ -53,6 +54,7 @@ class Helper:
             pattern.append([process, sequence, label])
         return pattern
 
+    @staticmethod
     def grow_process(label_process=True, thread=2, process_pow_start=1, process_pow_stop=6):
         """
         Generate sequence of executors, number of threads are stable, and
@@ -72,6 +74,7 @@ class Helper:
             pattern.append([sequence, thread, label])
         return pattern
 
+    @staticmethod
     def get_rnd_generator(complex_init = True) -> random._generator.Generator:
         """Create generator of random values with initiation"""
 
@@ -90,6 +93,53 @@ class Helper:
         else:
             return random.default_rng([int(now), int(now_ms), ns_start])
 
+    @staticmethod
+    def get_memory():
+
+        mem_total, mem_free = "", ""
+        with suppress(Exception):
+            import psutil
+
+            values=psutil.virtual_memory()
+            mem_total=f"{round(values.total/(1073741824),1)} GB"
+            mem_free=f"{round(values.free/(1073741824),1)} GB"
+        return mem_total, mem_free
+
+    @staticmethod
+    def get_host():
+        """ Return information about the host in format (host_name/ip addr)"""
+
+        host = ""
+        with suppress(Exception):
+            import socket
+
+            host_name=socket.gethostname()
+            ip=socket.gethostbyname(host_name)
+            host=f"{host_name}/{ip}"
+        return host
+
+    @staticmethod
+    def get_readable_duration(duration_seconds):
+        """Return duration in human-readable form"""
+
+        if duration_seconds < 0:
+            return "n/a"
+
+        str_duration = []
+        days = int(duration_seconds // 86400)
+        if days > 0:
+            str_duration.append(f"{days} day")
+        hours = int(duration_seconds // 3600 % 24)
+        if hours > 0:
+            str_duration.append(f"{hours} hour")
+        minutes = int(duration_seconds // 60 % 60)
+        if minutes > 0:
+            str_duration.append(f"{minutes} min")
+        seconds = int(duration_seconds % 60)
+        if seconds > 0:
+            str_duration.append(f"{seconds} sec")
+        return ' '.join(str_duration)
+
 
 class Singleton (type):
     _instances = {}
@@ -97,48 +147,3 @@ class Singleton (type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
-
-
-def get_memory():
-
-    mem_total, mem_free = "", ""
-    with suppress(Exception):
-        import psutil
-
-        values=psutil.virtual_memory()
-        mem_total=f"{round(values.total/(1073741824),1)} GB"
-        mem_free=f"{round(values.free/(1073741824),1)} GB"
-    return mem_total, mem_free
-
-def get_host():
-    """ Return information about the host in format (host_name/ip addr)"""
-
-    host = ""
-    with suppress(Exception):
-        import socket
-
-        host_name=socket.gethostname()
-        ip=socket.gethostbyname(host_name)
-        host=f"{host_name}/{ip}"
-    return host
-
-def get_readable_duration(duration_seconds):
-    """Return duration in human-readable form"""
-
-    if duration_seconds < 0:
-        return "n/a"
-
-    str_duration = []
-    days = int(duration_seconds // 86400)
-    if days > 0:
-        str_duration.append(f"{days} day")
-    hours = int(duration_seconds // 3600 % 24)
-    if hours > 0:
-        str_duration.append(f"{hours} hour")
-    minutes = int(duration_seconds // 60 % 60)
-    if minutes > 0:
-        str_duration.append(f"{minutes} min")
-    seconds = int(duration_seconds % 60)
-    if seconds > 0:
-        str_duration.append(f"{seconds} sec")
-    return ' '.join(str_duration)

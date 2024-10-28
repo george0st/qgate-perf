@@ -4,7 +4,7 @@ from json import dumps
 from datetime import datetime
 from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
-from qgate_perf.helper import get_host, get_memory, get_readable_duration
+from qgate_perf.helper import Helper
 from qgate_perf.parallel_probe import ParallelProbe, PercentileSummary
 from qgate_perf.output_setup import OutputSetup
 
@@ -188,7 +188,7 @@ class Output:
     def print_header(self, run_setup: RunSetup=None):
         self._start_tasks = datetime.utcnow()
         self.print(f"############### {self._start_tasks.isoformat(' ')} ###############")
-        total, free = get_memory()
+        total, free = Helper.get_memory()
         out = {}
         out[FileMarker.PRF_TYPE] = FileMarker.PRF_HDR_TYPE
         out[FileMarker.PRF_HDR_LABEL] = self._label if self._label is not None else "Noname"
@@ -199,7 +199,7 @@ class Output:
         out[FileMarker.PRF_HDR_AVIALABLE_CPU] = multiprocessing.cpu_count()
         out[FileMarker.PRF_HDR_MEMORY] = total
         out[FileMarker.PRF_HDR_MEMORY_FREE] = free
-        out[FileMarker.PRF_HDR_HOST] = get_host()
+        out[FileMarker.PRF_HDR_HOST] = Helper.get_host()
         out[FileMarker.PRF_HDR_NOW] =  self._start_tasks.isoformat(' ')
 
         readable_out = {}
@@ -217,7 +217,7 @@ class Output:
     def print_footer(self, final_state):
         seconds = round((datetime.utcnow() - self._start_tasks).total_seconds(), 1)
         self.print(f"############### State: {'OK' if final_state else 'Error'}, "
-                    f" Duration: {get_readable_duration(seconds)} ({seconds}"
+                    f" Duration: {Helper.get_readable_duration(seconds)} ({seconds}"
                     f" seconds) ###############")
 
     def print_detail(self, run_setup: RunSetup, return_dict, processes, threads, group=''):
