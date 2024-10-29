@@ -5,7 +5,7 @@ from datetime import datetime
 from qgate_perf.file_marker import FileMarker
 from qgate_perf.run_setup import RunSetup
 from qgate_perf.helper import Helper
-from qgate_perf.parallel_probe import ParallelProbe 
+from qgate_perf.parallel_probe import ParallelProbe
 from qgate_perf.output_setup import OutputSetup
 
 
