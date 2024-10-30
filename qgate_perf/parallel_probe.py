@@ -105,12 +105,12 @@ class ParallelProbe:
         self.start_partly_time = perf_counter()
 
     def partly_stop(self):
-        """ Start measurement each test"""
+        """ Stop measurement each test"""
         stop_partly_time = perf_counter()
         self.total_partly_time += stop_partly_time - self.start_partly_time
 
     def partly_finish(self) -> bool:
-        """ Start measurement each test"""
+        """ Finish measurement"""
         self.call_fn(self.total_partly_time)
 
         # Is it possible to end performance testing?
