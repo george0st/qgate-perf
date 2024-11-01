@@ -72,5 +72,6 @@ class RunSetup:
         self._when_start = datetime.now() + timedelta(seconds=self._start_delay)
 
     def set_bulk(self, bulk_row, bulk_column):
+        """Setup bulk size (amount of rows and columns)."""
         self._bulk_row = bulk_row if bulk_row > 0 else 1
         self._bulk_col = bulk_column if bulk_column > 0 else 1
