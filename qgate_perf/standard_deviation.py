@@ -11,6 +11,7 @@ class StandardDeviation:
         self.ddof, self.n, self.mean, self.M2 = ddof, 0, 0.0, 0.0
 
     def include(self, data):
+        """Add new value to the (stream) calculation"""
         self.n += 1
         self.delta = data - self.mean
         self.mean += self.delta / self.n
@@ -22,5 +23,5 @@ class StandardDeviation:
 
     @property
     def std(self):
-        """ Standard deviation """
+        """ Current value of standard deviation """
         return sqrt(self.variance)
