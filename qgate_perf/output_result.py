@@ -129,7 +129,7 @@ class Output:
 
     def _create_percentile_list(self, run_setup: RunSetup, return_dict):
 
-        percentile_list = {}
+        percentile_summaries = {}
 
         # pre-calculation
             # iteration cross executors results
@@ -141,18 +141,18 @@ class Output:
                     for result in response.percentile_results:
                         if result.count > 0:
                             # sum of average time for one call
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       result.count,
-                                                                                       0,
-                                                                                       0,
-                                                                                       result.total_duration / result.count,
-                                                                                       result.std,
-                                                                                       result.min,
-                                                                                       result.max,
-                                                                                       1)
+                            if percentile_summaries.get(result.percentile, None) is None:
+                                percentile_summaries[result.percentile] = PercentileSummary(result.percentile,
+                                                                                            result.count,
+                                                                                            0,
+                                                                                            0,
+                                                                                            result.total_duration / result.count,
+                                                                                            result.std,
+                                                                                            result.min,
+                                                                                            result.max,
+                                                                                            1)
                             else:
-                                itm = percentile_list[result.percentile]
+                                itm = percentile_summaries[result.percentile]
                                 itm.count += result.count
                                 itm.avrg += result.total_duration / result.count
                                 itm.std += result.std
@@ -160,29 +160,29 @@ class Output:
                                 itm.max = max(result.max, itm.max)
                                 itm.executors += 1
                         else:
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       ParallelProbe.MIN_DURATION,
-                                                                                       0,
-                                                                                       0)
+                            if percentile_summaries.get(result.percentile, None) is None:
+                                percentile_summaries[result.percentile] = PercentileSummary(result.percentile,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            ParallelProbe.MIN_DURATION,
+                                                                                            0,
+                                                                                            0)
 
         # define percentile, if not exist
             # if 100 percentile does not exist, create it
-        if percentile_list.get(1, None) is None:
-            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0, 0, 0,0)
+        if percentile_summaries.get(1, None) is None:
+            percentile_summaries[1] = PercentileSummary(1, 0, 0, 0, 0, 0, 0, 0, 0)
 
             # if expected percentile does not exist, create it
         if run_setup.exist("percentile"):
-            if percentile_list.get(run_setup["percentile"], None) is None:
-                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
+            if percentile_summaries.get(run_setup["percentile"], None) is None:
+                percentile_summaries[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
 
         # final calculation
-        for percentile in percentile_list.values():
+        for percentile in percentile_summaries.values():
             if percentile.executors > 0:
                 # Calc clarification (for better understanding):
                 #   avrg / count     = average time for one executor (average is cross all calls and executors)
@@ -196,7 +196,7 @@ class Output:
                 percentile.min = 0
                 percentile.max = 0
 
-        return percentile_list
+        return percentile_summaries
 
     def print(self, out: str, readable_out: str = None):
 
@@ -246,7 +246,6 @@ class Output:
         """
         Print detail from executors
 
-        :param file:            Output stream for print
         :param run_setup:       Setting for executors
         :param return_dict:     Return values from executors
         :param processes:       Number of processes
@@ -261,16 +260,16 @@ class Output:
                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         # new calculation
-        percentile_list = self._create_percentile_list(run_setup, return_dict)
+        percentile_summaries = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
         out = {}
         out[FileMarker.PRF_TYPE] =  FileMarker.PRF_CORE_TYPE
         out[FileMarker.PRF_CORE_PLAN_EXECUTOR_ALL] = processes * threads
         out[FileMarker.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
+        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_summaries[1].executors #executors
         out[FileMarker.PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
+        for result in percentile_summaries.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
             out[FileMarker.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
             out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
@@ -284,11 +283,10 @@ class Output:
         # human readable form
         readable_out = {}
         readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
+        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_summaries[1].executors # executors
         readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
+        for result in percentile_summaries.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            #readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             if result.call_per_sec_raw == result.call_per_sec:
                 call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
@@ -304,4 +302,4 @@ class Output:
         self.print(f"  {dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return percentile_list
+        return percentile_summaries
