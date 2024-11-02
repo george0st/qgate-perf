@@ -358,7 +358,7 @@ class TestCasePerf(unittest.TestCase):
 
         self.assertTrue(detail[3][0.95].call_per_sec > 0)
         self.assertTrue(detail.results[3][0.95].call_per_sec > 0)
-        
+
         self.assertTrue(len(str(detail))>0)
 
         print(str(detail))
