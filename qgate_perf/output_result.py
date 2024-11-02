@@ -287,7 +287,6 @@ class Output:
         readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
         for result in percentile_list.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
-            #readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             if result.call_per_sec_raw == result.call_per_sec:
                 call_readable = f"{round(result.call_per_sec_raw, OutputSetup().human_precision)}"
