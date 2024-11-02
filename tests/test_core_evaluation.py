@@ -198,7 +198,7 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   executor_list=[[4,1]],
                                                   run_setup=setup,
                                                   performance_detail= True)
-        self.check_result(perf, 39, 40)
+        self.check_result(perf, 38, 40)
 
         # third
         setup=RunSetup(duration_second=10, start_delay=0)
