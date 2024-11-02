@@ -246,7 +246,6 @@ class Output:
         """
         Print detail from executors
 
-        :param file:            Output stream for print
         :param run_setup:       Setting for executors
         :param return_dict:     Return values from executors
         :param processes:       Number of processes
