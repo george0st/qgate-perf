@@ -120,7 +120,7 @@ class Output:
             if dirname:
                 if not os.path.exists(dirname):
                     os.makedirs(dirname, mode=0o777)
-            return open(self._output_file, 'a')
+            self._file = open(self._output_file, 'a')
 
     def close(self):
         if self._file is not None:
