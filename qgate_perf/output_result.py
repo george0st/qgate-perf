@@ -75,6 +75,10 @@ class PerfResults:
         self._state = True
 
     @property
+    def results(self) -> list[PerfResult]:
+        return self._results
+
+    @property
     def state(self):
         return self._state
 
