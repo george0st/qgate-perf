@@ -332,15 +332,33 @@ class TestCasePerf(unittest.TestCase):
                                     run_setup=setup,
                                     performance_detail=True)
 
+
         self.assertTrue(detail.state)
+
         self.assertTrue(detail[0][1].call_per_sec > 0)
+        self.assertTrue(detail.results[0][1].call_per_sec > 0)
+
         self.assertTrue(detail[1][1].call_per_sec > 0)
+        self.assertTrue(detail.results[1][1].call_per_sec > 0)
+
         self.assertTrue(detail[2][1].call_per_sec > 0)
+        self.assertTrue(detail.results[2][1].call_per_sec > 0)
+
         self.assertTrue(detail[3][1].call_per_sec > 0)
+        self.assertTrue(detail.results[3][1].call_per_sec > 0)
+
         self.assertTrue(detail[0][0.95].call_per_sec > 0)
+        self.assertTrue(detail.results[0][0.95].call_per_sec > 0)
+
         self.assertTrue(detail[1][0.95].call_per_sec > 0)
+        self.assertTrue(detail.results[1][0.95].call_per_sec > 0)
+
         self.assertTrue(detail[2][0.95].call_per_sec > 0)
+        self.assertTrue(detail.results[2][0.95].call_per_sec > 0)
+
         self.assertTrue(detail[3][0.95].call_per_sec > 0)
+        self.assertTrue(detail.results[3][0.95].call_per_sec > 0)
+        
         self.assertTrue(len(str(detail))>0)
 
         print(str(detail))

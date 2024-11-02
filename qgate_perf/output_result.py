@@ -10,7 +10,7 @@ from qgate_perf.output_setup import OutputSetup
 
 
 class PercentileSummary:
-    """Summary data from all executors, split based on percentile"""
+    """Summary data from all executors, for one specific percentile"""
     def __init__(self,
                  percentile,
                  count = 0,
@@ -33,9 +33,9 @@ class PercentileSummary:
         self.executors = executors
 
 class PerfResult:
-    """Output from one performance test"""
+    """Output from one performance test (summary data from all executors and for all percentiles)"""
 
-    def __init__(self, state, row, col, process, thread, percentile_list: dict[PercentileSummary]):
+    def __init__(self, state, row, col, process, thread, percentile_summaries: dict[PercentileSummary]):
 
         self.state = state
 
@@ -45,34 +45,38 @@ class PerfResult:
         self.executor_process = process
         self.executor_thread = thread
 
-        self._percentile_list = percentile_list
+        self._percentile_summaries = percentile_summaries
 
     @property
     def percentiles(self) -> dict[PercentileSummary]:
-        return self._percentile_list
+        return self._percentile_summaries
 
     @percentiles.setter
     def percentiles(self, value):
-        self._percentile_list = value
+        self._percentile_summaries = value
 
     def __getitem__(self, key) -> PercentileSummary:
-        return self._percentile_list[key]
+        return self._percentile_summaries[key]
 
     def __len__(self):
-        return len(self._percentile_list)
+        return len(self._percentile_summaries)
 
     def __str__(self):
         info = f"bundle ({self.bundle_row}x{self.bundle_col}), executor ({self.executor_process}x{self.executor_thread}) = "
-        for percentile in self._percentile_list.keys():
-            info += f"{self._percentile_list[percentile].call_per_sec} [{int(percentile*100)}ph], "
+        for percentile in self._percentile_summaries.keys():
+            info += f"{self._percentile_summaries[percentile].call_per_sec} [{int(percentile * 100)}ph], "
         return info[:-2]
 
-class PerfResults(list):
+class PerfResults:
     """Output from all performance tests"""
 
     def __init__(self):
         self._results = []
         self._state = True
+
+    @property
+    def results(self) -> list[PerfResult]:
+        return self._results
 
     @property
     def state(self):
@@ -95,9 +99,6 @@ class PerfResults(list):
 
     def __getitem__(self, index) -> PerfResult:
         return self._results[index]
-
-    def __len__(self):
-        return len(self._results)
 
     def __str__(self):
         info = ""
