@@ -67,7 +67,7 @@ class PerfResult:
             info += f"{self._percentile_summaries[percentile].call_per_sec} [{int(percentile * 100)}ph], "
         return info[:-2]
 
-class PerfResults(list):
+class PerfResults: #(list):
     """Output from all performance tests"""
 
     def __init__(self):
@@ -96,8 +96,8 @@ class PerfResults(list):
     def __getitem__(self, index) -> PerfResult:
         return self._results[index]
 
-    def __len__(self):
-        return len(self._results)
+    # def __len__(self):
+    #     return len(self._results)
 
     def __str__(self):
         info = ""
