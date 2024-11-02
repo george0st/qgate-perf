@@ -129,7 +129,7 @@ class Output:
 
     def _create_percentile_list(self, run_setup: RunSetup, return_dict):
 
-        percentile_list = {}
+        percentile_summaries = {}
 
         # pre-calculation
             # iteration cross executors results
@@ -141,18 +141,18 @@ class Output:
                     for result in response.percentile_results:
                         if result.count > 0:
                             # sum of average time for one call
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       result.count,
-                                                                                       0,
-                                                                                       0,
-                                                                                       result.total_duration / result.count,
-                                                                                       result.std,
-                                                                                       result.min,
-                                                                                       result.max,
-                                                                                       1)
+                            if percentile_summaries.get(result.percentile, None) is None:
+                                percentile_summaries[result.percentile] = PercentileSummary(result.percentile,
+                                                                                            result.count,
+                                                                                            0,
+                                                                                            0,
+                                                                                            result.total_duration / result.count,
+                                                                                            result.std,
+                                                                                            result.min,
+                                                                                            result.max,
+                                                                                            1)
                             else:
-                                itm = percentile_list[result.percentile]
+                                itm = percentile_summaries[result.percentile]
                                 itm.count += result.count
                                 itm.avrg += result.total_duration / result.count
                                 itm.std += result.std
@@ -160,29 +160,29 @@ class Output:
                                 itm.max = max(result.max, itm.max)
                                 itm.executors += 1
                         else:
-                            if percentile_list.get(result.percentile, None) is None:
-                                percentile_list[result.percentile] = PercentileSummary(result.percentile,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       0,
-                                                                                       ParallelProbe.MIN_DURATION,
-                                                                                       0,
-                                                                                       0)
+                            if percentile_summaries.get(result.percentile, None) is None:
+                                percentile_summaries[result.percentile] = PercentileSummary(result.percentile,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            0,
+                                                                                            ParallelProbe.MIN_DURATION,
+                                                                                            0,
+                                                                                            0)
 
         # define percentile, if not exist
             # if 100 percentile does not exist, create it
-        if percentile_list.get(1, None) is None:
-            percentile_list[1] = PercentileSummary(1,0,0, 0, 0,0, 0, 0,0)
+        if percentile_summaries.get(1, None) is None:
+            percentile_summaries[1] = PercentileSummary(1, 0, 0, 0, 0, 0, 0, 0, 0)
 
             # if expected percentile does not exist, create it
         if run_setup.exist("percentile"):
-            if percentile_list.get(run_setup["percentile"], None) is None:
-                percentile_list[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
+            if percentile_summaries.get(run_setup["percentile"], None) is None:
+                percentile_summaries[run_setup["percentile"]] = PercentileSummary(run_setup["percentile"], 0, 0, 0, 0, 0, 0, 0, 0)
 
         # final calculation
-        for percentile in percentile_list.values():
+        for percentile in percentile_summaries.values():
             if percentile.executors > 0:
                 # Calc clarification (for better understanding):
                 #   avrg / count     = average time for one executor (average is cross all calls and executors)
@@ -196,7 +196,7 @@ class Output:
                 percentile.min = 0
                 percentile.max = 0
 
-        return percentile_list
+        return percentile_summaries
 
     def print(self, out: str, readable_out: str = None):
 
