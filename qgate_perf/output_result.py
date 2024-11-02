@@ -260,16 +260,16 @@ class Output:
                            f"    {parallel_ret.readable_str() if parallel_ret else ParallelProbe.readable_dump_error('SYSTEM overloaded')}")
 
         # new calculation
-        percentile_list = self._create_percentile_list(run_setup, return_dict)
+        percentile_summaries = self._create_percentile_list(run_setup, return_dict)
 
         # A2A form
         out = {}
         out[FileMarker.PRF_TYPE] =  FileMarker.PRF_CORE_TYPE
         out[FileMarker.PRF_CORE_PLAN_EXECUTOR_ALL] = processes * threads
         out[FileMarker.PRF_CORE_PLAN_EXECUTOR] = [processes, threads]
-        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors #executors
+        out[FileMarker.PRF_CORE_REAL_EXECUTOR] = percentile_summaries[1].executors #executors
         out[FileMarker.PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
+        for result in percentile_summaries.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
             out[FileMarker.PRF_CORE_TOTAL_CALL + suffix] = result.count                         # ok
             out[FileMarker.PRF_CORE_TOTAL_CALL_PER_SEC_RAW + suffix] = result.call_per_sec_raw  # ok
@@ -283,9 +283,9 @@ class Output:
         # human readable form
         readable_out = {}
         readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
-        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_list[1].executors # executors
+        readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_summaries[1].executors # executors
         readable_out[FileMarker.HM_PRF_CORE_GROUP] = group
-        for result in percentile_list.values():
+        for result in percentile_summaries.values():
             suffix = f"_{int(result.percentile * 100)}" if result.percentile < 1 else ""
             readable_out[FileMarker.HM_PRF_CORE_TOTAL_CALL + suffix] = result.count
             if result.call_per_sec_raw == result.call_per_sec:
@@ -302,4 +302,4 @@ class Output:
         self.print(f"  {dumps(out, separators = OutputSetup().json_separator)}",
                     f"  {dumps(readable_out, separators = OutputSetup().human_json_separator)}")
 
-        return percentile_list
+        return percentile_summaries
