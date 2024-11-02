@@ -116,7 +116,11 @@ class Output:
 
     def open(self):
         if self._output_file is not None:
-            self._file = self._open_output()
+            dirname = os.path.dirname(self._output_file)
+            if dirname:
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname, mode=0o777)
+            return open(self._output_file, 'a')
 
     def close(self):
         if self._file is not None:
@@ -193,13 +197,6 @@ class Output:
                 percentile.max = 0
 
         return percentile_list
-
-    def _open_output(self):
-        dirname = os.path.dirname(self._output_file)
-        if dirname:
-            if not os.path.exists(dirname):
-                os.makedirs(dirname, mode=0o777)
-        return open(self._output_file, 'a')
 
     def print(self, out: str, readable_out: str = None):
 
