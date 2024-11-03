@@ -18,7 +18,7 @@ class PercentileHeap:
         :param close_fn:        function for close processing
         :param percentile:      requested percentile (smaller value will affect bigger memory allocation),
                                 recommendation is to use 0.99 or 0.95 (0.99 is default). Accepted values are
-                                higher then 0 and lower than 1.
+                                higher than 0 and lower than 1.
         :param heap_init_size:  init size for heap (default is 127)
         """
         self._init_size = heap_init_size
