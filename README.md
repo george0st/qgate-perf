@@ -26,7 +26,7 @@ def prf_GIL_impact(run_setup: RunSetup):
     """ Your own function for performance testing, you have to add
     only part INIT, START, STOP and RETURN"""
     
-    # INIT - contain executor synchonization, if needed
+    # INIT - contain executor synchronization, if needed
     probe=ParallelProbe(run_setup)
 
     while (True):

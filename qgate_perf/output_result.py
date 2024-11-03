@@ -280,7 +280,7 @@ class Output:
             out[FileMarker.PRF_CORE_MAX + suffix] = result.max                                  # ok
         out[FileMarker.PRF_CORE_TIME_END] = datetime.utcnow().isoformat(' ')
 
-        # human readable form
+        # human-readable form
         readable_out = {}
         readable_out[FileMarker.HM_PRF_CORE_PLAN_EXECUTOR_ALL] = f"{processes * threads} [{processes},{threads}]"
         readable_out[FileMarker.HM_PRF_CORE_REAL_EXECUTOR] = percentile_summaries[1].executors # executors
