@@ -6,13 +6,17 @@
 
 # QGate-Perf
 
-The QGate Performance is enabler for performance test execution. Key benefits:
+The QGate Performance is enabler for python performance test execution. Key benefits:
  - **easy performance testing** your python code (key parts - init, start, stop, return)
  - **measure only specific part** of your code 
  - scalability **without limits** (e.g. from 1 to 1k executors)
  - scalability **in level of processes and threads** (easy way, how to avoid GIL in python)
  - **sequences for execution and data bulk**
  - relation to graph generator
+
+NOTE: The recommendations are:
+ - use Python >= 3.11
+ - use the 'QGate-Perf-cs' (C# implementation of QGate-Perf), in case of bigger parallelism and lower lateness 
 
 ## Usage
 
@@ -26,7 +30,7 @@ def prf_GIL_impact(run_setup: RunSetup):
     """ Your own function for performance testing, you have to add
     only part INIT, START, STOP and RETURN"""
     
-    # INIT - contain executor synchonization, if needed
+    # INIT - contain executor synchronization, if needed
     probe=ParallelProbe(run_setup)
 
     while (True):
