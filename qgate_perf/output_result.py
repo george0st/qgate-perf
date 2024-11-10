@@ -73,6 +73,8 @@ class PerfResults:
     def __init__(self):
         self._results = []
         self._state = True
+        self._count_states = 0
+        self._count_false_states = 0
 
     @property
     def results(self) -> list[PerfResult]:
@@ -80,11 +82,24 @@ class PerfResults:
 
     @property
     def state(self):
+        """Return total state, cross all results"""
         return self._state
 
+    @property
+    def count_states(self):
+        """Return count of all states"""
+        return self._count_states
+
+    @property
+    def count_false_states(self):
+        """Return count of false/ERR states"""
+        return self._count_false_states
+
     def add_state(self, state):
-        if state == False:
+        self._count_states += 1
+        if not state:
             self._state = False
+            self._count_false_states += 1
 
     def append(self, item):
 
