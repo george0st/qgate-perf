@@ -254,8 +254,8 @@ class Output:
     def print_footer(self, final_state):
         seconds = round((datetime.utcnow() - self._start_tasks).total_seconds(), 1)
         self.print(f"############### State: {'OK' if final_state else 'Error'}, "
-                    f" Duration: {Helper.get_readable_duration(seconds)} ({seconds}"
-                    f" seconds) ###############")
+                    f"Duration: {Helper.get_readable_duration(seconds)} ({seconds} "
+                    f"seconds) ###############")
 
     def print_detail(self, run_setup: RunSetup, return_dict, processes, threads, group=''):
         """
