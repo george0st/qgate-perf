@@ -139,9 +139,9 @@ class ParallelExecutor:
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
         :param sleep_between_bulks: sleep between bulks
-        :param performance_detail:  add to the return also performance details (default is False)
-        :return:                    return performance results with key information about the 'state'. The state
-                                    True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details or only state info (default is False - only state info)
+        :return:                    return performance results (see the param 'performance_detail') with key information about the 'state'.
+                                    The state True - all executions was without exceptions/errors, False - some exceptions.
         """
         performance = PerfResults()
         count = 0
@@ -173,9 +173,9 @@ class ParallelExecutor:
 
         :param executor_list:       list of executors for execution in format [[processes, threads, 'label'], ...]
         :param run_setup:           setup of execution
-        :param performance_detail:  add to the return also performance details (default is False)
-        :return:                    return performance results with key information about the 'state'. The state
-                                    True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details or only state info (default is False - only state info)
+        :return:                    return performance results (see the param 'performance_detail') with key information about the 'state'.
+                                    The state True - all executions was without exceptions/errors, False - some exceptions.
         """
         performance = PerfResults()
         output = None
@@ -232,9 +232,9 @@ class ParallelExecutor:
         :param processes:       how much processes will be used
         :param threads:         how much threads will be used
         :param run_setup:       setup of execution
-        :param performance_detail:  add to the return also performance details (default is False)
-        :return:                    return performance results with key information about the 'state'. The state
-                                    True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details or only state info (default is False - only state info)
+        :return:                    return performance results (see the param 'performance_detail') with key information about the 'state'.
+                                    The state True - all executions was without exceptions/errors, False - some exceptions.
         """
         performance = PerfResults()
         output = None
@@ -285,9 +285,9 @@ class ParallelExecutor:
         """ Run test, only one call, execution in new process, with standard write outputs
 
         :param run_setup:       setting for run
-        :param performance_detail:  add to the return also performance details (default is False)
-        :return:                    return performance results with key information about the 'state'. The state
-                                    True - all executions was without exceptions, False - some exceptions.
+        :param performance_detail:  add to the return also performance details or only state info (default is False - only state info)
+        :return:                    return performance results (see the param 'performance_detail') with key information about the 'state'.
+                                    The state True - all executions was without exceptions/errors, False - some exceptions.
         """
 
         # setup minimalistic values
