@@ -94,7 +94,7 @@ class ParallelExecutor:
                                 args=(threads, process_key, return_dict, run_setup))
                     proc.append(p)
 
-            # start
+            # start all
             for p in proc:
                 p.start()
 
@@ -222,7 +222,8 @@ class ParallelExecutor:
             output.print(f"SYSTEM ERROR in 'run_executor': {type(ex).__name__} - '{str(ex) if ex is not None else '!! Noname exception !!'}'")
             performance.add_state(False)
         finally:
-            output.close()
+            if output:
+                output.close()
 
         return performance
 
@@ -277,7 +278,8 @@ class ParallelExecutor:
             output.print(f"SYSTEM ERROR in 'run': '{str(e) if e is not None else '!! Noname exception !!'}'")
             performance.add_state(False)
         finally:
-            output.close()
+            if output:
+                output.close()
 
         return performance
 
