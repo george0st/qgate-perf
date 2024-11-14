@@ -16,7 +16,7 @@ The QGate Performance is enabler for python performance test execution. Key bene
 
 NOTE: The recommendations are:
  - use Python >= 3.11
- - use the 'QGate-Perf-cs' (C# implementation of QGate-Perf), in case of bigger parallelism and lower lateness 
+ - use the 'QGate-Perf-cs' (C# implementation of QGate-Perf), in case of bigger parallelism and lower CPU spending 
 
 ## Usage
 
