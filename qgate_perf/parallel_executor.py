@@ -22,7 +22,7 @@ def _executor_wrapper(func, run_return: RunReturn, run_setup: RunSetup):
     """
     try:
         if not func:
-            raise ValueError("Missing function for performance tests, update this code 'ParallelExecutor(null)'.")
+            raise ValueError("Missing function for call, update this code 'ParallelExecutor(null)'.")
         run_return.probe=func(run_setup)
     except Exception as ex:
         run_return.probe=ParallelProbe(None, f"{type(ex).__name__}: {str(ex)}")

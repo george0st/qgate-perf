@@ -122,8 +122,8 @@ class TestCasePerf(unittest.TestCase):
                                      detail_output=True,
                                      output_file=path.join(self.OUTPUT_ADR, "perf_gil_impact_test.txt"))
 
-        setup=RunSetup(duration_second=4, start_delay=4)
-        self.assertTrue(generator.run(2, 2, setup).state)
+        setup=RunSetup(duration_second=10, start_delay=4)
+        self.assertTrue(generator.run(4, 1, setup).state)
 
     def test_run_exception(self):
         generator = ParallelExecutor(prf_gil_impact,
