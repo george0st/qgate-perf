@@ -8,6 +8,43 @@ from qgate_perf.output_result import PerfResults
 import shutil
 
 
+def factorial(x):
+    """This is a recursive function
+    to find the factorial of an integer"""
+
+    if x == 1 or x == 0:
+        return 1
+    else:
+        # recursive call to the function
+        return (x * factorial(x-1))
+
+
+def prf_calibration_factorial(run_setup: RunSetup) -> ParallelProbe:
+    """ Function for performance testing"""
+
+    # init (contain executor synchronization, if needed)
+    probe = ParallelProbe(run_setup)
+
+    if run_setup.is_init:
+        print(f"!!! INIT CALL !!!   {run_setup.bulk_row} x {run_setup.bulk_col}")
+
+    while 1:
+
+        # START - performance measure for specific part of code
+        probe.start()
+
+        factorial(500)
+
+        # STOP - performance measure specific part of code
+        if probe.stop():
+            break
+
+    if run_setup.param("generate_error"):
+        raise Exception('Simulated error')
+
+    # return outputs
+    return probe
+
 def prf_calibration_100_ms(run_setup: RunSetup) -> ParallelProbe:
     """ Function for performance testing"""
 
@@ -431,3 +468,31 @@ class TestCaseCoreEvaluation(unittest.TestCase):
                                                   performance_detail= True)
         self.check_result(perf, 3200, 4000)
         self.check_raw_result(perf, 800, 1000)
+
+    def test_expected_output_factorial(self):
+
+        generator = ParallelExecutor(prf_calibration_factorial,
+                                     label = "GIL_impact",
+                                     detail_output = True,
+                                     output_file = None)
+
+        # first
+        setup = RunSetup(duration_second = 1, start_delay = 4)
+        perf = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                  executor_list = [[8,1]],
+                                                  run_setup = setup,
+                                                  performance_detail= True)
+
+        # second
+        setup = RunSetup(duration_second = 2, start_delay = 4)
+        perf = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                  executor_list = [[8,1]],
+                                                  run_setup = setup,
+                                                  performance_detail= True)
+
+        # third
+        setup = RunSetup(duration_second = 10, start_delay = 4)
+        perf = generator.run_bulk_executor(bulk_list = [[1,1]],
+                                                  executor_list = [[8,1]],
+                                                  run_setup = setup,
+                                                  performance_detail= True)
